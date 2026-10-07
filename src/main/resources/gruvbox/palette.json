@@ -1,0 +1,46 @@
+{
+  "variants": {
+    "f869fff9-c7e3-4656-b344-d228bf76a6c3": {
+      "name": "Gruvbox Material Islands",
+      "dark": true,
+      "editorScheme": "Gruvbox Material Islands",
+      "roles": {
+        "fg0": "#d4be98",
+        "grey0": "#7c6f64",
+        "grey1": "#928374",
+        "grey2": "#a89984",
+        "red": "#ea6962",
+        "orange": "#e78a4e",
+        "yellow": "#d8a657",
+        "green": "#a9b665",
+        "aqua": "#89b482",
+        "tan": "#c4a67e",
+        "purple": "#d3869b",
+        "blue": "#7daea3",
+        "bg_dim": "#252423",
+        "bg0": "#32302f",
+        "bg1": "#3c3836",
+        "bg_current_word": "#45403d",
+        "bg_statusline2": "#46413e",
+        "bg3": "#504945",
+        "bg_statusline3": "#5b534d",
+        "bg5": "#665c54",
+        "bg_visual_red": "#543937",
+        "bg_visual_yellow": "#574833",
+        "bg_visual_green": "#424a3e",
+        "bg_visual_blue": "#404946",
+        "bg_visual_purple": "#4b3e45",
+        "bg_diff_red": "#472322",
+        "bg_diff_green": "#3d4220",
+        "diff_add": "#343a24",
+        "diff_delete": "#442a27",
+        "diff_change": "#3b3420",
+        "diff_text": "#4d4024",
+        "search": "#4a5229",
+        "search_current": "#7a3d35",
+        "substitute": "#6b5428",
+        "write_usage": "#4a3a2a"
+      }
+    }
+  }
+}
