@@ -23,4 +23,23 @@
         <themeProvider id="117eb1e1-e632-4fba-b735-691361c815df" path="/themes/GruvboxMaterialIslandsHard.theme.json"/>
         <themeProvider id="653f45a7-3ec3-431d-a49e-dfba1290c9bf" path="/themes/GruvboxMaterialIslandsLight.theme.json"/>
     </extensions>
+
+    <!-- Settings: readability, accent, tabs, reading font, toolbar chip. -->
+    <depends optional="true" config-file="gruvbox-indent-rainbow.xml">indent-rainbow.indent-rainbow</depends>
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationConfigurable parentId="appearance" id="dev.gipo.gruvboxmaterial.settings" displayName="Gruvbox Material"
+                                 instance="dev.gipo.gruvboxmaterial.settings.GruvboxConfigurable"/>
+        <postStartupActivity implementation="dev.gipo.gruvboxmaterial.settings.GruvboxStartup"/>
+    </extensions>
+    <applicationListeners>
+        <listener class="dev.gipo.gruvboxmaterial.settings.GruvboxListener" topic="com.intellij.ide.ui.LafManagerListener"/>
+        <listener class="dev.gipo.gruvboxmaterial.settings.GruvboxListener" topic="com.intellij.openapi.editor.colors.EditorColorsListener"/>
+        <listener class="dev.gipo.gruvboxmaterial.settings.GruvboxListener" topic="com.intellij.ide.AppLifecycleListener"/>
+    </applicationListeners>
+    <actions>
+        <action id="GruvboxMaterial.Chip" class="dev.gipo.gruvboxmaterial.settings.GruvboxChipAction" icon="AllIcons.Actions.Colors"
+                text="Gruvbox Material" description="Variant, readability toggles, accent and reading font">
+            <add-to-group group-id="MainToolbarRight" anchor="first"/>
+        </action>
+    </actions>
 </idea-plugin>

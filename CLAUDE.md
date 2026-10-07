@@ -1,12 +1,12 @@
 # CLAUDE.md
 
-Theme-only IntelliJ plugin "Gruvbox Material Islands" (id `dev.gipo.gruvboxmaterial`).
+IntelliJ theme plugin "Gruvbox Material Islands" (id `dev.gipo.gruvboxmaterial`).
 Low-glare gruvbox-material themes on the 2026 Islands UI, in four variants:
 dark soft, medium, hard and light soft. Per variant: `themes/<stem>.theme.json`
 (UI) and `themes/<stem>.xml` (editor scheme; dark parent `Darcula`, light parent
 `Default`). `src/main/resources/gruvbox/palette.json` and `groups.json` ship
-variant roles, the keyword color table and key groups as data; nothing in this
-repo reads them.
+variant roles, the keyword color table and key groups; the settings code in
+`src/main/kotlin/dev/gipo/gruvboxmaterial/settings/` reads them at runtime.
 
 ## Build
 
