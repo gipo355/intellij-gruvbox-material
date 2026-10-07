@@ -1,52 +1,52 @@
 {
-  "name": "Gruvbox Material Islands",
-  "dark": true,
+  "name": "Gruvbox Material Islands Light",
+  "dark": false,
   "author": "gipo355",
-  "parentTheme": "ExperimentalDark",
-  "editorScheme": "/themes/GruvboxMaterialIslands.xml",
+  "parentTheme": "ExperimentalLightWithLightHeader",
+  "editorScheme": "/themes/GruvboxMaterialIslandsLight.xml",
   "colors": {
-    "fg0": "#d4be98",
-    "grey0": "#7c6f64",
+    "fg0": "#654735",
+    "grey0": "#a89984",
     "grey1": "#928374",
-    "grey2": "#a89984",
-    "red": "#e67d76",
-    "orange": "#e78a4e",
-    "yellow": "#d8a657",
-    "green": "#a9b665",
-    "aqua": "#89b482",
-    "tan": "#c4a67e",
-    "purple": "#d48da0",
-    "bg_dim": "#252423",
-    "bg0": "#32302f",
-    "bg1": "#3c3836",
-    "bg_current_word": "#45403d",
-    "bg_statusline2": "#46413e",
-    "bg3": "#504945",
-    "bg_statusline3": "#5b534d",
-    "bg5": "#665c54",
-    "bg_visual_red": "#543937",
-    "bg_visual_yellow": "#574833",
-    "bg_visual_green": "#424a3e",
-    "bg_visual_blue": "#404946",
-    "bg_visual_purple": "#4b3e45",
-    "bg_diff_red": "#472322",
-    "bg_diff_green": "#3d4220",
-    "diff_add": "#343a24",
-    "diff_delete": "#442a27",
-    "diff_change": "#3b3420",
-    "diff_text": "#4d4024",
-    "search": "#4a5229",
-    "search_current": "#7a3d35",
-    "substitute": "#6b5428",
-    "write_usage": "#4a3a2a",
-    "diff_ins": "#384120",
-    "diff_del": "#56302d",
-    "diff_mod": "#4f3719",
-    "diff_conf": "#4f3146",
-    "diff_ins_line": "#343924",
-    "diff_del_line": "#482f2c",
-    "diff_mod_line": "#433320",
-    "diff_conf_line": "#432f3c"
+    "grey2": "#6e6257",
+    "red": "#994745",
+    "orange": "#934e1f",
+    "yellow": "#895402",
+    "green": "#5a6619",
+    "aqua": "#3c694d",
+    "tan": "#765b35",
+    "purple": "#845071",
+    "bg_dim": "#ebdbb2",
+    "bg0": "#f2e5bc",
+    "bg1": "#eddeb5",
+    "bg_current_word": "#ebdbb2",
+    "bg_statusline2": "#ebdbb2",
+    "bg3": "#e6d5ae",
+    "bg_statusline3": "#dac9a5",
+    "bg5": "#d5c4a1",
+    "bg_visual_red": "#e9c7c4",
+    "bg_visual_yellow": "#d3c2aa",
+    "bg_visual_green": "#c3ccbe",
+    "bg_visual_blue": "#c2ccc9",
+    "bg_visual_purple": "#dac9d2",
+    "bg_diff_red": "#ffdedc",
+    "bg_diff_green": "#d1d8b1",
+    "diff_add": "#d9e1c6",
+    "diff_delete": "#fddad6",
+    "diff_change": "#e8e0c7",
+    "diff_text": "#ddceae",
+    "search": "#bdc89a",
+    "search_current": "#efa89d",
+    "substitute": "#cbb283",
+    "write_usage": "#e5d1be",
+    "diff_ins": "#dad989",
+    "diff_del": "#ffc799",
+    "diff_mod": "#f5ce82",
+    "diff_conf": "#f5c8ba",
+    "diff_ins_line": "#e4e09d",
+    "diff_del_line": "#fed3a7",
+    "diff_mod_line": "#f7d898",
+    "diff_conf_line": "#f7d4bd"
   },
   "ui": {
     "*": {
@@ -78,7 +78,8 @@
       "selectionBackgroundInactive": "bg_current_word",
       "selectionForegroundInactive": "fg0",
       "textBackground": "bg0",
-      "textForeground": "fg0"
+      "textForeground": "fg0",
+      "acceleratorSelectionForeground": "grey1"
     },
     "Islands": 1,
     "Island": {
@@ -133,7 +134,8 @@
       "Dropdown": {
         "pressedBackground": "bg3",
         "background": "bg_dim",
-        "hoverBackground": "bg_current_word"
+        "hoverBackground": "bg_current_word",
+        "foreground": "fg0"
       },
       "foreground": "fg0",
       "hoverBackground": "bg_current_word",
@@ -155,7 +157,8 @@
       },
       "Breadcrumbs": {
         "hoverForeground": "fg0",
-        "pressedBackground": "bg_current_word"
+        "pressedBackground": "bg_current_word",
+        "floatingBackground": "bg0"
       },
       "LightEditBackground": "bg1",
       "hoverBackground": "bg_current_word"
@@ -198,7 +201,8 @@
           "buttonDropBorderColor": "aqua",
           "buttonFloatingBackground": "bg3",
           "stripeBackground": "bg_dim"
-        }
+        },
+        "hoverBackground": "bg_current_word"
       },
       "DragAndDrop": {
         "areaBackground": "bg_current_word"
@@ -256,7 +260,10 @@
       "verticalTabInsets.compact": "-2,10,-2,10",
       "tabContentActionsRightInsets": "0,4,0,2",
       "hoverInactiveBackground": "bg_current_word",
-      "inactiveColoredFileBackground": "#25242380"
+      "inactiveColoredFileBackground": "#ebdbb280",
+      "inactiveMaskColor": "#ebdbb233",
+      "inactiveUnderlineColor": "bg5",
+      "underlineColor": "aqua"
     },
     "Editor": {
       "SearchField": {
@@ -278,7 +285,8 @@
         "foreground": "fg0"
       },
       "background": "bg0",
-      "foreground": "fg0"
+      "foreground": "fg0",
+      "shortcutForeground": "tan"
     },
     "EditorPane.inactiveBackground": "bg0",
     "Code.Block": {
@@ -331,7 +339,8 @@
       "foreground": "fg0",
       "infoForeground": "grey2",
       "shortcutForeground": "grey2",
-      "linkForeground": "aqua"
+      "linkForeground": "aqua",
+      "Actions.infoForeground": "grey1"
     },
     "GotItTooltip": {
       "background": "bg3",
@@ -360,7 +369,8 @@
       "iconBorderColor": "grey2",
       "imageBorderColor": "bg_current_word",
       "animationBackground": "bg3",
-      "shortcutBorderColor": "bg5"
+      "shortcutBorderColor": "bg5",
+      "borderSimplifiedColor": "bg3"
     },
     "Tooltip.Learning": {
       "background": "bg3",
@@ -376,7 +386,8 @@
       "secondaryActionForeground": "aqua",
       "linkForeground": "aqua",
       "linkUnderlineDefaultColor": "aqua",
-      "linkUnderlineHoveredColor": "aqua"
+      "linkUnderlineHoveredColor": "aqua",
+      "codeForeground": "fg0"
     },
     "ActionButton": {
       "hoverBackground": "bg_current_word",
@@ -520,7 +531,9 @@
       "inactiveErrorFocusColor": "bg_visual_red",
       "inactiveWarningFocusColor": "bg_visual_yellow",
       "infoForeground": "grey1",
-      "warningFocusColor": "substitute"
+      "warningFocusColor": "substitute",
+      "hoverIconColor": "#928374E5",
+      "iconColor": "#9283747F"
     },
     "ComboBox": {
       "arc.compact": "4,4,4,4",
@@ -534,12 +547,19 @@
       "minimumSize.compact": "49,24",
       "padding.compact": "1,6,1,6",
       "UI": "com.intellij.ide.ui.laf.darcula.ui.DarculaComboBoxUI",
-      "background": "bg1"
+      "background": "bg1",
+      "modifiedItemForeground": "aqua"
     },
     "TextField": {
       "background": "bg0",
       "minimumSize.compact": "49,24",
-      "disabledBackground": "bg0"
+      "disabledBackground": "bg0",
+      "darcula.error.active": {
+        "os.windows": "red"
+      },
+      "darcula.error.inactive": {
+        "os.windows": "bg_visual_red"
+      }
     },
     "Toolbar.borderColor": "bg1",
     "Toolbar.Floating.background": "bg1",
@@ -557,7 +577,10 @@
       "hoverBackground": "bg_current_word",
       "hoverInactiveBackground": "bg_current_word",
       "background": "bg0",
-      "foreground": "fg0"
+      "foreground": "fg0",
+      "errorForeground": "red",
+      "modifiedItemForeground": "aqua",
+      "selectionBorderColor": "bg5"
     },
     "Counter": {
       "background": "bg3",
@@ -702,16 +725,16 @@
           "Fraction4": 1.0
         },
         "RadialGradient": {
-          "Color1": "#7a3d35FF",
-          "Color2": "#7a3d3500"
+          "Color1": "#efa89dFF",
+          "Color2": "#efa89d00"
         },
         "HorizontalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242333"
+          "Color1": "#ebdbb21A",
+          "Color2": "#ebdbb233"
         },
         "VerticalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242390"
+          "Color1": "#ebdbb21A",
+          "Color2": "#ebdbb290"
         }
       },
       "Group2": {
@@ -726,16 +749,16 @@
           "Fraction4": 1.0
         },
         "RadialGradient": {
-          "Color1": "#6b5428FF",
-          "Color2": "#6b542800"
+          "Color1": "#cbb283FF",
+          "Color2": "#cbb28300"
         },
         "HorizontalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242333"
+          "Color1": "#ebdbb21A",
+          "Color2": "#ebdbb233"
         },
         "VerticalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242390"
+          "Color1": "#ebdbb21A",
+          "Color2": "#ebdbb290"
         }
       },
       "Group3": {
@@ -750,16 +773,16 @@
           "Fraction4": 1.0
         },
         "RadialGradient": {
-          "Color1": "#4a5229FF",
-          "Color2": "#4a522900"
+          "Color1": "#bdc89aFF",
+          "Color2": "#bdc89a00"
         },
         "HorizontalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242333"
+          "Color1": "#ebdbb21A",
+          "Color2": "#ebdbb233"
         },
         "VerticalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242390"
+          "Color1": "#ebdbb21A",
+          "Color2": "#ebdbb290"
         }
       },
       "Group4": {
@@ -774,16 +797,16 @@
           "Fraction4": 1.0
         },
         "RadialGradient": {
-          "Color1": "#424a3eFF",
-          "Color2": "#424a3e00"
+          "Color1": "#c3ccbeFF",
+          "Color2": "#c3ccbe00"
         },
         "HorizontalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242333"
+          "Color1": "#ebdbb21A",
+          "Color2": "#ebdbb233"
         },
         "VerticalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242390"
+          "Color1": "#ebdbb21A",
+          "Color2": "#ebdbb290"
         }
       },
       "Group5": {
@@ -798,16 +821,16 @@
           "Fraction4": 1.0
         },
         "RadialGradient": {
-          "Color1": "#574833FF",
-          "Color2": "#57483300"
+          "Color1": "#d3c2aaFF",
+          "Color2": "#d3c2aa00"
         },
         "HorizontalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242333"
+          "Color1": "#ebdbb21A",
+          "Color2": "#ebdbb233"
         },
         "VerticalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242390"
+          "Color1": "#ebdbb21A",
+          "Color2": "#ebdbb290"
         }
       },
       "Group6": {
@@ -822,16 +845,16 @@
           "Fraction4": 1.0
         },
         "RadialGradient": {
-          "Color1": "#4b3e45FF",
-          "Color2": "#4b3e4500"
+          "Color1": "#dac9d2FF",
+          "Color2": "#dac9d200"
         },
         "HorizontalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242333"
+          "Color1": "#ebdbb21A",
+          "Color2": "#ebdbb233"
         },
         "VerticalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242390"
+          "Color1": "#ebdbb21A",
+          "Color2": "#ebdbb290"
         }
       },
       "Group7": {
@@ -846,16 +869,16 @@
           "Fraction4": 1.0
         },
         "RadialGradient": {
-          "Color1": "#543937FF",
-          "Color2": "#54393700"
+          "Color1": "#e9c7c4FF",
+          "Color2": "#e9c7c400"
         },
         "HorizontalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242333"
+          "Color1": "#ebdbb21A",
+          "Color2": "#ebdbb233"
         },
         "VerticalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242390"
+          "Color1": "#ebdbb21A",
+          "Color2": "#ebdbb290"
         }
       },
       "Group8": {
@@ -870,16 +893,16 @@
           "Fraction4": 1.0
         },
         "RadialGradient": {
-          "Color1": "#4d4024FF",
-          "Color2": "#4d402400"
+          "Color1": "#ddceaeFF",
+          "Color2": "#ddceae00"
         },
         "HorizontalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242333"
+          "Color1": "#ebdbb21A",
+          "Color2": "#ebdbb233"
         },
         "VerticalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242390"
+          "Color1": "#ebdbb21A",
+          "Color2": "#ebdbb290"
         }
       },
       "Group9": {
@@ -894,16 +917,16 @@
           "Fraction4": 1.0
         },
         "RadialGradient": {
-          "Color1": "#5b534dFF",
-          "Color2": "#5b534d00"
+          "Color1": "#dac9a5FF",
+          "Color2": "#dac9a500"
         },
         "HorizontalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242333"
+          "Color1": "#ebdbb21A",
+          "Color2": "#ebdbb233"
         },
         "VerticalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242390"
+          "Color1": "#ebdbb21A",
+          "Color2": "#ebdbb290"
         }
       }
     },
@@ -958,7 +981,8 @@
         "iconBackground": "bg_visual_yellow",
         "iconBorderColor": "yellow"
       },
-      "iconBackground": "tan"
+      "iconBackground": "tan",
+      "MnemonicCurrent.foreground": "bg0"
     },
     "CodeWithMe": {
       "Users": {
@@ -1027,7 +1051,9 @@
       },
       "MainToolbar": {
         "NoConnectionLabelForeground": "grey1"
-      }
+      },
+      "AccessDisabled.accessDot": "red",
+      "AccessEnabled.accessDot": "green"
     },
     "Link": {
       "Tag.background": "bg_current_word",
@@ -1121,21 +1147,32 @@
       "Reaction.Border.Reacted": "aqua"
     },
     "ScrollBar": {
-      "hoverThumbBorderColor": "#2524238C",
+      "hoverThumbBorderColor": "#ebdbb28C",
       "hoverThumbColor": "#9283748C",
       "hoverTrackColor": "#92837400",
-      "thumbBorderColor": "#25242359",
+      "thumbBorderColor": "#ebdbb259",
       "thumbColor": "#92837459",
       "trackColor": "#92837400",
       "Transparent": {
-        "hoverThumbBorderColor": "#2524238C",
+        "hoverThumbBorderColor": "#ebdbb28C",
         "hoverThumbColor": "#9283748C",
         "hoverTrackColor": "#9283741A",
-        "thumbBorderColor": "#25242300",
+        "thumbBorderColor": "#ebdbb200",
         "thumbColor": "#92837459",
         "trackColor": "#92837400"
       },
-      "background": "bg0"
+      "background": "bg0",
+      "Mac": {
+        "Transparent": {
+          "hoverThumbBorderColor": "#92837480",
+          "hoverThumbColor": "#92837480",
+          "hoverTrackColor": "#9283741A"
+        },
+        "hoverThumbBorderColor": "#92837480",
+        "hoverThumbColor": "#92837480",
+        "thumbBorderColor": "#92837433",
+        "thumbColor": "#92837433"
+      }
     },
     "Diff": {
       "ContentTitle.gap": 6,
@@ -1174,7 +1211,8 @@
       "RefLabel.foreground": "grey1",
       "FileHistory.Diff.addedColor": "green",
       "FileHistory.Diff.deletedColor": "red",
-      "FileHistory.Diff.modifiedColor": "yellow"
+      "FileHistory.Diff.modifiedColor": "yellow",
+      "GitCommits.graphColor": "grey0"
     },
     "NewClass": {
       "Panel.background": "bg1",
@@ -1280,7 +1318,8 @@
       "Block": {
         "EditorPane": {
           "backgroundColor": "bg0"
-        }
+        },
+        "backgroundColor": "bg1"
       }
     },
     "Shortcut": {
@@ -1330,39 +1369,39 @@
     },
     "Ide.Shadow": {
       "top0Color": "#00000000",
-      "top1Color": "#25242320",
+      "top1Color": "#ebdbb220",
       "bottom0Color": "#00000000",
-      "bottom1Color": "#25242320",
+      "bottom1Color": "#ebdbb220",
       "left0Color": "#00000000",
-      "left1Color": "#25242320",
+      "left1Color": "#ebdbb220",
       "right0Color": "#00000000",
-      "right1Color": "#25242320",
+      "right1Color": "#ebdbb220",
       "topLeft0Color": "#00000000",
-      "topLeft1Color": "#25242320",
+      "topLeft1Color": "#ebdbb220",
       "topRight0Color": "#00000000",
-      "topRight1Color": "#25242320",
+      "topRight1Color": "#ebdbb220",
       "bottomLeft0Color": "#00000000",
-      "bottomLeft1Color": "#25242320",
+      "bottomLeft1Color": "#ebdbb220",
       "bottomRight0Color": "#00000000",
-      "bottomRight1Color": "#25242320"
+      "bottomRight1Color": "#ebdbb220"
     },
     "Notification.Shadow": {
       "top0Color": "#00000000",
-      "top1Color": "#25242310",
+      "top1Color": "#ebdbb210",
       "bottom0Color": "#00000000",
-      "bottom1Color": "#25242310",
+      "bottom1Color": "#ebdbb210",
       "left0Color": "#00000000",
-      "left1Color": "#25242310",
+      "left1Color": "#ebdbb210",
       "right0Color": "#00000000",
-      "right1Color": "#25242310",
+      "right1Color": "#ebdbb210",
       "topLeft0Color": "#00000000",
-      "topLeft1Color": "#25242310",
+      "topLeft1Color": "#ebdbb210",
       "topRight0Color": "#00000000",
-      "topRight1Color": "#25242310",
+      "topRight1Color": "#ebdbb210",
       "bottomLeft0Color": "#00000000",
-      "bottomLeft1Color": "#25242310",
+      "bottomLeft1Color": "#ebdbb210",
       "bottomRight0Color": "#00000000",
-      "bottomRight1Color": "#25242310"
+      "bottomRight1Color": "#ebdbb210"
     },
     "NotificationsToolwindow": {
       "newNotification.hoverBackground": "bg_current_word",
@@ -1420,7 +1459,10 @@
       "focusColor": "bg3",
       "disabledForeground": "grey0",
       "disabledUnderlineColor": "bg5",
-      "underlineColor": "aqua"
+      "underlineColor": "aqua",
+      "selected": {
+        "os.windows": "bg3"
+      }
     },
     "Table": {
       "gridColor": "bg1",
@@ -1431,7 +1473,8 @@
       "background": "bg0",
       "foreground": "fg0",
       "dropLineColor": "aqua",
-      "dropLineShortColor": "aqua"
+      "dropLineShortColor": "aqua",
+      "lightSelectionBackground": "bg_current_word"
     },
     "TableHeader": {
       "bottomSeparatorColor": "bg1",
@@ -1458,7 +1501,9 @@
     "TitlePane": {
       "Button": {
         "hoverBackground": "bg_current_word"
-      }
+      },
+      "background": "bg0",
+      "inactiveBackground": "bg0"
     },
     "EditorPane": {
       "splitBorder": "bg1",
@@ -1601,8 +1646,8 @@
     "DefaultTabs.background": "bg0",
     "DisclosureButton": {
       "defaultBackground": "bg1",
-      "hoverOverlay": "#d4be980D",
-      "pressedOverlay": "#d4be981A"
+      "hoverOverlay": "#6547350D",
+      "pressedOverlay": "#6547351A"
     },
     "FlameGraph.Tooltip": {
       "foreground": "fg0",
@@ -1660,7 +1705,8 @@
       "diffAnchorBackground": "diff_mod"
     },
     "Spinner": {
-      "background": "bg0"
+      "background": "bg0",
+      "darcula.enabledButtonColor": "grey1"
     },
     "SplitPane": {
       "highlight": "bg1"
@@ -1706,8 +1752,8 @@
     },
     "WelcomeScreen.Frame.DisclosureButton": {
       "defaultBackground": "bg1",
-      "hoverOverlay": "#d4be980D",
-      "pressedOverlay": "#d4be981A"
+      "hoverOverlay": "#6547350D",
+      "pressedOverlay": "#6547351A"
     },
     "activeCaption": "bg_dim",
     "control": "bg0",
@@ -1724,7 +1770,13 @@
     "IconBadge.successBackground": "green",
     "IconBadge.warningBackground": "yellow",
     "ReviewList.state.background": "bg_current_word",
-    "ReviewList.state.foreground": "grey2"
+    "ReviewList.state.foreground": "grey2",
+    "DefaultTabs.hoverBackground": "bg_current_word",
+    "DefaultTabs": {
+      "inactiveColoredTabBackground": "#ebdbb211",
+      "inactiveUnderlineColor": "bg5",
+      "underlineColor": "aqua"
+    }
   },
   "icons": {
     "ColorPalette": {
@@ -1737,38 +1789,31 @@
       "Checkbox.Background.Disabled": "bg1",
       "Checkbox.Border.Disabled": "bg_current_word",
       "Checkbox.Foreground.Disabled": "grey0",
-      "#CED0D6": "fg0",
-      "#DFE1E5": "fg0",
-      "#B4B8BF": "grey2",
-      "#9DA0A8": "grey2",
-      "#868A91": "grey1",
-      "#6F737A": "grey0",
-      "#5A5D63": "bg5",
-      "#43454A": "bg3",
-      "#2B2D30": "bg0",
-      "#393B40": "bg1",
-      "#1E1F22": "bg_dim",
-      "#548AF7": "#7daea3",
+      "#6C707E": "fg0",
+      "#313547": "fg0",
+      "#000000": "fg0",
+      "#818594": "grey1",
+      "#A8ADBD": "grey0",
+      "#EBECF0": "bg1",
+      "#FFFFFF": "bg0",
+      "#4682FA": "#3c6670",
       "#3574F0": "aqua",
-      "#25324D": "bg_visual_blue",
-      "#2E436E": "bg_visual_blue",
-      "#57965C": "green",
-      "#5FAD65": "green",
-      "#253627": "bg_visual_green",
-      "#375239": "bg_visual_green",
-      "#DB5C5C": "red",
-      "#402929": "bg_visual_red",
-      "#F2C55C": "yellow",
-      "#D6AE58": "yellow",
-      "#3D3223": "bg_visual_yellow",
-      "#E08855": "orange",
-      "#C77D55": "orange",
-      "#45322B": "write_usage",
-      "#614438": "write_usage",
-      "#A571E6": "purple",
-      "#B589EC": "purple",
-      "#955AE0": "purple",
-      "#2F2936": "bg_visual_purple"
+      "#EDF3FF": "bg_visual_blue",
+      "#E7EFFD": "bg_visual_blue",
+      "#208A3C": "green",
+      "#369650": "green",
+      "#55A76A": "green",
+      "#F2FCF3": "bg_visual_green",
+      "#DB3B4B": "red",
+      "#E55765": "red",
+      "#FFF7F7": "bg_visual_red",
+      "#FFAF0F": "yellow",
+      "#C27D04": "yellow",
+      "#FFFAEB": "bg_visual_yellow",
+      "#E66D17": "orange",
+      "#FFF4EB": "write_usage",
+      "#834DF0": "purple",
+      "#FAF5FF": "bg_visual_purple"
     }
   },
   "iconColorsOnSelection": {

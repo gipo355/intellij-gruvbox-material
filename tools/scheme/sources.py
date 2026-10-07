@@ -1,16 +1,17 @@
-"""Collects the editor color keys a Darcula-parented scheme inherits or receives.
+"""Collects the editor color keys a Darcula- or Default-parented scheme inherits or receives.
 
 Sources, read straight from the installed IDE (nothing is extracted to disk):
-  - the Darcula scheme (and the Default scheme it inherits from) in DefaultColorSchemesManager.xml
+  - the Darcula and Default schemes in DefaultColorSchemesManager.xml. Darcula has no parent scheme, so a
+    Darcula-parented scheme does not inherit Default-only keys; they are still collected, as extra coverage
   - every file plugins attach via <additionalTextAttributes scheme="Darcula"|"Default" file="..."/>
-    (Darcula's parent is the same Default instance, so keys injected into Default resolve through Darcula too)
   - files supplied in code by an <additionalTextAttributesProvider implementation="..."/> extension.
     The provider class is not run; instead every *Darcula*.xml and *Default*.xml resource in the declaring
     plugin's jars that parses as a text-attributes file (a <list> of options, or a <scheme>-like root with
     <attributes>/<colors>) is taken as a Darcula or Default file. intellij-rust, for example, ships
     org/rust/ide/colors/RustDarcula.xml this way. This may over-collect (e.g. a *_legacy variant), which only
     adds required keys.
-  - the Islands Dark editor scheme
+  - the Islands Dark editor scheme, and "Light" (expUI_lightScheme.xml), the editor scheme Islands Light names
+  - keys that exist only in code, with a code default or a fallback key (codekeys.py), from every jar above
 """
 
 import glob
@@ -19,10 +20,13 @@ import re
 import xml.etree.ElementTree as ET
 import zipfile
 
+import codekeys
+
 
 PLATFORM_JAR = "lib/intellij.platform.ide.impl.jar"
 DEFAULT_SCHEMES = "DefaultColorSchemesManager.xml"
 ISLANDS_SCHEME = "themes/islands/IslandSchemeDark.xml"
+LIGHT_SCHEME = "themes/expUI/expUI_lightScheme.xml"
 
 DECL_RE = re.compile(rb"<additionalTextAttributes\b[^>]*>")
 PROVIDER_RE = re.compile(rb"<additionalTextAttributesProvider\b")
@@ -211,6 +215,7 @@ def collect(ide_home, user_plugins):
     schemes = ET.fromstring(read_resource([platform_jar], DEFAULT_SCHEMES))
     by_name = {s.get("name"): parse_scheme(s) for s in schemes.iter("scheme")}
     islands = parse_scheme(ET.fromstring(read_resource([platform_jar], ISLANDS_SCHEME)))
+    light = parse_scheme(ET.fromstring(read_resource([platform_jar], LIGHT_SCHEME)))
 
     plugins = discover_plugins(ide_home, user_plugins)
     platform = plugins[0]
@@ -236,7 +241,9 @@ def collect(ide_home, user_plugins):
         "darcula": by_name["Darcula"],
         "default": by_name["Default"],
         "islands": islands,
+        "light": light,
         "contributions": contributions,
         "unresolved": unresolved,
         "plugins": [(p.pid, p.user) for p in plugins],
+        "code": codekeys.scan(jar for p in plugins for jar in p.jars),
     }

@@ -3,13 +3,14 @@
     <name>Gruvbox Material Islands</name>
     <vendor url="https://github.com/gipo355/intellij-gruvbox-material">gipo355</vendor>
     <description><![CDATA[
-        <p>A warm, low-glare dark theme: the gruvbox-material palette (soft background, material foreground)
-        on JetBrains' Islands layout. Built for long sessions and for eyes that see halos around bright text at night.</p>
+        <p>A warm, low-glare theme: the gruvbox-material palette (material foreground) on JetBrains'
+        Islands layout, in four variants: dark soft, medium and hard, and light soft.</p>
 
         <ul>
-            <li><b>Warm syntax</b>: no blue in code, no bold or italic, nothing brighter than the foreground.</li>
-            <li><b>Moderate contrast</b>: about 7:1 for text on the background.</li>
+            <li><b>Warm syntax</b>: no blue in code, no bold or italic, nothing contrasts more with the background than the text.</li>
+            <li><b>Moderate contrast</b>: 6.7:1 to 9.1:1 for text on the background, by variant.</li>
             <li><b>Dim tints</b> for search results, diffs and usages instead of bright blocks.</li>
+            <li><b>Complete scheme</b>: every editor key the IDE and its plugins define is set.</li>
             <li><b>Islands layout</b>: the 2026 JetBrains UI, recolored.</li>
         </ul>
     ]]></description>
@@ -18,5 +19,8 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <themeProvider id="f869fff9-c7e3-4656-b344-d228bf76a6c3" path="/themes/GruvboxMaterialIslands.theme.json"/>
+        <themeProvider id="275611fd-a504-467e-9c31-f0470ba50762" path="/themes/GruvboxMaterialIslandsMedium.theme.json"/>
+        <themeProvider id="117eb1e1-e632-4fba-b735-691361c815df" path="/themes/GruvboxMaterialIslandsHard.theme.json"/>
+        <themeProvider id="653f45a7-3ec3-431d-a49e-dfba1290c9bf" path="/themes/GruvboxMaterialIslandsLight.theme.json"/>
     </extensions>
 </idea-plugin>

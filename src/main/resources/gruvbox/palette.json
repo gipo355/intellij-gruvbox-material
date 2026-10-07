@@ -1,0 +1,1076 @@
+{
+  "variants": {
+    "f869fff9-c7e3-4656-b344-d228bf76a6c3": {
+      "name": "Gruvbox Material Islands",
+      "dark": true,
+      "editorScheme": "Gruvbox Material Islands",
+      "roles": {
+        "fg0": "#d4be98",
+        "grey0": "#7c6f64",
+        "grey1": "#928374",
+        "grey2": "#a89984",
+        "red": "#e67d76",
+        "orange": "#e78a4e",
+        "yellow": "#d8a657",
+        "green": "#a9b665",
+        "aqua": "#89b482",
+        "tan": "#c4a67e",
+        "purple": "#d48da0",
+        "blue": "#7daea3",
+        "bg_dim": "#252423",
+        "bg0": "#32302f",
+        "bg1": "#3c3836",
+        "bg_current_word": "#45403d",
+        "bg_statusline2": "#46413e",
+        "bg3": "#504945",
+        "bg_statusline3": "#5b534d",
+        "bg5": "#665c54",
+        "bg_visual_red": "#543937",
+        "bg_visual_yellow": "#574833",
+        "bg_visual_green": "#424a3e",
+        "bg_visual_blue": "#404946",
+        "bg_visual_purple": "#4b3e45",
+        "bg_diff_red": "#472322",
+        "bg_diff_green": "#3d4220",
+        "diff_add": "#343a24",
+        "diff_delete": "#442a27",
+        "diff_change": "#3b3420",
+        "diff_text": "#4d4024",
+        "search": "#4a5229",
+        "search_current": "#7a3d35",
+        "substitute": "#6b5428",
+        "write_usage": "#4a3a2a",
+        "diff_ins": "#384120",
+        "diff_del": "#56302d",
+        "diff_mod": "#4f3719",
+        "diff_conf": "#4f3146",
+        "diff_ins_line": "#343924",
+        "diff_del_line": "#482f2c",
+        "diff_mod_line": "#433320",
+        "diff_conf_line": "#432f3c"
+      },
+      "keywords": {
+        "brightness": [
+          "Bright",
+          "Mid",
+          "Mid-dark",
+          "Dark",
+          "Darker",
+          "Faint",
+          "Ghost"
+        ],
+        "strength": [
+          "Vivid",
+          "Muted",
+          "Soft"
+        ],
+        "families": {
+          "red": {
+            "label": "Red",
+            "colors": [
+              [
+                "#ed8c84",
+                "#de958e",
+                "#d19b96"
+              ],
+              [
+                "#e3827b",
+                "#d48b85",
+                "#c7928d"
+              ],
+              [
+                "#d87972",
+                "#ca827c",
+                "#bd8984"
+              ],
+              [
+                "#ce7069",
+                "#c07973",
+                "#b4807b"
+              ],
+              [
+                "#c46761",
+                "#b6706b",
+                "#aa7772"
+              ],
+              [
+                "#b35852",
+                "#a6625c",
+                "#9a6864"
+              ],
+              [
+                "#a34945",
+                "#96534e",
+                "#8b5a56"
+              ]
+            ]
+          },
+          "orange": {
+            "label": "Orange",
+            "colors": [
+              [
+                "#e4965c",
+                "#d79c73",
+                "#cba183"
+              ],
+              [
+                "#da8d53",
+                "#cd936a",
+                "#c2977a"
+              ],
+              [
+                "#d08349",
+                "#c38a61",
+                "#b88e71"
+              ],
+              [
+                "#c67a40",
+                "#b98158",
+                "#ae8569"
+              ],
+              [
+                "#bc7136",
+                "#b0784f",
+                "#a57c60"
+              ],
+              [
+                "#ac6225",
+                "#a06940",
+                "#956e52"
+              ],
+              [
+                "#9c5311",
+                "#905a32",
+                "#865f44"
+              ]
+            ]
+          },
+          "clay": {
+            "label": "Clay",
+            "colors": [
+              [
+                "#db997c",
+                "#cf9e89",
+                "#c4a294"
+              ],
+              [
+                "#d18f73",
+                "#c59580",
+                "#bb998b"
+              ],
+              [
+                "#c7866a",
+                "#bb8c77",
+                "#b19082"
+              ],
+              [
+                "#bd7d61",
+                "#b1836f",
+                "#a88779"
+              ],
+              [
+                "#b47458",
+                "#a87a66",
+                "#9e7e70"
+              ],
+              [
+                "#a3654a",
+                "#986b58",
+                "#8f6f62"
+              ],
+              [
+                "#94573c",
+                "#895d4a",
+                "#806154"
+              ]
+            ]
+          },
+          "stone": {
+            "label": "Stone",
+            "colors": [
+              [
+                "#b7aa87",
+                "#b3aa92",
+                "#b0aa9c"
+              ],
+              [
+                "#aea17e",
+                "#aaa189",
+                "#a7a192"
+              ],
+              [
+                "#a49775",
+                "#a19880",
+                "#9d9889"
+              ],
+              [
+                "#9b8e6c",
+                "#978f77",
+                "#948f80"
+              ],
+              [
+                "#928564",
+                "#8e866e",
+                "#8b8677"
+              ],
+              [
+                "#837655",
+                "#7f7760",
+                "#7c7769"
+              ],
+              [
+                "#746847",
+                "#716852",
+                "#6e695b"
+              ]
+            ]
+          },
+          "slate": {
+            "label": "Slate",
+            "colors": [
+              [
+                "#92afc5",
+                "#9aaebc",
+                "#a1adb5"
+              ],
+              [
+                "#89a6bb",
+                "#91a4b3",
+                "#98a3ac"
+              ],
+              [
+                "#809db2",
+                "#889ba9",
+                "#8f9aa2"
+              ],
+              [
+                "#7793a8",
+                "#7f92a0",
+                "#869199"
+              ],
+              [
+                "#6e8a9f",
+                "#768997",
+                "#7d8890"
+              ],
+              [
+                "#5f7b90",
+                "#687a88",
+                "#6e7981"
+              ],
+              [
+                "#516d81",
+                "#5a6c79",
+                "#606b72"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "275611fd-a504-467e-9c31-f0470ba50762": {
+      "name": "Gruvbox Material Islands Medium",
+      "dark": true,
+      "editorScheme": "Gruvbox Material Islands Medium",
+      "roles": {
+        "fg0": "#d4be98",
+        "grey0": "#7c6f64",
+        "grey1": "#928374",
+        "grey2": "#a89984",
+        "red": "#e67d76",
+        "orange": "#e78a4e",
+        "yellow": "#d8a657",
+        "green": "#a9b665",
+        "aqua": "#89b482",
+        "tan": "#c4a67e",
+        "purple": "#d48da0",
+        "blue": "#7daea3",
+        "bg_dim": "#1b1b1b",
+        "bg0": "#282828",
+        "bg1": "#32302f",
+        "bg_current_word": "#3c3836",
+        "bg_statusline2": "#3a3735",
+        "bg3": "#45403d",
+        "bg_statusline3": "#504945",
+        "bg5": "#5a524c",
+        "bg_visual_red": "#4b302e",
+        "bg_visual_yellow": "#4e3f2a",
+        "bg_visual_green": "#394135",
+        "bg_visual_blue": "#37403d",
+        "bg_visual_purple": "#42353c",
+        "bg_diff_red": "#3e1b1a",
+        "bg_diff_green": "#343917",
+        "diff_add": "#2b311c",
+        "diff_delete": "#3b221f",
+        "diff_change": "#322b18",
+        "diff_text": "#44371b",
+        "search": "#414920",
+        "search_current": "#70342c",
+        "substitute": "#614b1e",
+        "write_usage": "#413122",
+        "diff_ins": "#2d3819",
+        "diff_del": "#4b2826",
+        "diff_mod": "#442f12",
+        "diff_conf": "#44293e",
+        "diff_ins_line": "#29311d",
+        "diff_del_line": "#3e2624",
+        "diff_mod_line": "#392b19",
+        "diff_conf_line": "#392735"
+      },
+      "keywords": {
+        "brightness": [
+          "Bright",
+          "Mid",
+          "Mid-dark",
+          "Dark",
+          "Darker",
+          "Faint",
+          "Ghost"
+        ],
+        "strength": [
+          "Vivid",
+          "Muted",
+          "Soft"
+        ],
+        "families": {
+          "red": {
+            "label": "Red",
+            "colors": [
+              [
+                "#ed8c84",
+                "#de958e",
+                "#d19b96"
+              ],
+              [
+                "#e3827b",
+                "#d48b85",
+                "#c7928d"
+              ],
+              [
+                "#d87972",
+                "#ca827c",
+                "#bd8984"
+              ],
+              [
+                "#ce7069",
+                "#c07973",
+                "#b4807b"
+              ],
+              [
+                "#c46761",
+                "#b6706b",
+                "#aa7772"
+              ],
+              [
+                "#b35852",
+                "#a6625c",
+                "#9a6864"
+              ],
+              [
+                "#a34945",
+                "#96534e",
+                "#8b5a56"
+              ]
+            ]
+          },
+          "orange": {
+            "label": "Orange",
+            "colors": [
+              [
+                "#e4965c",
+                "#d79c73",
+                "#cba183"
+              ],
+              [
+                "#da8d53",
+                "#cd936a",
+                "#c2977a"
+              ],
+              [
+                "#d08349",
+                "#c38a61",
+                "#b88e71"
+              ],
+              [
+                "#c67a40",
+                "#b98158",
+                "#ae8569"
+              ],
+              [
+                "#bc7136",
+                "#b0784f",
+                "#a57c60"
+              ],
+              [
+                "#ac6225",
+                "#a06940",
+                "#956e52"
+              ],
+              [
+                "#9c5311",
+                "#905a32",
+                "#865f44"
+              ]
+            ]
+          },
+          "clay": {
+            "label": "Clay",
+            "colors": [
+              [
+                "#db997c",
+                "#cf9e89",
+                "#c4a294"
+              ],
+              [
+                "#d18f73",
+                "#c59580",
+                "#bb998b"
+              ],
+              [
+                "#c7866a",
+                "#bb8c77",
+                "#b19082"
+              ],
+              [
+                "#bd7d61",
+                "#b1836f",
+                "#a88779"
+              ],
+              [
+                "#b47458",
+                "#a87a66",
+                "#9e7e70"
+              ],
+              [
+                "#a3654a",
+                "#986b58",
+                "#8f6f62"
+              ],
+              [
+                "#94573c",
+                "#895d4a",
+                "#806154"
+              ]
+            ]
+          },
+          "stone": {
+            "label": "Stone",
+            "colors": [
+              [
+                "#b7aa87",
+                "#b3aa92",
+                "#b0aa9c"
+              ],
+              [
+                "#aea17e",
+                "#aaa189",
+                "#a7a192"
+              ],
+              [
+                "#a49775",
+                "#a19880",
+                "#9d9889"
+              ],
+              [
+                "#9b8e6c",
+                "#978f77",
+                "#948f80"
+              ],
+              [
+                "#928564",
+                "#8e866e",
+                "#8b8677"
+              ],
+              [
+                "#837655",
+                "#7f7760",
+                "#7c7769"
+              ],
+              [
+                "#746847",
+                "#716852",
+                "#6e695b"
+              ]
+            ]
+          },
+          "slate": {
+            "label": "Slate",
+            "colors": [
+              [
+                "#92afc5",
+                "#9aaebc",
+                "#a1adb5"
+              ],
+              [
+                "#89a6bb",
+                "#91a4b3",
+                "#98a3ac"
+              ],
+              [
+                "#809db2",
+                "#889ba9",
+                "#8f9aa2"
+              ],
+              [
+                "#7793a8",
+                "#7f92a0",
+                "#869199"
+              ],
+              [
+                "#6e8a9f",
+                "#768997",
+                "#7d8890"
+              ],
+              [
+                "#5f7b90",
+                "#687a88",
+                "#6e7981"
+              ],
+              [
+                "#516d81",
+                "#5a6c79",
+                "#606b72"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "117eb1e1-e632-4fba-b735-691361c815df": {
+      "name": "Gruvbox Material Islands Hard",
+      "dark": true,
+      "editorScheme": "Gruvbox Material Islands Hard",
+      "roles": {
+        "fg0": "#d4be98",
+        "grey0": "#7c6f64",
+        "grey1": "#928374",
+        "grey2": "#a89984",
+        "red": "#e67d76",
+        "orange": "#e78a4e",
+        "yellow": "#d8a657",
+        "green": "#a9b665",
+        "aqua": "#89b482",
+        "tan": "#c4a67e",
+        "purple": "#d48da0",
+        "blue": "#7daea3",
+        "bg_dim": "#141617",
+        "bg0": "#1d2021",
+        "bg1": "#282828",
+        "bg_current_word": "#32302f",
+        "bg_statusline2": "#32302f",
+        "bg3": "#3c3836",
+        "bg_statusline3": "#504945",
+        "bg5": "#504945",
+        "bg_visual_red": "#412725",
+        "bg_visual_yellow": "#443621",
+        "bg_visual_green": "#30382c",
+        "bg_visual_blue": "#2e3734",
+        "bg_visual_purple": "#382c33",
+        "bg_diff_red": "#341212",
+        "bg_diff_green": "#2b300e",
+        "diff_add": "#232813",
+        "diff_delete": "#311916",
+        "diff_change": "#29230f",
+        "diff_text": "#3a2e12",
+        "search": "#383f16",
+        "search_current": "#652a23",
+        "substitute": "#574113",
+        "write_usage": "#372819",
+        "diff_ins": "#223012",
+        "diff_del": "#3f201f",
+        "diff_mod": "#39270b",
+        "diff_conf": "#392136",
+        "diff_ins_line": "#1e2816",
+        "diff_del_line": "#321f1e",
+        "diff_mod_line": "#2d2313",
+        "diff_conf_line": "#2e1f2d"
+      },
+      "keywords": {
+        "brightness": [
+          "Bright",
+          "Mid",
+          "Mid-dark",
+          "Dark",
+          "Darker",
+          "Faint",
+          "Ghost"
+        ],
+        "strength": [
+          "Vivid",
+          "Muted",
+          "Soft"
+        ],
+        "families": {
+          "red": {
+            "label": "Red",
+            "colors": [
+              [
+                "#ed8c84",
+                "#de958e",
+                "#d19b96"
+              ],
+              [
+                "#e3827b",
+                "#d48b85",
+                "#c7928d"
+              ],
+              [
+                "#d87972",
+                "#ca827c",
+                "#bd8984"
+              ],
+              [
+                "#ce7069",
+                "#c07973",
+                "#b4807b"
+              ],
+              [
+                "#c46761",
+                "#b6706b",
+                "#aa7772"
+              ],
+              [
+                "#b35852",
+                "#a6625c",
+                "#9a6864"
+              ],
+              [
+                "#a34945",
+                "#96534e",
+                "#8b5a56"
+              ]
+            ]
+          },
+          "orange": {
+            "label": "Orange",
+            "colors": [
+              [
+                "#e4965c",
+                "#d79c73",
+                "#cba183"
+              ],
+              [
+                "#da8d53",
+                "#cd936a",
+                "#c2977a"
+              ],
+              [
+                "#d08349",
+                "#c38a61",
+                "#b88e71"
+              ],
+              [
+                "#c67a40",
+                "#b98158",
+                "#ae8569"
+              ],
+              [
+                "#bc7136",
+                "#b0784f",
+                "#a57c60"
+              ],
+              [
+                "#ac6225",
+                "#a06940",
+                "#956e52"
+              ],
+              [
+                "#9c5311",
+                "#905a32",
+                "#865f44"
+              ]
+            ]
+          },
+          "clay": {
+            "label": "Clay",
+            "colors": [
+              [
+                "#db997c",
+                "#cf9e89",
+                "#c4a294"
+              ],
+              [
+                "#d18f73",
+                "#c59580",
+                "#bb998b"
+              ],
+              [
+                "#c7866a",
+                "#bb8c77",
+                "#b19082"
+              ],
+              [
+                "#bd7d61",
+                "#b1836f",
+                "#a88779"
+              ],
+              [
+                "#b47458",
+                "#a87a66",
+                "#9e7e70"
+              ],
+              [
+                "#a3654a",
+                "#986b58",
+                "#8f6f62"
+              ],
+              [
+                "#94573c",
+                "#895d4a",
+                "#806154"
+              ]
+            ]
+          },
+          "stone": {
+            "label": "Stone",
+            "colors": [
+              [
+                "#b7aa87",
+                "#b3aa92",
+                "#b0aa9c"
+              ],
+              [
+                "#aea17e",
+                "#aaa189",
+                "#a7a192"
+              ],
+              [
+                "#a49775",
+                "#a19880",
+                "#9d9889"
+              ],
+              [
+                "#9b8e6c",
+                "#978f77",
+                "#948f80"
+              ],
+              [
+                "#928564",
+                "#8e866e",
+                "#8b8677"
+              ],
+              [
+                "#837655",
+                "#7f7760",
+                "#7c7769"
+              ],
+              [
+                "#746847",
+                "#716852",
+                "#6e695b"
+              ]
+            ]
+          },
+          "slate": {
+            "label": "Slate",
+            "colors": [
+              [
+                "#92afc5",
+                "#9aaebc",
+                "#a1adb5"
+              ],
+              [
+                "#89a6bb",
+                "#91a4b3",
+                "#98a3ac"
+              ],
+              [
+                "#809db2",
+                "#889ba9",
+                "#8f9aa2"
+              ],
+              [
+                "#7793a8",
+                "#7f92a0",
+                "#869199"
+              ],
+              [
+                "#6e8a9f",
+                "#768997",
+                "#7d8890"
+              ],
+              [
+                "#5f7b90",
+                "#687a88",
+                "#6e7981"
+              ],
+              [
+                "#516d81",
+                "#5a6c79",
+                "#606b72"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "653f45a7-3ec3-431d-a49e-dfba1290c9bf": {
+      "name": "Gruvbox Material Islands Light",
+      "dark": false,
+      "editorScheme": "Gruvbox Material Islands Light",
+      "roles": {
+        "fg0": "#654735",
+        "grey0": "#a89984",
+        "grey1": "#928374",
+        "grey2": "#6e6257",
+        "red": "#994745",
+        "orange": "#934e1f",
+        "yellow": "#895402",
+        "green": "#5a6619",
+        "aqua": "#3c694d",
+        "tan": "#765b35",
+        "purple": "#845071",
+        "blue": "#3c6670",
+        "bg_dim": "#ebdbb2",
+        "bg0": "#f2e5bc",
+        "bg1": "#eddeb5",
+        "bg_current_word": "#ebdbb2",
+        "bg_statusline2": "#ebdbb2",
+        "bg3": "#e6d5ae",
+        "bg_statusline3": "#dac9a5",
+        "bg5": "#d5c4a1",
+        "bg_visual_red": "#e9c7c4",
+        "bg_visual_yellow": "#d3c2aa",
+        "bg_visual_green": "#c3ccbe",
+        "bg_visual_blue": "#c2ccc9",
+        "bg_visual_purple": "#dac9d2",
+        "bg_diff_red": "#ffdedc",
+        "bg_diff_green": "#d1d8b1",
+        "diff_add": "#d9e1c6",
+        "diff_delete": "#fddad6",
+        "diff_change": "#e8e0c7",
+        "diff_text": "#ddceae",
+        "search": "#bdc89a",
+        "search_current": "#efa89d",
+        "substitute": "#cbb283",
+        "write_usage": "#e5d1be",
+        "diff_ins": "#dad989",
+        "diff_del": "#ffc799",
+        "diff_mod": "#f5ce82",
+        "diff_conf": "#f5c8ba",
+        "diff_ins_line": "#e4e09d",
+        "diff_del_line": "#fed3a7",
+        "diff_mod_line": "#f7d898",
+        "diff_conf_line": "#f7d4bd"
+      },
+      "keywords": {
+        "brightness": [
+          "Bright",
+          "Mid",
+          "Mid-dark",
+          "Dark",
+          "Darker",
+          "Faint",
+          "Ghost"
+        ],
+        "strength": [
+          "Vivid",
+          "Muted",
+          "Soft"
+        ],
+        "families": {
+          "red": {
+            "label": "Red",
+            "colors": [
+              [
+                "#9d4440",
+                "#8f4c48",
+                "#82524e"
+              ],
+              [
+                "#a64c48",
+                "#975450",
+                "#8a5a55"
+              ],
+              [
+                "#b0544f",
+                "#9f5c57",
+                "#93615d"
+              ],
+              [
+                "#b95c57",
+                "#a9645f",
+                "#9b6965"
+              ],
+              [
+                "#c2655f",
+                "#b26c67",
+                "#a4726d"
+              ],
+              [
+                "#d4756e",
+                "#c37c76",
+                "#b5827d"
+              ],
+              [
+                "#e6867e",
+                "#d68d86",
+                "#c6928c"
+              ]
+            ]
+          },
+          "orange": {
+            "label": "Orange",
+            "colors": [
+              [
+                "#944c04",
+                "#88522a",
+                "#7c563a"
+              ],
+              [
+                "#9c5411",
+                "#8f5931",
+                "#845e42"
+              ],
+              [
+                "#a55c1d",
+                "#976138",
+                "#8c6549"
+              ],
+              [
+                "#ad6427",
+                "#a06941",
+                "#956d51"
+              ],
+              [
+                "#b76d31",
+                "#a97149",
+                "#9e7659"
+              ],
+              [
+                "#c87c42",
+                "#b98158",
+                "#ad8468"
+              ],
+              [
+                "#db8e54",
+                "#cc9269",
+                "#bf9578"
+              ]
+            ]
+          },
+          "clay": {
+            "label": "Clay",
+            "colors": [
+              [
+                "#8b4f34",
+                "#805442",
+                "#76574a"
+              ],
+              [
+                "#94583c",
+                "#875c48",
+                "#7d5f51"
+              ],
+              [
+                "#9c5f44",
+                "#906350",
+                "#856659"
+              ],
+              [
+                "#a5674c",
+                "#996b58",
+                "#8e6e61"
+              ],
+              [
+                "#ae7054",
+                "#a17460",
+                "#967669"
+              ],
+              [
+                "#c07f63",
+                "#b2836f",
+                "#a68678"
+              ],
+              [
+                "#d18f73",
+                "#c3947f",
+                "#b79688"
+              ]
+            ]
+          },
+          "stone": {
+            "label": "Stone",
+            "colors": [
+              [
+                "#685d3c",
+                "#655d47",
+                "#625d50"
+              ],
+              [
+                "#6f6343",
+                "#6c634d",
+                "#6a6457"
+              ],
+              [
+                "#786b4b",
+                "#746c55",
+                "#716c5e"
+              ],
+              [
+                "#807452",
+                "#7c745d",
+                "#797365"
+              ],
+              [
+                "#887b5a",
+                "#847b65",
+                "#827c6e"
+              ],
+              [
+                "#978b69",
+                "#938b74",
+                "#918b7d"
+              ],
+              [
+                "#a89b79",
+                "#a49c84",
+                "#a19b8d"
+              ]
+            ]
+          },
+          "slate": {
+            "label": "Slate",
+            "colors": [
+              [
+                "#456174",
+                "#4e5f6c",
+                "#545e66"
+              ],
+              [
+                "#4c687b",
+                "#556774",
+                "#5b656d"
+              ],
+              [
+                "#536e82",
+                "#5c6e7c",
+                "#636d75"
+              ],
+              [
+                "#5b778b",
+                "#647684",
+                "#6a757d"
+              ],
+              [
+                "#638094",
+                "#6c7f8c",
+                "#737e86"
+              ],
+              [
+                "#728fa3",
+                "#7b8e9b",
+                "#818c95"
+              ],
+              [
+                "#829fb4",
+                "#8a9dac",
+                "#929da5"
+              ]
+            ]
+          }
+        }
+      }
+    }
+  }
+}

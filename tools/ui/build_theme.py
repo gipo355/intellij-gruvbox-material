@@ -1,11 +1,16 @@
-"""Generate src/main/resources/themes/GruvboxMaterialIslands.theme.json.
+"""Generate src/main/resources/themes/<stem>.theme.json for every tools/palette.json variant.
 
 Layout and key set follow JetBrains' Islands Darcula (the template). Color keys that Islands Dark sets and the
 template leaves to ExperimentalDark are added, as are parent (ExperimentalDark/Darcula) keys whose color would
-otherwise show a cool, bright or black value. Every color is a tools/palette.json name or a palette RGB with alpha.
+otherwise show a cool, bright or black value. Every color is a palette role name or a palette RGB with alpha.
+
+The ui tree is built once in role names and written once per variant with that variant's colors. The light
+variant takes the dark tree and adds, the same way, the keys Islands Light sets that the tree lacks and the keys its
+parents (ExperimentalLightWithLightHeader -> ExperimentalLight -> IntelliJ) would show in a non-palette color.
 
 Usage: IDEA_HOME=<IDE install dir> python3 -I tools/ui/build_theme.py
 """
+import copy
 import json
 import os
 import re
@@ -14,16 +19,18 @@ import zipfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 JAR = "lib/intellij.platform.ide.impl.jar"
-OUT = os.path.join(ROOT, "src/main/resources/themes/GruvboxMaterialIslands.theme.json")
+THEMES = os.path.join(ROOT, "src/main/resources/themes")
 KNOWN = os.path.join(ROOT, "src/test/resources/known-ui-keys.txt")
-PALETTE = json.load(open(os.path.join(ROOT, "tools/palette.json")))["colors"]
+VARIANTS = json.load(open(os.path.join(ROOT, "tools/palette.json")))["variants"]
 
 T = "#00000000"
+LITERAL = re.compile(r"^@(\w+)/([0-9A-Fa-f]{0,2})$")
 
 
 def a(name, alpha):
-    """Palette color with alpha, written as a literal because the colors map holds plain palette names only."""
-    return PALETTE[name] + alpha
+    """Palette color with alpha. The colors map holds plain palette names only, so this becomes the variant's
+    hex literal when the theme is written (see literals)."""
+    return f"@{name}/{alpha}"
 
 
 # Values used by Islands Darcula (its own color names, ExperimentalDark names it borrows, and literals).
@@ -153,6 +160,7 @@ DARK_VALUES = {
     "toolbar-stop-bg": "bg_visual_red",
     "tree-indent-guide-border": "bg_current_word",
     "transparent": T,
+    "layer-1-bg": "bg1",
 }
 
 SHADOWS = {
@@ -574,15 +582,15 @@ KEYS = {
     "Review.Reaction.Border.Reacted": "aqua",
     "Review.ChatItem.BubblePanel.Border": "bg3",
     "Review.LineFrame.BorderColor": "bg5",
-    "Review.Timeline.Thread.Diff.AnchorLine": "diff_text",
+    "Review.Timeline.Thread.Diff.AnchorLine": "diff_mod",
     "ReviewList.state.background": "bg_current_word",
     "ReviewList.state.foreground": "grey2",
-    "Space.Review.diffAnchorBackground": "diff_text",
+    "Space.Review.diffAnchorBackground": "diff_mod",
     "Space.Review.workingOutline": "aqua",
     "HelpBrowser.AiEditor.verticalMarkerColor": "purple",
     "VersionControl.FileHistory.Diff.addedColor": "green",
     "VersionControl.FileHistory.Diff.deletedColor": "red",
-    "VersionControl.FileHistory.Diff.modifiedColor": "tan",
+    "VersionControl.FileHistory.Diff.modifiedColor": "yellow",
     "ToolWindow.HeaderTab.underlineColor": "aqua",
     "ToolWindow.HeaderTab.inactiveUnderlineColor": "bg5",
     "ToolWindow.HeaderTab.underlinedTabBackground": "bg_current_word",
@@ -792,6 +800,43 @@ KEYS = {
     "ScrollBar.Transparent.trackColor": a("grey1", "00"),
 }
 
+# Light parents only (ExperimentalLight/IntelliJ): keys they paint in a cool or white color that the dark tree lacks.
+LIGHT_KEYS = {
+    "Bookmark.MnemonicCurrent.foreground": "bg0",
+    "CodeWithMe.AccessDisabled.accessDot": "red",
+    "CodeWithMe.AccessEnabled.accessDot": "green",
+    "ComboBox.modifiedItemForeground": "aqua",
+    "Tree.modifiedItemForeground": "aqua",
+    "Component.hoverIconColor": a("grey1", "E5"),
+    "Component.iconColor": a("grey1", "7F"),
+    "DefaultTabs.inactiveColoredTabBackground": a("bg_dim", "11"),
+    "DefaultTabs.inactiveUnderlineColor": "bg5",
+    "DefaultTabs.underlineColor": "aqua",
+    "EditorTabs.inactiveUnderlineColor": "bg5",
+    "EditorTabs.underlineColor": "aqua",
+    "EditorTabs.inactiveMaskColor": a("bg_dim", "33"),
+    "Editor.shortcutForeground": "tan",
+    "GotItTooltip.borderSimplifiedColor": "bg3",
+    "ScrollBar.Mac.Transparent.hoverThumbBorderColor": a("grey1", "80"),
+    "ScrollBar.Mac.Transparent.hoverThumbColor": a("grey1", "80"),
+    "ScrollBar.Mac.Transparent.hoverTrackColor": a("grey1", "1A"),
+    "ScrollBar.Mac.hoverThumbBorderColor": a("grey1", "80"),
+    "ScrollBar.Mac.hoverThumbColor": a("grey1", "80"),
+    "ScrollBar.Mac.thumbBorderColor": a("grey1", "33"),
+    "ScrollBar.Mac.thumbColor": a("grey1", "33"),
+    "Spinner.darcula.enabledButtonColor": "grey1",
+    "StatusBar.Breadcrumbs.floatingBackground": "bg0",
+    "TabbedPane.selected.os.windows": "bg3",
+    "Table.lightSelectionBackground": "bg_current_word",
+    "TextField.darcula.error.active.os.windows": "red",
+    "TextField.darcula.error.inactive.os.windows": "bg_visual_red",
+    "ToolTip.Actions.infoForeground": "grey1",
+    "ToolWindow.Button.hoverBackground": "bg_current_word",
+    "Tooltip.Learning.codeForeground": "fg0",
+    "Tree.selectionBorderColor": "bg5",
+    "VersionControl.GitCommits.graphColor": "grey0",
+}
+
 # Recent-project tints: the title-bar gradient start and the avatar, each a dim warm tint.
 RECENT = {
     1: ("bg_visual_red", "diff_delete", "write_usage"),
@@ -846,7 +891,7 @@ ICON_HEX = {
     "#2B2D30": "bg0",
     "#393B40": "bg1",
     "#1E1F22": "bg_dim",
-    "#548AF7": PALETTE["blue"],
+    "#548AF7": a("blue", ""),
     "#3574F0": "aqua",
     "#25324D": "bg_visual_blue",
     "#2E436E": "bg_visual_blue",
@@ -867,6 +912,34 @@ ICON_HEX = {
     "#B589EC": "purple",
     "#955AE0": "purple",
     "#2F2936": "bg_visual_purple",
+}
+# The same roles for the light expUI SVGs (non-_dark files), surveyed the same way.
+ICON_HEX_LIGHT = {
+    "#6C707E": "fg0",
+    "#313547": "fg0",
+    "#000000": "fg0",
+    "#818594": "grey1",
+    "#A8ADBD": "grey0",
+    "#EBECF0": "bg1",
+    "#FFFFFF": "bg0",
+    "#4682FA": a("blue", ""),
+    "#3574F0": "aqua",
+    "#EDF3FF": "bg_visual_blue",
+    "#E7EFFD": "bg_visual_blue",
+    "#208A3C": "green",
+    "#369650": "green",
+    "#55A76A": "green",
+    "#F2FCF3": "bg_visual_green",
+    "#DB3B4B": "red",
+    "#E55765": "red",
+    "#FFF7F7": "bg_visual_red",
+    "#FFAF0F": "yellow",
+    "#C27D04": "yellow",
+    "#FFFAEB": "bg_visual_yellow",
+    "#E66D17": "orange",
+    "#FFF4EB": "write_usage",
+    "#834DF0": "purple",
+    "#FAF5FF": "bg_visual_purple",
 }
 # Darcula's icon recolors for selected rows point at blues; keep selected icons on their own palette hues.
 ICONS_ON_SELECTION = {
@@ -922,11 +995,19 @@ def luminance(hex_color):
     return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
 
 
-def off_palette(hex_color):
+def off_palette(hex_color, palette):
     """True when a parent color is visible and not a palette color."""
     if len(hex_color) == 9 and hex_color[7:].lower() == "00":
         return False
-    return hex_color[:7].lower() not in {v.lower() for v in PALETTE.values()}
+    return hex_color[:7].lower() not in {v.lower() for v in palette.values()}
+
+
+def literals(node, palette):
+    """Replaces a() placeholders with the variant's hex."""
+    if isinstance(node, dict):
+        return {k: literals(v, palette) for k, v in node.items()}
+    m = LITERAL.match(node) if isinstance(node, str) else None
+    return palette[m.group(1)] + m.group(2) if m else node
 
 
 def is_color(value):
@@ -961,6 +1042,110 @@ def env_dir(name):
     return path
 
 
+class Builder:
+    def __init__(self, keys):
+        self.keys = keys
+        self.missing = []
+        self.source = {}
+
+    def pick(self, key, value, values):
+        if key in self.keys:
+            return self.keys[key]
+        if isinstance(value, str) and value in values:
+            return values[value]
+        self.missing.append(f"{key} = {value}")
+        return value
+
+    def map_tree(self, node, prefix=""):
+        out = {}
+        for key, value in node.items():
+            path = f"{prefix}.{key}" if prefix else key
+            if isinstance(value, dict):
+                out[key] = self.map_tree(value, path)
+            elif isinstance(value, str) and not re.match(r"-?\d|com\.", value):
+                out[key] = self.pick(path, value, TEMPLATE_VALUES)
+                self.source[path] = "template"
+            else:
+                out[key] = value
+        return out
+
+    def add_islands(self, ui, have, islands, label):
+        """Color keys an Islands theme sets that the tree lacks, by Islands semantic color name."""
+        colors = islands["colors"]
+        for path, value in segments(islands["ui"]):
+            key = ".".join(path)
+            if key in have or not isinstance(value, str):
+                continue
+            if ".os." in key and key.split(".os.")[0] in have:
+                continue
+            if not (value.startswith("#") or value in colors):
+                continue
+            insert(ui, list(path), self.pick(key, value, DARK_VALUES))
+            have.add(key)
+            self.source[key] = label
+
+    def add_parents(self, ui, have, chain, colors, palette, label):
+        """Whatever the parent themes still supply in a non-palette color. Every theme's ui borrows the chain's
+        color names (e.g. "Gray2"), so all of them resolve with `colors`."""
+        parent = {}
+        for theme in chain:
+            for path, value in segments(theme["ui"]):
+                while isinstance(value, str) and value in colors:
+                    value = colors[value]
+                parent[".".join(path)] = (path, value)
+        for key, (path, value) in sorted(parent.items()):
+            if ".os." in key and (key.split(".os.")[0] in have or key.split(".os.")[0] in parent):
+                continue
+            if key in have or not is_color(value) or not off_palette(value, palette):
+                continue
+            if key in self.keys:
+                insert(ui, list(path), self.keys[key])
+            else:
+                self.missing.append(f"{key} = {value} ({label})")
+            have.add(key)
+            self.source[key] = label
+
+    def add_extra(self, ui, have, known, unused):
+        """Keys no parent theme sets but other installed themes do (IDE defaults unverified): nest under an existing
+        group."""
+        for key in sorted(set(KEYS) - have):
+            if key not in known:
+                unused.append(key)
+                continue
+            node, rest = ui, key.split(".")
+            while True:
+                group = next((n for n in range(len(rest) - 1, 0, -1)
+                              if isinstance(node.get(".".join(rest[:n])), dict)), None)
+                if group is None:
+                    break
+                node, rest = node[".".join(rest[:group])], rest[group:]
+            node[".".join(rest)] = KEYS[key]
+            have.add(key)
+            self.source[key] = "extra"
+
+
+def write_theme(variant, ui):
+    meta = VARIANTS[variant]
+    palette = meta["colors"]
+    theme = {
+        "name": meta["name"],
+        "dark": meta["dark"],
+        "author": "gipo355",
+        "parentTheme": meta["parentTheme"],
+        "editorScheme": f"/themes/{meta['stem']}.xml",
+        "colors": {k: v for k, v in palette.items() if k != "blue"},
+        "ui": literals(ui, palette),
+        "icons": literals({"ColorPalette": {**CHECKBOX, **(ICON_HEX if meta["dark"] else ICON_HEX_LIGHT)}}, palette),
+        "iconColorsOnSelection": ICONS_ON_SELECTION,
+    }
+    out = os.path.join(THEMES, meta["stem"] + ".theme.json")
+    os.makedirs(THEMES, exist_ok=True)
+    with open(out, "w") as fh:
+        json.dump(theme, fh, indent=2)
+        fh.write("\n")
+    return out
+
+
 def main():
     ide_home = env_dir("IDEA_HOME")
     with zipfile.ZipFile(os.path.join(ide_home, JAR)) as zf:
@@ -970,81 +1155,29 @@ def main():
         dark = load("themes/islands/ManyIslandsDark.theme.json")
         exp = load("themes/expUI/expUI_dark.theme.json")
         base = load("themes/darcula.theme.json")
+        light = load("themes/islands/ManyIslandsLight.theme.json")
+        light_header = load("themes/expUI/expUI_light_with_light_header.theme.json")
+        exp_light = load("themes/expUI/expUI_light.theme.json")
+        intellij = load("themes/intellijlaf.theme.json")
 
-    missing = []
-    source = {}
-
-    def pick(key, value, values):
-        if key in KEYS:
-            return KEYS[key]
-        if isinstance(value, str) and value in values:
-            return values[value]
-        missing.append(f"{key} = {value}")
-        return value
-
-    def map_tree(node, prefix=""):
-        out = {}
-        for key, value in node.items():
-            path = f"{prefix}.{key}" if prefix else key
-            if isinstance(value, dict):
-                out[key] = map_tree(value, path)
-            elif isinstance(value, str) and not re.match(r"-?\d|com\.", value):
-                out[key] = pick(path, value, TEMPLATE_VALUES)
-                source[path] = "template"
-            else:
-                out[key] = value
-        return out
-
-    ui = map_tree(template["ui"])
-    have = {k for k, _ in flatten(ui)}
-
-    dark_colors = dark["colors"]
-    for path, value in segments(dark["ui"]):
-        key = ".".join(path)
-        if key in have or not isinstance(value, str):
-            continue
-        if not (value.startswith("#") or value in dark_colors):
-            continue
-        insert(ui, list(path), pick(key, value, DARK_VALUES))
-        have.add(key)
-        source[key] = "dark"
-
-    # Whatever ExperimentalDark/Darcula still supply in a non-palette color.
-    parent = {}
-    # Darcula's ui borrows ExperimentalDark color names (e.g. "Gray2"), so resolve both with them.
-    for theme, colors in ((base, exp["colors"]), (exp, exp["colors"])):
-        for path, value in segments(theme["ui"]):
-            while isinstance(value, str) and value in colors:
-                value = colors[value]
-            parent[".".join(path)] = (path, value)
-    for key, (path, value) in sorted(parent.items()):
-        if ".os." in key and key.split(".os.")[0] in have:
-            continue
-        if key in have or not is_color(value) or not off_palette(value):
-            continue
-        if key in KEYS:
-            insert(ui, list(path), KEYS[key])
-        else:
-            missing.append(f"{key} = {value} (parent)")
-        have.add(key)
-        source[key] = "parent"
-
-    # Keys no parent theme sets but other installed themes do (IDE defaults unverified): nest under an existing group.
     known = set(open(KNOWN).read().split())
     unused = []
-    for key in sorted(set(KEYS) - have):
-        if key not in known:
-            unused.append(key)
-            continue
-        node, rest = ui, key.split(".")
-        while True:
-            group = next((n for n in range(len(rest) - 1, 0, -1)
-                          if isinstance(node.get(".".join(rest[:n])), dict)), None)
-            if group is None:
-                break
-            node, rest = node[".".join(rest[:group])], rest[group:]
-        node[".".join(rest)] = KEYS[key]
-        source[key] = "extra"
+    dark_build = Builder(KEYS)
+    ui = dark_build.map_tree(template["ui"])
+    have = {k for k, _ in flatten(ui)}
+    dark_build.add_islands(ui, have, dark, "dark")
+    dark_build.add_parents(ui, have, (base, exp), exp["colors"], VARIANTS["dark-soft"]["colors"], "parent")
+    dark_build.add_extra(ui, have, known, unused)
+
+    light_build = Builder({**KEYS, **LIGHT_KEYS})
+    light_ui = copy.deepcopy(ui)
+    light_have = set(have)
+    light_build.add_islands(light_ui, light_have, light, "light")
+    light_colors = {**exp_light.get("colors", {}), **light_header.get("colors", {})}
+    light_build.add_parents(light_ui, light_have, (intellij, exp_light, light_header), light_colors,
+                            VARIANTS["light-soft"]["colors"], "light parent")
+
+    missing = dark_build.missing + light_build.missing
     if missing or unused:
         for m in missing:
             print("unmapped:", m, file=sys.stderr)
@@ -1052,23 +1185,12 @@ def main():
             print("KEYS entry not in known-ui-keys.txt:", u, file=sys.stderr)
         sys.exit(1)
 
-    theme = {
-        "name": "Gruvbox Material Islands",
-        "dark": True,
-        "author": "gipo355",
-        "parentTheme": "ExperimentalDark",
-        "editorScheme": "/themes/GruvboxMaterialIslands.xml",
-        "colors": {k: v for k, v in PALETTE.items() if k != "blue"},
-        "ui": ui,
-        "icons": {"ColorPalette": {**CHECKBOX, **ICON_HEX}},
-        "iconColorsOnSelection": ICONS_ON_SELECTION,
-    }
-    os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    with open(OUT, "w") as fh:
-        json.dump(theme, fh, indent=2)
-        fh.write("\n")
-    counts = {s: sum(1 for v in source.values() if v == s) for s in ("template", "dark", "parent", "extra")}
-    print(f"wrote {os.path.relpath(OUT, ROOT)}: {counts}", file=sys.stderr)
+    for variant, meta in VARIANTS.items():
+        out = write_theme(variant, ui if meta["dark"] else light_ui)
+        build = dark_build if meta["dark"] else light_build
+        labels = ("template", "dark", "parent", "extra") if meta["dark"] else ("light", "light parent")
+        counts = {s: sum(1 for v in build.source.values() if v == s) for s in labels}
+        print(f"wrote {os.path.relpath(out, ROOT)}: {counts}", file=sys.stderr)
 
 
 if __name__ == "__main__":

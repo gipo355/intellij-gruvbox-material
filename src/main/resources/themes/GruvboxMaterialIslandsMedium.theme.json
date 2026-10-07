@@ -1,9 +1,9 @@
 {
-  "name": "Gruvbox Material Islands",
+  "name": "Gruvbox Material Islands Medium",
   "dark": true,
   "author": "gipo355",
   "parentTheme": "ExperimentalDark",
-  "editorScheme": "/themes/GruvboxMaterialIslands.xml",
+  "editorScheme": "/themes/GruvboxMaterialIslandsMedium.xml",
   "colors": {
     "fg0": "#d4be98",
     "grey0": "#7c6f64",
@@ -16,37 +16,37 @@
     "aqua": "#89b482",
     "tan": "#c4a67e",
     "purple": "#d48da0",
-    "bg_dim": "#252423",
-    "bg0": "#32302f",
-    "bg1": "#3c3836",
-    "bg_current_word": "#45403d",
-    "bg_statusline2": "#46413e",
-    "bg3": "#504945",
-    "bg_statusline3": "#5b534d",
-    "bg5": "#665c54",
-    "bg_visual_red": "#543937",
-    "bg_visual_yellow": "#574833",
-    "bg_visual_green": "#424a3e",
-    "bg_visual_blue": "#404946",
-    "bg_visual_purple": "#4b3e45",
-    "bg_diff_red": "#472322",
-    "bg_diff_green": "#3d4220",
-    "diff_add": "#343a24",
-    "diff_delete": "#442a27",
-    "diff_change": "#3b3420",
-    "diff_text": "#4d4024",
-    "search": "#4a5229",
-    "search_current": "#7a3d35",
-    "substitute": "#6b5428",
-    "write_usage": "#4a3a2a",
-    "diff_ins": "#384120",
-    "diff_del": "#56302d",
-    "diff_mod": "#4f3719",
-    "diff_conf": "#4f3146",
-    "diff_ins_line": "#343924",
-    "diff_del_line": "#482f2c",
-    "diff_mod_line": "#433320",
-    "diff_conf_line": "#432f3c"
+    "bg_dim": "#1b1b1b",
+    "bg0": "#282828",
+    "bg1": "#32302f",
+    "bg_current_word": "#3c3836",
+    "bg_statusline2": "#3a3735",
+    "bg3": "#45403d",
+    "bg_statusline3": "#504945",
+    "bg5": "#5a524c",
+    "bg_visual_red": "#4b302e",
+    "bg_visual_yellow": "#4e3f2a",
+    "bg_visual_green": "#394135",
+    "bg_visual_blue": "#37403d",
+    "bg_visual_purple": "#42353c",
+    "bg_diff_red": "#3e1b1a",
+    "bg_diff_green": "#343917",
+    "diff_add": "#2b311c",
+    "diff_delete": "#3b221f",
+    "diff_change": "#322b18",
+    "diff_text": "#44371b",
+    "search": "#414920",
+    "search_current": "#70342c",
+    "substitute": "#614b1e",
+    "write_usage": "#413122",
+    "diff_ins": "#2d3819",
+    "diff_del": "#4b2826",
+    "diff_mod": "#442f12",
+    "diff_conf": "#44293e",
+    "diff_ins_line": "#29311d",
+    "diff_del_line": "#3e2624",
+    "diff_mod_line": "#392b19",
+    "diff_conf_line": "#392735"
   },
   "ui": {
     "*": {
@@ -256,7 +256,7 @@
       "verticalTabInsets.compact": "-2,10,-2,10",
       "tabContentActionsRightInsets": "0,4,0,2",
       "hoverInactiveBackground": "bg_current_word",
-      "inactiveColoredFileBackground": "#25242380"
+      "inactiveColoredFileBackground": "#1b1b1b80"
     },
     "Editor": {
       "SearchField": {
@@ -702,16 +702,16 @@
           "Fraction4": 1.0
         },
         "RadialGradient": {
-          "Color1": "#7a3d35FF",
-          "Color2": "#7a3d3500"
+          "Color1": "#70342cFF",
+          "Color2": "#70342c00"
         },
         "HorizontalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242333"
+          "Color1": "#1b1b1b1A",
+          "Color2": "#1b1b1b33"
         },
         "VerticalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242390"
+          "Color1": "#1b1b1b1A",
+          "Color2": "#1b1b1b90"
         }
       },
       "Group2": {
@@ -726,16 +726,16 @@
           "Fraction4": 1.0
         },
         "RadialGradient": {
-          "Color1": "#6b5428FF",
-          "Color2": "#6b542800"
+          "Color1": "#614b1eFF",
+          "Color2": "#614b1e00"
         },
         "HorizontalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242333"
+          "Color1": "#1b1b1b1A",
+          "Color2": "#1b1b1b33"
         },
         "VerticalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242390"
+          "Color1": "#1b1b1b1A",
+          "Color2": "#1b1b1b90"
         }
       },
       "Group3": {
@@ -750,16 +750,16 @@
           "Fraction4": 1.0
         },
         "RadialGradient": {
-          "Color1": "#4a5229FF",
-          "Color2": "#4a522900"
+          "Color1": "#414920FF",
+          "Color2": "#41492000"
         },
         "HorizontalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242333"
+          "Color1": "#1b1b1b1A",
+          "Color2": "#1b1b1b33"
         },
         "VerticalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242390"
+          "Color1": "#1b1b1b1A",
+          "Color2": "#1b1b1b90"
         }
       },
       "Group4": {
@@ -774,16 +774,16 @@
           "Fraction4": 1.0
         },
         "RadialGradient": {
-          "Color1": "#424a3eFF",
-          "Color2": "#424a3e00"
+          "Color1": "#394135FF",
+          "Color2": "#39413500"
         },
         "HorizontalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242333"
+          "Color1": "#1b1b1b1A",
+          "Color2": "#1b1b1b33"
         },
         "VerticalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242390"
+          "Color1": "#1b1b1b1A",
+          "Color2": "#1b1b1b90"
         }
       },
       "Group5": {
@@ -798,16 +798,16 @@
           "Fraction4": 1.0
         },
         "RadialGradient": {
-          "Color1": "#574833FF",
-          "Color2": "#57483300"
+          "Color1": "#4e3f2aFF",
+          "Color2": "#4e3f2a00"
         },
         "HorizontalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242333"
+          "Color1": "#1b1b1b1A",
+          "Color2": "#1b1b1b33"
         },
         "VerticalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242390"
+          "Color1": "#1b1b1b1A",
+          "Color2": "#1b1b1b90"
         }
       },
       "Group6": {
@@ -822,16 +822,16 @@
           "Fraction4": 1.0
         },
         "RadialGradient": {
-          "Color1": "#4b3e45FF",
-          "Color2": "#4b3e4500"
+          "Color1": "#42353cFF",
+          "Color2": "#42353c00"
         },
         "HorizontalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242333"
+          "Color1": "#1b1b1b1A",
+          "Color2": "#1b1b1b33"
         },
         "VerticalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242390"
+          "Color1": "#1b1b1b1A",
+          "Color2": "#1b1b1b90"
         }
       },
       "Group7": {
@@ -846,16 +846,16 @@
           "Fraction4": 1.0
         },
         "RadialGradient": {
-          "Color1": "#543937FF",
-          "Color2": "#54393700"
+          "Color1": "#4b302eFF",
+          "Color2": "#4b302e00"
         },
         "HorizontalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242333"
+          "Color1": "#1b1b1b1A",
+          "Color2": "#1b1b1b33"
         },
         "VerticalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242390"
+          "Color1": "#1b1b1b1A",
+          "Color2": "#1b1b1b90"
         }
       },
       "Group8": {
@@ -870,16 +870,16 @@
           "Fraction4": 1.0
         },
         "RadialGradient": {
-          "Color1": "#4d4024FF",
-          "Color2": "#4d402400"
+          "Color1": "#44371bFF",
+          "Color2": "#44371b00"
         },
         "HorizontalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242333"
+          "Color1": "#1b1b1b1A",
+          "Color2": "#1b1b1b33"
         },
         "VerticalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242390"
+          "Color1": "#1b1b1b1A",
+          "Color2": "#1b1b1b90"
         }
       },
       "Group9": {
@@ -894,16 +894,16 @@
           "Fraction4": 1.0
         },
         "RadialGradient": {
-          "Color1": "#5b534dFF",
-          "Color2": "#5b534d00"
+          "Color1": "#504945FF",
+          "Color2": "#50494500"
         },
         "HorizontalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242333"
+          "Color1": "#1b1b1b1A",
+          "Color2": "#1b1b1b33"
         },
         "VerticalGradient": {
-          "Color1": "#2524231A",
-          "Color2": "#25242390"
+          "Color1": "#1b1b1b1A",
+          "Color2": "#1b1b1b90"
         }
       }
     },
@@ -1121,17 +1121,17 @@
       "Reaction.Border.Reacted": "aqua"
     },
     "ScrollBar": {
-      "hoverThumbBorderColor": "#2524238C",
+      "hoverThumbBorderColor": "#1b1b1b8C",
       "hoverThumbColor": "#9283748C",
       "hoverTrackColor": "#92837400",
-      "thumbBorderColor": "#25242359",
+      "thumbBorderColor": "#1b1b1b59",
       "thumbColor": "#92837459",
       "trackColor": "#92837400",
       "Transparent": {
-        "hoverThumbBorderColor": "#2524238C",
+        "hoverThumbBorderColor": "#1b1b1b8C",
         "hoverThumbColor": "#9283748C",
         "hoverTrackColor": "#9283741A",
-        "thumbBorderColor": "#25242300",
+        "thumbBorderColor": "#1b1b1b00",
         "thumbColor": "#92837459",
         "trackColor": "#92837400"
       },
@@ -1330,39 +1330,39 @@
     },
     "Ide.Shadow": {
       "top0Color": "#00000000",
-      "top1Color": "#25242320",
+      "top1Color": "#1b1b1b20",
       "bottom0Color": "#00000000",
-      "bottom1Color": "#25242320",
+      "bottom1Color": "#1b1b1b20",
       "left0Color": "#00000000",
-      "left1Color": "#25242320",
+      "left1Color": "#1b1b1b20",
       "right0Color": "#00000000",
-      "right1Color": "#25242320",
+      "right1Color": "#1b1b1b20",
       "topLeft0Color": "#00000000",
-      "topLeft1Color": "#25242320",
+      "topLeft1Color": "#1b1b1b20",
       "topRight0Color": "#00000000",
-      "topRight1Color": "#25242320",
+      "topRight1Color": "#1b1b1b20",
       "bottomLeft0Color": "#00000000",
-      "bottomLeft1Color": "#25242320",
+      "bottomLeft1Color": "#1b1b1b20",
       "bottomRight0Color": "#00000000",
-      "bottomRight1Color": "#25242320"
+      "bottomRight1Color": "#1b1b1b20"
     },
     "Notification.Shadow": {
       "top0Color": "#00000000",
-      "top1Color": "#25242310",
+      "top1Color": "#1b1b1b10",
       "bottom0Color": "#00000000",
-      "bottom1Color": "#25242310",
+      "bottom1Color": "#1b1b1b10",
       "left0Color": "#00000000",
-      "left1Color": "#25242310",
+      "left1Color": "#1b1b1b10",
       "right0Color": "#00000000",
-      "right1Color": "#25242310",
+      "right1Color": "#1b1b1b10",
       "topLeft0Color": "#00000000",
-      "topLeft1Color": "#25242310",
+      "topLeft1Color": "#1b1b1b10",
       "topRight0Color": "#00000000",
-      "topRight1Color": "#25242310",
+      "topRight1Color": "#1b1b1b10",
       "bottomLeft0Color": "#00000000",
-      "bottomLeft1Color": "#25242310",
+      "bottomLeft1Color": "#1b1b1b10",
       "bottomRight0Color": "#00000000",
-      "bottomRight1Color": "#25242310"
+      "bottomRight1Color": "#1b1b1b10"
     },
     "NotificationsToolwindow": {
       "newNotification.hoverBackground": "bg_current_word",

@@ -2,13 +2,13 @@
   "colors_name": "gruvbox-material",
   "groups": {
     "@annotation": {
-      "fg": "#d3869b"
+      "fg": "#d48da0"
     },
     "@attribute": {
-      "fg": "#d3869b"
+      "fg": "#d48da0"
     },
     "@boolean": {
-      "fg": "#d3869b"
+      "fg": "#d48da0"
     },
     "@character": {
       "fg": "#89b482"
@@ -18,16 +18,16 @@
       "fg": "#32302f"
     },
     "@conditional": {
-      "fg": "#ea6962"
+      "fg": "#e67d76"
     },
     "@constant": {
       "fg": "#d4be98"
     },
     "@constant.builtin": {
-      "fg": "#d3869b"
+      "fg": "#d48da0"
     },
     "@constant.macro": {
-      "fg": "#d3869b"
+      "fg": "#d48da0"
     },
     "@constructor": {
       "fg": "#a9b665"
@@ -51,25 +51,25 @@
       "fg": "#a9b665"
     },
     "@keyword": {
-      "fg": "#ea6962"
+      "fg": "#e67d76"
     },
     "@keyword.conditional": {
-      "fg": "#ea6962"
+      "fg": "#e67d76"
     },
     "@keyword.function": {
-      "fg": "#ea6962"
+      "fg": "#e67d76"
     },
     "@keyword.import": {
-      "fg": "#ea6962"
+      "fg": "#e67d76"
     },
     "@keyword.operator": {
       "fg": "#e78a4e"
     },
     "@keyword.repeat": {
-      "fg": "#ea6962"
+      "fg": "#e67d76"
     },
     "@keyword.return": {
-      "fg": "#ea6962"
+      "fg": "#e67d76"
     },
     "@label": {
       "fg": "#e78a4e"
@@ -103,10 +103,10 @@
       "fg": "#d8a657"
     },
     "@number": {
-      "fg": "#d3869b"
+      "fg": "#d48da0"
     },
     "@number.float": {
-      "fg": "#d3869b"
+      "fg": "#d48da0"
     },
     "@operator": {
       "fg": "#e78a4e"
@@ -124,7 +124,7 @@
       "fg": "#c4a67e"
     },
     "@repeat": {
-      "fg": "#ea6962"
+      "fg": "#e67d76"
     },
     "@string": {
       "fg": "#89b482"
@@ -160,7 +160,7 @@
       "fg": "#d4be98"
     },
     "@variable.builtin": {
-      "fg": "#d3869b"
+      "fg": "#d48da0"
     },
     "@variable.member": {
       "fg": "#c4a67e"
@@ -199,20 +199,20 @@
       "strikethrough": true
     },
     "DiagnosticError": {
-      "fg": "#ea6962"
+      "fg": "#e67d76"
     },
     "DiagnosticHint": {
-      "fg": "#d3869b"
+      "fg": "#d48da0"
     },
     "DiagnosticInfo": {
       "fg": "#c4a67e"
     },
     "DiagnosticUnderlineError": {
-      "sp": "#ea6962",
+      "sp": "#e67d76",
       "undercurl": true
     },
     "DiagnosticUnderlineHint": {
-      "sp": "#d3869b",
+      "sp": "#d48da0",
       "undercurl": true
     },
     "DiagnosticUnderlineInfo": {
@@ -230,22 +230,22 @@
       "fg": "#d8a657"
     },
     "DiffAdd": {
-      "bg": "#343a24"
+      "bg": "#384120"
     },
     "DiffChange": {
-      "bg": "#3b3420"
+      "bg": "#433320"
     },
     "DiffDelete": {
-      "bg": "#442a27"
+      "bg": "#56302d"
     },
     "DiffText": {
-      "bg": "#4d4024"
+      "bg": "#4f3719"
     },
     "Error": {
-      "fg": "#ea6962"
+      "fg": "#e67d76"
     },
     "ErrorMsg": {
-      "fg": "#ea6962",
+      "fg": "#e67d76",
       "underline": true
     },
     "Folded": {
@@ -300,7 +300,7 @@
       "fg": "#d4be98"
     },
     "Removed": {
-      "fg": "#ea6962"
+      "fg": "#e67d76"
     },
     "Search": {
       "bg": "#4a5229",
@@ -312,7 +312,7 @@
     "SnacksIndent": {},
     "SnacksIndentScope": {},
     "SpellBad": {
-      "sp": "#ea6962",
+      "sp": "#e67d76",
       "undercurl": true
     },
     "SpellCap": {

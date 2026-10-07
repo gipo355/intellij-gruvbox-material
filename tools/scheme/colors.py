@@ -10,6 +10,7 @@ PALETTE_FILE = os.path.join(REPO, "tools", "palette.json")
 
 # What a translucent Darcula color sits on when it is painted.
 DARCULA_BG = "2b2b2b"
+DEFAULT_BG = "ffffff"
 
 FG_GREYS = ["grey0", "grey1", "grey2", "fg0"]
 BG_GREYS = ["bg0", "bg1", "bg_current_word", "bg3", "bg5"]
@@ -44,12 +45,27 @@ GREY_SATURATION = 0.15
 def load_palette():
     with open(PALETTE_FILE) as f:
         data = json.load(f)
-    colors = {k: v.lstrip("#").lower() for k, v in data["colors"].items()}
+    variants = {k: {**v, "colors": {n: c.lstrip("#").lower() for n, c in v["colors"].items()}}
+                for k, v in data["variants"].items()}
     blue_keys = [re.compile(p) for p in data["restricted"]["blue"]["schemeKeys"]]
-    return colors, blue_keys
+    return variants, blue_keys
 
 
-PALETTE, BLUE_KEYS = load_palette()
+VARIANTS, BLUE_KEYS = load_palette()
+PALETTE = {}
+DARK_UI = True
+UNDER = DARCULA_BG
+
+
+def use(variant):
+    """Maps source colors against this variant's palette: its greys, and what translucent colors sit on."""
+    global PALETTE, DARK_UI, UNDER
+    PALETTE = VARIANTS[variant]["colors"]
+    DARK_UI = VARIANTS[variant]["dark"]
+    UNDER = DARCULA_BG if DARK_UI else DEFAULT_BG
+
+
+use("dark-soft")
 
 
 def blue_allowed(key):
@@ -73,12 +89,12 @@ def contrast(a, b):
     return (la + 0.05) / (lb + 0.05)
 
 
-def flatten(raw, under=DARCULA_BG):
+def flatten(raw, under=None):
     """Composites an 8-digit (alpha) color over the background it is painted on."""
     if len(raw) != 8:
         return raw
     alpha = int(raw[6:8], 16) / 255
-    fg, bg = rgb(raw[:6]), rgb(under)
+    fg, bg = rgb(raw[:6]), rgb(under or UNDER)
     return "".join(f"{round((a * alpha + b * (1 - alpha)) * 255):02x}" for a, b in zip(fg, bg))
 
 
@@ -114,12 +130,15 @@ def map_bg(raw, key, greys=None):
 
 BG_HINT = re.compile(r"(?i)background|ROW|hover|pressed|track|thumb|SELECTION|STRIPE|NOTIFICATION")
 DARK = 0.1
+LIGHT = 0.4
 
 
 def map_color_key(raw, key, greys=None):
-    """<colors> entries carry no field name, so the role comes from the key name, then from lightness."""
+    """<colors> entries carry no field name, so the role comes from the key name, then from lightness (a dark
+    variant's backgrounds are dark, a light one's light)."""
     if BG_HINT.search(key):
         return map_bg(raw, key, greys)
-    if luminance(flatten(raw)) < DARK:
+    lum = luminance(flatten(raw))
+    if (lum < DARK) if DARK_UI else (lum > LIGHT):
         return map_bg(raw, key, greys)
     return map_fg(raw, key)

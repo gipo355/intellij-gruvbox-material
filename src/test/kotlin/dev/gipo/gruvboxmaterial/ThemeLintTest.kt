@@ -8,27 +8,39 @@ import org.junit.Test
 import org.w3c.dom.Element
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
+import kotlin.math.cbrt
 import kotlin.math.pow
+import kotlin.math.sqrt
 
 /**
- * Quality gate for the theme: every color comes from tools/palette.json, blue only where
- * restricted allows it, nothing brighter than fg0, no bold/italic, no missing or misspelled keys.
- * Each test collects every offender and fails once.
+ * Quality gate for every variant in tools/palette.json: every color comes from that variant's palette, blue only where
+ * restricted allows it, nothing contrasts more with bg0 than fg0, no bold/italic, diff tints inside their bounds,
+ * no missing or misspelled keys. Each test collects every offender across all variants and fails once.
  */
 class ThemeLintTest {
     private class Rgba(val rgb: String, val transparent: Boolean)
+
+    private class Variant(val key: String, json: JsonObject) {
+        val id: String = json["id"].asString
+        val name: String = json["name"].asString
+        val dark: Boolean = json["dark"].asBoolean
+        val parentTheme: String = json["parentTheme"].asString
+        val parentScheme: String = json["parentScheme"].asString
+        val themePath = "/themes/${json["stem"].asString}.theme.json"
+        val schemePath = "/themes/${json["stem"].asString}.xml"
+        val colors: Map<String, String> = json.getAsJsonObject("colors").entrySet()
+            .associate { it.key to it.value.asString.removePrefix("#").lowercase() }
+        val rgb = colors.values.toSet()
+    }
 
     private val projectDir: File = System.getProperty("projectDir")?.let(::File)
         ?: generateSequence(File(System.getProperty("user.dir")).absoluteFile) { it.parentFile }
             .first { File(it, "tools/palette.json").isFile }
 
     private val palette = parseJson(File(projectDir, "tools/palette.json").readText())
-    private val paletteColors: Map<String, String> = palette.getAsJsonObject("colors").entrySet()
-        .filterNot { it.key.startsWith("$") }
-        .associate { it.key to it.value.asString.removePrefix("#").lowercase() }
-    private val paletteRgb = paletteColors.values.toSet()
-    private val blue = paletteColors.getValue("blue")
-    private val maxLuminance = luminance(paletteColors.getValue(palette.getAsJsonObject("rules")["maxLuminanceColor"].asString))
+    private val variants = palette.getAsJsonObject("variants").entrySet().map { Variant(it.key, it.value.asJsonObject) }
+    private val rules = palette.getAsJsonObject("rules")
+    private val maxContrastColor = rules["maxContrastColor"].asString
     private val blueRules = palette.getAsJsonObject("restricted").getAsJsonObject("blue")
     private val blueSchemeKeys = blueRules.regexes("schemeKeys")
     private val blueThemePaths = blueRules.regexes("themePaths")
@@ -37,29 +49,38 @@ class ThemeLintTest {
     fun descriptorsResolve() {
         val problems = mutableListOf<String>()
         val pluginXml = File(projectDir, "src/main/resources/META-INF/plugin.xml")
-        val themePaths = parseXml(pluginXml.readText()).elements("themeProvider").map { it.getAttribute("path") }
-        if (themePaths.isEmpty()) problems += "plugin.xml: no themeProvider"
-        themePaths.filter { resource(it) == null }.forEach { problems += "plugin.xml: themeProvider path $it is not on the classpath" }
+        val providers = parseXml(pluginXml.readText()).elements("themeProvider").associate { it.getAttribute("id") to it.getAttribute("path") }
+        if (providers.isEmpty()) problems += "plugin.xml: no themeProvider"
+        providers.values.filter { resource(it) == null }.forEach { problems += "plugin.xml: themeProvider path $it is not on the classpath" }
+        val names = mutableListOf<String>()
 
-        val theme = theme()
-        if (theme == null) {
-            problems += "theme $THEME_PATH is not on the classpath"
-        } else {
+        for (v in variants) {
+            if (providers[v.id] != v.themePath) problems += "plugin.xml: themeProvider ${v.id} has path ${providers[v.id]}, expected ${v.themePath}"
+            val theme = theme(v)
+            if (theme == null) {
+                problems += "${v.key}: theme ${v.themePath} is not on the classpath"
+                continue
+            }
             val scheme = theme["editorScheme"]?.asString
-            if (scheme == null || resource(scheme) == null) problems += "theme.json: editorScheme $scheme is not on the classpath"
-            if (theme["name"]?.asString != NAME) problems += "theme.json: name is ${theme["name"]}, expected \"$NAME\""
-            if (theme["dark"]?.asBoolean != true) problems += "theme.json: dark is ${theme["dark"]}, expected true"
-            if (theme["parentTheme"]?.asString != "ExperimentalDark") problems += "theme.json: parentTheme is ${theme["parentTheme"]}, expected \"ExperimentalDark\""
+            if (scheme == null || resource(scheme) == null) problems += "${v.key}: editorScheme $scheme is not on the classpath"
+            if (scheme != v.schemePath) problems += "${v.key}: editorScheme is $scheme, expected ${v.schemePath}"
+            theme["name"]?.asString?.let { names += it }
+            if (theme["name"]?.asString != v.name) problems += "${v.key}: name is ${theme["name"]}, expected \"${v.name}\""
+            if (theme["dark"]?.asBoolean != v.dark) problems += "${v.key}: dark is ${theme["dark"]}, expected ${v.dark}"
+            if (theme["parentTheme"]?.asString != v.parentTheme) problems += "${v.key}: parentTheme is ${theme["parentTheme"]}, expected \"${v.parentTheme}\""
         }
+        (providers.keys - variants.map { it.id }.toSet()).forEach { problems += "plugin.xml: themeProvider $it has no palette variant" }
+        names.groupingBy { it }.eachCount().filterValues { it > 1 }.keys.forEach { problems += "theme name \"$it\" is not unique" }
         report("Descriptor problems", problems)
     }
 
     @Test
-    fun schemeUsesPaletteOnly() {
-        val root = scheme()
+    fun schemeUsesPaletteOnly() = report("Editor scheme colors outside the rules", variants.flatMap { v ->
+        val root = scheme(v)
         val problems = mutableListOf<String>()
-        if (root.getAttribute("name") != NAME) problems += "scheme name is \"${root.getAttribute("name")}\", expected \"$NAME\""
-        if (root.getAttribute("parent_scheme") != "Darcula") problems += "parent_scheme is \"${root.getAttribute("parent_scheme")}\", expected \"Darcula\""
+        val blue = v.colors.getValue("blue")
+        if (root.getAttribute("name") != v.name) problems += "scheme name is \"${root.getAttribute("name")}\", expected \"${v.name}\""
+        if (root.getAttribute("parent_scheme") != v.parentScheme) problems += "parent_scheme is \"${root.getAttribute("parent_scheme")}\", expected \"${v.parentScheme}\""
 
         fun checkColor(key: String, where: String, raw: String) {
             if (raw.isEmpty()) return
@@ -67,10 +88,10 @@ class ThemeLintTest {
             when {
                 color == null -> problems += "$where: \"$raw\" is not a color"
                 color.transparent -> {}
-                color.rgb !in paletteRgb -> problems += "$where: #${color.rgb} is not in the palette"
+                color.rgb !in v.rgb -> problems += "$where: #${color.rgb} is not in the palette"
                 color.rgb == blue && blueSchemeKeys.none { it.containsMatchIn(key) } -> problems += "$where: blue is reserved for ${blueSchemeKeys.map { it.pattern }}"
             }
-            if (color != null && !color.transparent && luminance(color.rgb) > maxLuminance) problems += "$where: #${color.rgb} is brighter than fg0"
+            if (color != null && !color.transparent && tooContrasty(v, color.rgb)) problems += "$where: #${color.rgb} contrasts more with bg0 than $maxContrastColor"
         }
 
         root.child("colors")?.children("option")?.forEach { checkColor(it.getAttribute("name"), "colors.${it.getAttribute("name")}", it.getAttribute("value")) }
@@ -81,37 +102,74 @@ class ThemeLintTest {
                 val value = opt.getAttribute("value")
                 when (name) {
                     in COLOR_OPTIONS -> checkColor(key, "attributes.$key.$name", value)
-                    "FONT_TYPE" -> if (value.isNotEmpty() && value != "0") problems += "attributes.$key: FONT_TYPE $value (no bold/italic)"
+                    "FONT_TYPE" -> problems += "attributes.$key: FONT_TYPE $value (no bold/italic, and no explicit 0 either)"
                 }
             }
         }
-        report("Editor scheme colors outside the rules", problems)
-    }
+        problems.map { "${v.key}: $it" }
+    })
 
     @Test
-    fun schemeDefinesRequiredKeys() {
-        val root = scheme()
+    fun schemeDefinesRequiredKeys() = report("Editor scheme keys missing (src/test/resources/scheme-required-keys*.txt)", variants.flatMap { v ->
+        val root = scheme(v)
         val defined = mutableSetOf<String>()
         root.child("colors")?.children("option")?.forEach { defined += it.getAttribute("name") }
         root.child("attributes")?.children("option")?.forEach {
             if (it.child("value") != null) defined += it.getAttribute("name")
         }
-        val missing = keyList("scheme-required-keys.txt").filterNot { it in defined }
-        report("Editor scheme keys missing (src/test/resources/scheme-required-keys.txt)", missing)
-    }
+        keyList(if (v.dark) "scheme-required-keys.txt" else "scheme-required-keys-light.txt").filterNot { it in defined }.map { "${v.key}: $it" }
+    })
 
     // IntelliJ does not follow baseAttributes to the named key: it uses the key's coded fallback, else Darcula's value.
     @Test
-    fun schemeHasNoBaseAttributes() {
-        val linked = scheme().child("attributes")?.children("option").orEmpty()
+    fun schemeHasNoBaseAttributes() = report("Editor scheme links (write an explicit <value>)", variants.flatMap { v ->
+        scheme(v).child("attributes")?.children("option").orEmpty()
             .filter { it.hasAttribute("baseAttributes") }
-            .map { "attributes.${it.getAttribute("name")}: baseAttributes=\"${it.getAttribute("baseAttributes")}\"" }
-        report("Editor scheme links (write an explicit <value>)", linked)
+            .map { "${v.key}: attributes.${it.getAttribute("name")}: baseAttributes=\"${it.getAttribute("baseAttributes")}\"" }
+    })
+
+    // The section-2 diff bounds in tools/palette.json, on the tints each scheme actually writes. TextDiffType paints
+    // BACKGROUND for blocks and changed words, FOREGROUND for the line under word highlights.
+    @Test
+    fun diffTintsMeetBounds() {
+        val diff = rules.getAsJsonObject("diff")
+        report("Diff tints outside the bounds", variants.flatMap { v ->
+            val problems = mutableListOf<String>()
+            val bg = v.colors.getValue("bg0")
+            val fg = v.colors.getValue("fg0")
+            val attrs = scheme(v).child("attributes")?.children("option").orEmpty().associateBy { it.getAttribute("name") }
+            for ((kind, field) in DIFF_FIELDS) {
+                val spec = diff.getAsJsonObject(kind)
+                val (low, high) = spec.getAsJsonArray("deltaE").map { it.asDouble }
+                // fg0 on the tint keeps this share of its contrast on bg0.
+                val floor = spec["contrastRatio"].asDouble * contrast(fg, bg)
+                val tints = DIFF_KEYS.mapNotNull { key ->
+                    val raw = attrs[key]?.child("value")?.children("option")?.firstOrNull { it.getAttribute("name") == field }?.getAttribute("value")
+                    if (raw.isNullOrEmpty()) {
+                        problems += "$key.$field is not set"
+                        return@mapNotNull null
+                    }
+                    val tint = parseColor(raw, xml = true)!!.rgb
+                    val distance = deltaE(tint, bg)
+                    if (distance < low || distance > high) problems += "$key.$field #$tint: deltaE ${"%.3f".format(distance)} vs bg0 outside [$low, $high]"
+                    if (contrast(fg, tint) < floor) problems += "$key.$field #$tint: fg0 contrast ${"%.2f".format(contrast(fg, tint))} < ${"%.2f".format(floor)}"
+                    tint
+                }
+                val pairwise = spec["pairwise"].asDouble
+                for (i in tints.indices) for (j in i + 1 until tints.size) {
+                    if (deltaE(tints[i], tints[j]) < pairwise) problems += "$kind #${tints[i]} vs #${tints[j]}: deltaE ${"%.3f".format(deltaE(tints[i], tints[j]))} < $pairwise"
+                }
+                val lightness = tints.map { oklab(it)[0] }
+                if (kind == "block" && lightness.isNotEmpty() && lightness.max() - lightness.min() > 0.01) problems += "block tints differ in lightness by ${"%.3f".format(lightness.max() - lightness.min())}"
+            }
+            problems.map { "${v.key}: $it" }
+        })
     }
 
     @Test
-    fun themeUsesPaletteOnly() {
-        val theme = theme() ?: throw AssertionError("theme $THEME_PATH is not on the classpath")
+    fun themeUsesPaletteOnly() = report("Theme colors outside the rules", variants.flatMap { v ->
+        val theme = theme(v) ?: throw AssertionError("theme ${v.themePath} is not on the classpath")
+        val blue = v.colors.getValue("blue")
         val named: Map<String, String> = theme.getAsJsonObject("colors")?.entrySet()
             ?.filter { it.value.isJsonPrimitive }?.associate { it.key to it.value.asString }.orEmpty()
         val problems = mutableListOf<String>()
@@ -135,21 +193,40 @@ class ThemeLintTest {
                 when {
                     color == null -> if (section == "colors" || looksLikeColor(raw)) problems += "$path: \"$raw\" is neither a color nor a color name"
                     color.transparent -> {}
-                    color.rgb !in paletteRgb -> problems += "$path: \"$raw\" (#${color.rgb}) is not in the palette"
+                    color.rgb !in v.rgb -> problems += "$path: \"$raw\" (#${color.rgb}) is not in the palette"
                     color.rgb == blue && blueThemePaths.none { it.containsMatchIn(path) } -> problems += "$path: blue is reserved for ${blueThemePaths.map { it.pattern }}"
+                    tooContrasty(v, color.rgb) -> problems += "$path: #${color.rgb} contrasts more with bg0 than $maxContrastColor"
                 }
             }
         }
-        report("Theme colors outside the rules", problems)
+        problems.map { "${v.key}: $it" }
+    })
+
+    // The runtime keyword choices may be dim (faint and ghost rows sit below 4.5:1 on purpose), never brighter than text.
+    @Test
+    fun keywordChoicesStayBelowText() {
+        val runtime = parseJson(resource(RUNTIME_PALETTE) ?: throw AssertionError("$RUNTIME_PALETTE is not on the classpath"))
+            .getAsJsonObject("variants")
+        report("Keyword choices contrasting more with bg0 than $maxContrastColor", variants.flatMap { v ->
+            val families = runtime.getAsJsonObject(v.id)?.getAsJsonObject("keywords")?.getAsJsonObject("families")
+                ?: return@flatMap listOf("${v.key}: no keywords in $RUNTIME_PALETTE")
+            families.entrySet().flatMap { (family, node) ->
+                node.asJsonObject.getAsJsonArray("colors").flatMapIndexed { row, cells ->
+                    cells.asJsonArray.map { it.asString.removePrefix("#").lowercase() }
+                        .filter { tooContrasty(v, it) }.map { "${v.key}: $family row $row #$it" }
+                }
+            }
+        })
     }
 
     @Test
     fun uiKeysAreKnown() {
-        val theme = theme() ?: throw AssertionError("theme $THEME_PATH is not on the classpath")
         val known = keyList("known-ui-keys.txt").toSet()
-        val unknown = theme.getAsJsonObject("ui")?.let { leaves(it, null, keepNonStrings = true) }.orEmpty()
-            .map { it.first }.filterNot { it in known }
-        report("Unknown ui keys (typo, or regenerate src/test/resources/known-ui-keys.txt)", unknown)
+        report("Unknown ui keys (typo, or regenerate src/test/resources/known-ui-keys.txt)", variants.flatMap { v ->
+            val theme = theme(v) ?: throw AssertionError("theme ${v.themePath} is not on the classpath")
+            theme.getAsJsonObject("ui")?.let { leaves(it, null, keepNonStrings = true) }.orEmpty()
+                .map { it.first }.filterNot { it in known }.map { "${v.key}: $it" }
+        })
     }
 
     // Flattened (path, string value) leaves, keys joined with "."; `$` keys are comments.
@@ -189,10 +266,42 @@ class ThemeLintTest {
         return 0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4)
     }
 
-    private fun theme(): JsonObject? = resource(THEME_PATH)?.let { parseJson(it) }
+    private fun contrast(a: String, b: String): Double {
+        val (hi, lo) = listOf(luminance(a), luminance(b)).sortedDescending()
+        return (hi + 0.05) / (lo + 0.05)
+    }
 
-    private fun scheme(): Element {
-        val path = theme()?.get("editorScheme")?.asString ?: SCHEME_PATH
+    private fun tooContrasty(v: Variant, rgb: String): Boolean {
+        val bg = v.colors.getValue("bg0")
+        return contrast(rgb, bg) > contrast(v.colors.getValue(maxContrastColor), bg) + 1e-9
+    }
+
+    // OKLab (Ottosson), sRGB linearised with the 0.04045 threshold.
+    private fun oklab(rgb: String): DoubleArray {
+        fun lin(i: Int): Double {
+            val c = rgb.substring(i, i + 2).toInt(16) / 255.0
+            return if (c <= 0.04045) c / 12.92 else ((c + 0.055) / 1.055).pow(2.4)
+        }
+        val (r, g, b) = listOf(lin(0), lin(2), lin(4))
+        val l = cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b)
+        val m = cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b)
+        val s = cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b)
+        return doubleArrayOf(
+            0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s,
+            1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s,
+            0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s,
+        )
+    }
+
+    private fun deltaE(a: String, b: String): Double {
+        val (x, y) = oklab(a) to oklab(b)
+        return sqrt((0..2).sumOf { (x[it] - y[it]).pow(2) })
+    }
+
+    private fun theme(v: Variant): JsonObject? = resource(v.themePath)?.let { parseJson(it) }
+
+    private fun scheme(v: Variant): Element {
+        val path = theme(v)?.get("editorScheme")?.asString ?: v.schemePath
         val text = resource(path) ?: throw AssertionError("editor scheme $path is not on the classpath")
         return parseXml(text)
     }
@@ -219,9 +328,9 @@ class ThemeLintTest {
         getElementsByTagName(tag).let { list -> (0 until list.length).map { list.item(it) as Element } }
 
     companion object {
-        const val NAME = "Gruvbox Material Islands"
-        const val THEME_PATH = "/themes/GruvboxMaterialIslands.theme.json"
-        const val SCHEME_PATH = "/themes/GruvboxMaterialIslands.xml"
+        const val RUNTIME_PALETTE = "/gruvbox/palette.json"
+        val DIFF_KEYS = listOf("DIFF_INSERTED", "DIFF_DELETED", "DIFF_MODIFIED", "DIFF_CONFLICT")
+        val DIFF_FIELDS = mapOf("block" to "BACKGROUND", "line" to "FOREGROUND")
         val COLOR_OPTIONS = setOf("FOREGROUND", "BACKGROUND", "EFFECT_COLOR", "ERROR_STRIPE_COLOR")
         val HEX_LIKE = Regex("^[0-9a-f]{3,8}$")
         val COLOR_FUNCTION = Regex("^(rgba?|hsla?|hsb)\\s*\\(")

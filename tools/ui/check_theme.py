@@ -1,6 +1,6 @@
-"""Self-check for GruvboxMaterialIslands.theme.json against tools/palette.json and known-ui-keys.txt.
+"""Self-check for every variant's theme.json against tools/palette.json and known-ui-keys.txt.
 
-Usage: python3 -I tools/ui/check_theme.py [THEME_JSON]   (exit 1 on any failure)
+Usage: python3 -I tools/ui/check_theme.py   (exit 1 on any failure)
 """
 import json
 import os
@@ -8,10 +8,10 @@ import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-THEME = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "src/main/resources/themes/GruvboxMaterialIslands.theme.json")
+THEMES = os.path.join(ROOT, "src/main/resources/themes")
 KNOWN = os.path.join(ROOT, "src/test/resources/known-ui-keys.txt")
 palette_file = json.load(open(os.path.join(ROOT, "tools/palette.json")))
-PALETTE = {k: v.lower() for k, v in palette_file["colors"].items()}
+PALETTE = {}
 BLUE_PATHS = [re.compile(p) for p in palette_file["restricted"]["blue"]["themePaths"]]
 
 HEX = re.compile(r"^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$")
@@ -43,6 +43,11 @@ def luminance(hex_color):
     return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
 
 
+def contrast(x, y):
+    hi, lo = sorted((luminance(x), luminance(y)), reverse=True)
+    return (hi + 0.05) / (lo + 0.05)
+
+
 def check_color(path, value, colors):
     """Resolve a value; returns the #rrggbb it paints with, or None for non-colors/transparent."""
     if isinstance(value, (bool, int, float)):
@@ -61,26 +66,29 @@ def check_color(path, value, colors):
         return None
     if rgb == PALETTE["blue"] and not any(p.search(path) for p in BLUE_PATHS):
         errors.append(f"{path}: blue outside icons")
-    if luminance(rgb) > luminance(PALETTE[palette_file["rules"]["maxLuminanceColor"]]) + 1e-9:
-        errors.append(f"{path}: {value} brighter than fg0")
+    bg = PALETTE["bg0"]
+    if contrast(rgb, bg) > contrast(PALETTE[palette_file["rules"]["maxContrastColor"]], bg) + 1e-9:
+        errors.append(f"{path}: {value} contrasts more with bg0 than fg0")
     return rgb
 
 
-def main():
+def check(meta):
+    PALETTE.clear()
+    PALETTE.update({k: v.lower() for k, v in meta["colors"].items()})
     try:
-        theme = json.load(open(THEME), object_pairs_hook=no_duplicates)
+        theme = json.load(open(os.path.join(THEMES, meta["stem"] + ".theme.json")), object_pairs_hook=no_duplicates)
     except json.JSONDecodeError as e:
-        print(f"FAIL invalid JSON: {e}")
-        sys.exit(1)
+        errors.append(f"invalid JSON: {e}")
+        return
 
     colors = theme.get("colors", {})
     for name, value in colors.items():
         if PALETTE.get(name) != str(value).lower():
             errors.append(f"colors.{name}: {value} does not match palette.json")
 
-    for key, expected in (("name", "Gruvbox Material Islands"), ("dark", True), ("author", "gipo355"),
-                          ("parentTheme", "ExperimentalDark"),
-                          ("editorScheme", "/themes/GruvboxMaterialIslands.xml")):
+    for key, expected in (("name", meta["name"]), ("dark", meta["dark"]), ("author", "gipo355"),
+                          ("parentTheme", meta["parentTheme"]),
+                          ("editorScheme", f"/themes/{meta['stem']}.xml")):
         if theme.get(key) != expected:
             errors.append(f"{key}: {theme.get(key)!r}, expected {expected!r}")
 
@@ -99,12 +107,20 @@ def main():
     for key, value in icons:
         check_color(key, value, colors)
 
-    print(f"ui keys: {len(ui)}, icon keys: {len(icons)}, distinct ui colors: {len(used)}")
+    print(f"{meta['name']}: ui keys: {len(ui)}, icon keys: {len(icons)}, distinct ui colors: {len(used)}")
+
+
+def main():
+    for key, meta in palette_file["variants"].items():
+        before = len(errors)
+        check(meta)
+        errors[before:] = [f"{key}: {e}" for e in errors[before:]]
     if errors:
         for e in errors:
             print("FAIL", e)
         sys.exit(1)
-    print("OK: JSON valid, palette-only colors, blue only under icons, nothing brighter than fg0, all ui keys known")
+    print("OK: JSON valid, palette-only colors, blue only under icons, nothing contrasts more with bg0 than fg0, "
+          "all ui keys known")
 
 
 if __name__ == "__main__":

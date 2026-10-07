@@ -29,7 +29,7 @@ DiagnosticError/Warn/Info/Hint     red/yellow/tan/purple  ERRORS / WARNING / WEA
 DiagnosticUnnecessary              grey1        NOT_USED_ELEMENT_ATTRIBUTES
 DiagnosticDeprecated               strike fg0   DEPRECATED_ATTRIBUTES
 SpellBad / SpellCap                red / tan wave  TYPO / GRAMMAR_ERROR
-DiffAdd/Delete/Change              diff_add/diff_delete/diff_change  DIFF_INSERTED/DELETED/MODIFIED
+DiffAdd/Delete/Change/Text         diff_ins/diff_del/diff_mod_line/diff_mod (tools/palette.py)  DIFF_INSERTED/DELETED/MODIFIED
 Search / CurSearch                 search / search_current  SEARCH_RESULT_*, terminal search
 LspReferenceText / Write           bg_current_word / write_usage  IDENTIFIER_UNDER_CARET / WRITE_*
 Visual / CursorLine / MatchParen   bg3 / bg1 / bg3  SELECTION_BACKGROUND / CARET_ROW_COLOR / MATCHED_BRACE
@@ -118,22 +118,27 @@ COLORS = {
     "VCS_ANNOTATIONS_COLOR_3": "bg_current_word",
     "VCS_ANNOTATIONS_COLOR_4": "bg1",
     "VCS_ANNOTATIONS_COLOR_5": "bg_dim",
-    # Gutter change markers (nvim Added/Changed/Removed).
+    # Gutter change markers: the diff hues at full accent (inserted green, modified yellow, deleted red).
     "ADDED_LINES_COLOR": "green",
-    "MODIFIED_LINES_COLOR": "tan",
+    "MODIFIED_LINES_COLOR": "yellow",
     "DELETED_LINES_COLOR": "red",
     "IGNORED_ADDED_LINES_BORDER_COLOR": "green",
-    "IGNORED_MODIFIED_LINES_BORDER_COLOR": "tan",
+    "IGNORED_MODIFIED_LINES_BORDER_COLOR": "yellow",
     "IGNORED_DELETED_LINES_BORDER_COLOR": "red",
     "WHITESPACES_MODIFIED_LINES_COLOR": "grey0",
+    "REVIEW_CHANGED_LINES_COLOR": "yellow",
+    # Next edit suggestions: the insert/delete diff tints.
+    "NEXT_EDIT.DIFF_ADD_BACKGROUND": "diff_ins",
+    "NEXT_EDIT.DIFF_AFTER_BACKGROUND": "diff_ins_line",
+    "NEXT_EDIT.REMOVAL_BACKGROUND": "diff_del",
     # File status (tabs, project tree).
     "FILESTATUS_ADDED": "green",
     "FILESTATUS_COPIED": "green",
     "FILESTATUS_addedOutside": "green",
-    "FILESTATUS_MODIFIED": "tan",
-    "FILESTATUS_modifiedOutside": "tan",
-    "FILESTATUS_NOT_CHANGED_IMMEDIATE": "tan",
-    "FILESTATUS_NOT_CHANGED_RECURSIVE": "tan",
+    "FILESTATUS_MODIFIED": "yellow",
+    "FILESTATUS_modifiedOutside": "yellow",
+    "FILESTATUS_NOT_CHANGED_IMMEDIATE": "yellow",
+    "FILESTATUS_NOT_CHANGED_RECURSIVE": "yellow",
     "FILESTATUS_NOT_CHANGED": "",
     "FILESTATUS_SUPPRESSED": "",
     "FILESTATUS_DELETED": "grey1",
@@ -149,6 +154,23 @@ COLORS = {
     "FILESTATUS_IDEA_FILESTATUS_MERGED_WITH_BOTH_CONFLICTS": "red",
     "FILESTATUS_IDEA_FILESTATUS_MERGED_WITH_PROPERTY_CONFLICTS": "red",
     "FILESTATUS_changelistConflict": "red",
+    "FILESTATUS_IDEA_SVN_FILESTATUS_EXTERNAL": "green",
+    "FILESTATUS_IDEA_SVN_FILESTATUS_OBSTRUCTED": "orange",
+    "FILESTATUS_IDEA_SVN_REPLACED": "yellow",
+    "FILESTATUS_IGNORE.PROJECT_VIEW.IGNORED": "grey1",
+    # Keys only code defines (codekeys.py).
+    "WARNING_HINT": "bg_visual_yellow",
+    "Tag.background": "bg3",
+    "BookmarkIcon.background": "bg_visual_yellow",
+    "SCHEMA_DIFF_DELETED_KEY": "red",
+    # Image editor checkerboard. The white and the black cell keys share the name IMAGES_WHITE_CELL_COLOR.
+    "IMAGES_BACKGROUND": "bg0",
+    "IMAGES_WHITE_CELL_COLOR": "bg3",
+    "IMAGES_GRID_LINE_COLOR": "bg5",
+    "NEXT_EDIT_AGENT_DELEGATION.TASK_STATUS_FOREGROUND": "grey1",
+    "NEXT_EDIT_AGENT_DELEGATION.TASK_RANGE_BACKGROUND": "bg_visual_purple",
+    "NEXT_EDIT_AGENT_DELEGATION.TASK_RANGE_SHIMMER": "bg5",
+    "NEXT_EDIT_AGENT_DELEGATION.TASK_FINISHED_FLASH": "bg_visual_green",
 }
 
 # ---------------------------------------------------------------- semantic core (DEFAULT_* and editor attributes)
@@ -265,15 +287,16 @@ CORE = {
     "INLAY_BUTTON_HINT": A(fg="grey1"),
     "INLINE_SUGGESTION": A(fg="grey0"),
     "CODE_LENS_BORDER_COLOR": A(effect="bg3", effect_type=BOX),
-    # Diff.
-    "DIFF_INSERTED": A(bg="diff_add", stripe="green"),
-    "DIFF_DELETED": A(bg="diff_delete", stripe="red"),
-    "DIFF_MODIFIED": A(bg="diff_change", stripe="tan"),
-    "DIFF_CONFLICT": A(bg="bg_visual_red", stripe="orange"),
-    "DIFF_UNKNOWN": A(bg="diff_text"),
+    # Diff. BACKGROUND paints whole blocks and changed words; FOREGROUND is the line under word highlights (set, so
+    # the platform never mixes BACKGROUND 60% into the editor background); ERROR_STRIPE_COLOR is the marker.
+    "DIFF_INSERTED": A(fg="diff_ins_line", bg="diff_ins", stripe="green"),
+    "DIFF_DELETED": A(fg="diff_del_line", bg="diff_del", stripe="red"),
+    "DIFF_MODIFIED": A(fg="diff_mod_line", bg="diff_mod", stripe="yellow"),
+    "DIFF_CONFLICT": A(fg="diff_conf_line", bg="diff_conf", stripe="purple"),
+    "DIFF_UNKNOWN": A(bg="diff_mod_line"),
     "DIFF_ABSENT": A(bg="bg1"),
-    "DIFF_DELETED_FROM_FS": A(bg="diff_delete"),
-    "DELETED_TEXT_ATTRIBUTES": A(fg="grey1", bg="diff_delete", effect="grey1", effect_type=STRIKE),
+    "DIFF_DELETED_FROM_FS": A(bg="diff_del_line"),
+    "DELETED_TEXT_ATTRIBUTES": A(fg="grey1", bg="diff_del_line", effect="grey1", effect_type=STRIKE),
     # Debugger.
     "BREAKPOINT_ATTRIBUTES": A(bg="bg_visual_red", stripe="red"),
     "EXECUTIONPOINT_ATTRIBUTES": A(bg="bg_visual_yellow"),
@@ -439,6 +462,7 @@ LANGUAGES = {
     "PROPERTIES.KEY_VALUE_SEPARATOR": L("DEFAULT_OPERATION_SIGN"),
     "PROPERTIES.VALID_STRING_ESCAPE": L("DEFAULT_VALID_STRING_ESCAPE"),
     "PROPERTIES.INVALID_STRING_ESCAPE": L("DEFAULT_INVALID_STRING_ESCAPE"),
+    "GROUP_KEY": L("PROPERTIES.KEY"),
     # Markdown
     "MARKDOWN_HEADER": A(fg="orange"),
     "MARKDOWN_HEADER_BOLD": L("MARKDOWN_HEADER"),
@@ -449,6 +473,20 @@ LANGUAGES = {
     "MARKDOWN_BOLD": A(fg="yellow"),
     "MARKDOWN_ITALIC": NONE,
     "MARKDOWN_REFERENCE_LINK": L("MARKDOWN_LINK_TEXT"),
+    # GitHub alerts; the title is the only key, NOTE's blue is tan
+    "MARKDOWN_ALERT_TITLE_NOTE": A(fg="tan", bg="bg_visual_blue"),
+    "MARKDOWN_ALERT_TITLE_TIP": A(fg="green", bg="bg_visual_green"),
+    "MARKDOWN_ALERT_TITLE_IMPORTANT": A(fg="purple", bg="bg_visual_purple"),
+    "MARKDOWN_ALERT_TITLE_WARNING": A(fg="yellow", bg="bg_visual_yellow"),
+    "MARKDOWN_ALERT_TITLE_CAUTION": A(fg="red", bg="bg_visual_red"),
+    # TextMate markup, as the Markdown keys
+    "markup.heading": L("MARKDOWN_HEADER"),
+    "markup.bold": A(fg="yellow"),
+    "markup.italic": A(fg="fg0"),
+    "markup.underline": A(effect="grey2", effect_type=LINE),
+    # Grazie
+    "TEXT_BOLD": NONE,
+    "TEXT_STRIKEOUT": A(fg="grey1", effect="grey1", effect_type=STRIKE),
     "MERMAID_CONSTANT": L("DEFAULT_CONSTANT"),
     # Shell
     "BASH.EXTERNAL_COMMAND": L("DEFAULT_FUNCTION_CALL"),
@@ -525,8 +563,9 @@ LANGUAGES = {
 }
 
 # ---------------------------------------------------------------- level sets that must stay distinguishable
-# rainbow-delimiters.nvim order (red, yellow, blue->tan, orange, green, violet, cyan).
-RAINBOW = ["red", "yellow", "tan", "orange", "green", "purple", "aqua"]
+# Rainbow Brackets: the outermost level is plain text, then accents far apart in hue; no red or orange, which the
+# keyword and operator colours own.
+RAINBOW = ["fg0", "aqua", "yellow", "purple", "green", "tan", "grey2"]
 CYCLES = [
     (r"^(ROUND|SQUARE|SQUIGGLY|ANGLE)_BRACKETS_RAINBOW_COLOR(\d+)$", RAINBOW),
     (r"^(INDENT_GUIDES)_RAINBOW_COLOR(\d+)$", RAINBOW),
@@ -597,7 +636,9 @@ NVIM_ALIGN = [
     ("SpellCap", "sp", "GRAMMAR_ERROR", "EFFECT_COLOR"),
     ("DiffAdd", "bg", "DIFF_INSERTED", "BACKGROUND"),
     ("DiffDelete", "bg", "DIFF_DELETED", "BACKGROUND"),
-    ("DiffChange", "bg", "DIFF_MODIFIED", "BACKGROUND"),
+    # DiffChange tints the changed line, DiffText the changed text in it; IntelliJ's line tint is FOREGROUND.
+    ("DiffChange", "bg", "DIFF_MODIFIED", "FOREGROUND"),
+    ("DiffText", "bg", "DIFF_MODIFIED", "BACKGROUND"),
     ("Added", "fg", "ADDED_LINES_COLOR", None),
     ("Changed", "fg", "MODIFIED_LINES_COLOR", None),
     ("Removed", "fg", "DELETED_LINES_COLOR", None),
@@ -624,4 +665,5 @@ NVIM_DEVIATIONS = {
     ("LspReferenceWrite", "WRITE_IDENTIFIER_UNDER_CARET_ATTRIBUTES"): "write usages get the write_usage tint so they differ from reads",
     ("LspInlayHint", "INLAY_DEFAULT"): "grey0 instead of bg5: inlays sit on a bg1 pill",
     ("IblIndent", "INDENT_GUIDE"): "bg3 instead of bg5: continuous guide lines read brighter than nvim's glyphs",
+    ("Changed", "MODIFIED_LINES_COLOR"): "yellow instead of tan: modified markers follow the amber diff hue",
 }
