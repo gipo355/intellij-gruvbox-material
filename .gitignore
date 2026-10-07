@@ -1,0 +1,8 @@
+.env
+.gradle/
+build/
+.intellijPlatform/
+.idea/
+*.iml
+.kotlin/
+__pycache__/

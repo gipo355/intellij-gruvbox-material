@@ -1,0 +1,349 @@
+{
+  "colors_name": "gruvbox-material",
+  "groups": {
+    "@annotation": {
+      "fg": "#d3869b"
+    },
+    "@attribute": {
+      "fg": "#d3869b"
+    },
+    "@boolean": {
+      "fg": "#d3869b"
+    },
+    "@character": {
+      "fg": "#89b482"
+    },
+    "@comment.todo": {
+      "bg": "#c4a67e",
+      "fg": "#32302f"
+    },
+    "@conditional": {
+      "fg": "#ea6962"
+    },
+    "@constant": {
+      "fg": "#d4be98"
+    },
+    "@constant.builtin": {
+      "fg": "#d3869b"
+    },
+    "@constant.macro": {
+      "fg": "#d3869b"
+    },
+    "@constructor": {
+      "fg": "#a9b665"
+    },
+    "@field": {
+      "fg": "#c4a67e"
+    },
+    "@function": {
+      "fg": "#a9b665"
+    },
+    "@function.builtin": {
+      "fg": "#a9b665"
+    },
+    "@function.call": {
+      "fg": "#a9b665"
+    },
+    "@function.method": {
+      "fg": "#a9b665"
+    },
+    "@function.method.call": {
+      "fg": "#a9b665"
+    },
+    "@keyword": {
+      "fg": "#ea6962"
+    },
+    "@keyword.conditional": {
+      "fg": "#ea6962"
+    },
+    "@keyword.function": {
+      "fg": "#ea6962"
+    },
+    "@keyword.import": {
+      "fg": "#ea6962"
+    },
+    "@keyword.operator": {
+      "fg": "#e78a4e"
+    },
+    "@keyword.repeat": {
+      "fg": "#ea6962"
+    },
+    "@keyword.return": {
+      "fg": "#ea6962"
+    },
+    "@label": {
+      "fg": "#e78a4e"
+    },
+    "@markup.heading": {
+      "fg": "#e78a4e"
+    },
+    "@markup.link": {
+      "fg": "#89b482"
+    },
+    "@markup.link.url": {
+      "fg": "#c4a67e",
+      "underline": true
+    },
+    "@markup.list": {
+      "fg": "#c4a67e"
+    },
+    "@markup.quote": {
+      "fg": "#928374"
+    },
+    "@markup.raw": {
+      "fg": "#a9b665"
+    },
+    "@method": {
+      "fg": "#a9b665"
+    },
+    "@module": {
+      "fg": "#d8a657"
+    },
+    "@namespace": {
+      "fg": "#d8a657"
+    },
+    "@number": {
+      "fg": "#d3869b"
+    },
+    "@number.float": {
+      "fg": "#d3869b"
+    },
+    "@operator": {
+      "fg": "#e78a4e"
+    },
+    "@property": {
+      "fg": "#c4a67e"
+    },
+    "@punctuation.bracket": {
+      "fg": "#d4be98"
+    },
+    "@punctuation.delimiter": {
+      "fg": "#928374"
+    },
+    "@punctuation.special": {
+      "fg": "#c4a67e"
+    },
+    "@repeat": {
+      "fg": "#ea6962"
+    },
+    "@string": {
+      "fg": "#89b482"
+    },
+    "@string.escape": {
+      "fg": "#a9b665"
+    },
+    "@string.regexp": {
+      "fg": "#a9b665"
+    },
+    "@string.special": {
+      "fg": "#d8a657"
+    },
+    "@tag": {
+      "fg": "#e78a4e"
+    },
+    "@tag.attribute": {
+      "fg": "#a9b665"
+    },
+    "@tag.delimiter": {
+      "fg": "#a9b665"
+    },
+    "@type": {
+      "fg": "#d8a657"
+    },
+    "@type.builtin": {
+      "fg": "#d8a657"
+    },
+    "@type.definition": {
+      "fg": "#d8a657"
+    },
+    "@variable": {
+      "fg": "#d4be98"
+    },
+    "@variable.builtin": {
+      "fg": "#d3869b"
+    },
+    "@variable.member": {
+      "fg": "#c4a67e"
+    },
+    "@variable.parameter": {
+      "fg": "#d4be98"
+    },
+    "Added": {
+      "fg": "#a9b665"
+    },
+    "Changed": {
+      "fg": "#c4a67e"
+    },
+    "ColorColumn": {
+      "bg": "#3c3836"
+    },
+    "Comment": {
+      "fg": "#a89984"
+    },
+    "CurSearch": {
+      "bg": "#7a3d35",
+      "fg": "#d4be98"
+    },
+    "Cursor": {
+      "bg": "#d4be98",
+      "fg": "#32302f"
+    },
+    "CursorLine": {
+      "bg": "#3c3836"
+    },
+    "CursorLineNr": {
+      "fg": "#928374"
+    },
+    "DiagnosticDeprecated": {
+      "sp": "#d4be98",
+      "strikethrough": true
+    },
+    "DiagnosticError": {
+      "fg": "#ea6962"
+    },
+    "DiagnosticHint": {
+      "fg": "#d3869b"
+    },
+    "DiagnosticInfo": {
+      "fg": "#c4a67e"
+    },
+    "DiagnosticUnderlineError": {
+      "sp": "#ea6962",
+      "undercurl": true
+    },
+    "DiagnosticUnderlineHint": {
+      "sp": "#d3869b",
+      "undercurl": true
+    },
+    "DiagnosticUnderlineInfo": {
+      "sp": "#c4a67e",
+      "undercurl": true
+    },
+    "DiagnosticUnderlineWarn": {
+      "sp": "#d8a657",
+      "undercurl": true
+    },
+    "DiagnosticUnnecessary": {
+      "fg": "#928374"
+    },
+    "DiagnosticWarn": {
+      "fg": "#d8a657"
+    },
+    "DiffAdd": {
+      "bg": "#343a24"
+    },
+    "DiffChange": {
+      "bg": "#3b3420"
+    },
+    "DiffDelete": {
+      "bg": "#442a27"
+    },
+    "DiffText": {
+      "bg": "#4d4024"
+    },
+    "Error": {
+      "fg": "#ea6962"
+    },
+    "ErrorMsg": {
+      "fg": "#ea6962",
+      "underline": true
+    },
+    "Folded": {
+      "bg": "#3c3836",
+      "fg": "#928374"
+    },
+    "IblIndent": {
+      "fg": "#665c54"
+    },
+    "IblScope": {
+      "fg": "#928374"
+    },
+    "IncSearch": {
+      "bg": "#7a3d35",
+      "fg": "#d4be98"
+    },
+    "LineNr": {
+      "fg": "#665c54"
+    },
+    "LspInlayHint": {
+      "fg": "#665c54"
+    },
+    "LspReferenceRead": {
+      "bg": "#45403d"
+    },
+    "LspReferenceText": {
+      "bg": "#45403d"
+    },
+    "LspReferenceWrite": {
+      "bg": "#45403d"
+    },
+    "MatchParen": {
+      "bg": "#504945"
+    },
+    "NonText": {
+      "fg": "#665c54"
+    },
+    "Normal": {
+      "bg": "#32302f",
+      "fg": "#d4be98"
+    },
+    "NormalFloat": {
+      "bg": "#252423",
+      "fg": "#ddc7a1"
+    },
+    "Pmenu": {
+      "bg": "#504945",
+      "fg": "#d4be98"
+    },
+    "PmenuSel": {
+      "bg": "#665c54",
+      "fg": "#d4be98"
+    },
+    "Removed": {
+      "fg": "#ea6962"
+    },
+    "Search": {
+      "bg": "#4a5229",
+      "fg": "#d4be98"
+    },
+    "SignColumn": {
+      "fg": "#d4be98"
+    },
+    "SnacksIndent": {},
+    "SnacksIndentScope": {},
+    "SpellBad": {
+      "sp": "#ea6962",
+      "undercurl": true
+    },
+    "SpellCap": {
+      "sp": "#c4a67e",
+      "undercurl": true
+    },
+    "Substitute": {
+      "bg": "#6b5428",
+      "fg": "#d4be98"
+    },
+    "Title": {
+      "fg": "#e78a4e"
+    },
+    "Todo": {
+      "bg": "#c4a67e",
+      "fg": "#32302f"
+    },
+    "Underlined": {
+      "underline": true
+    },
+    "Visual": {
+      "bg": "#504945"
+    },
+    "WarningMsg": {
+      "fg": "#d8a657"
+    },
+    "Whitespace": {
+      "fg": "#665c54"
+    },
+    "WinSeparator": {
+      "fg": "#665c54"
+    }
+  }
+}
