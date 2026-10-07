@@ -56,10 +56,11 @@ class GruvboxService : Disposable {
         val scheme = EditorColorsManager.getInstance().globalScheme
         val variant = palette.variantForScheme(scheme.name.removePrefix(Scheme.EDITABLE_COPY_PREFIX))
         val readability = state.readability
-        if (variant != null && readability.any) {
+        val keywordColor = variant?.let { keywordColor(it, state.keywords) }
+        if (variant != null && (readability.any || keywordColor != null)) {
             val groups = palette.groups
-            val keys = groups.operators + groups.comments + groups.docs + groups.calls
-            schemeOverrides.apply(scheme, readabilityOverrides(directlyDefined(scheme, keys), groups, variant.roles, readability))
+            val keys = groups.operators + groups.comments + groups.docs + groups.calls + groups.keywords
+            schemeOverrides.apply(scheme, readabilityOverrides(directlyDefined(scheme, keys), groups, variant.roles, readability, keywordColor))
         }
         if (hadOverrides || !schemeOverrides.isEmpty) refreshEditors(scheme)
     }

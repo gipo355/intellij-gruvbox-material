@@ -19,6 +19,9 @@ class GruvboxState : BaseState() {
     var accent by string("aqua")
     var tabStyle by enum(TabStyle.UNDERLINE)
     var indentRainbowSync by property(false)
+    var keywordFamily by string(STOCK)
+    var keywordBrightness by property(1)
+    var keywordStrength by property(1)
 
     // The user's Indent Rainbow palette before sync took over; null while sync is not applied.
     var irPaletteType by string()
@@ -36,6 +39,7 @@ class GruvboxState : BaseState() {
     var fontVariants by stringSet()
 
     val readability get() = Readability(quietOperators, dimComments, softenDocs, emphasizeDeclarations)
+    val keywords get() = KeywordChoice(keywordFamily ?: STOCK, keywordBrightness, keywordStrength)
 }
 
 @Service(Service.Level.APP)

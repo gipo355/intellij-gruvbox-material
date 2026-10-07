@@ -93,5 +93,10 @@
     "ScreenView.selectedBorderColor",
     "Space.Review.workingOutline",
     "IconBadge.newUiBackground"
+  ],
+  "keywords": [
+    "DEFAULT_KEYWORD",
+    "CUSTOM_KEYWORD1_ATTRIBUTES",
+    "GROOVY_KEYWORD"
   ]
 }

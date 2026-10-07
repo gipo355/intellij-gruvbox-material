@@ -2,11 +2,16 @@ package dev.gipo.gruvboxmaterial.settings
 
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.openapi.options.BoundConfigurable
+import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogPanel
+import com.intellij.ui.dsl.builder.Panel
 import com.intellij.ui.dsl.builder.bind
 import com.intellij.ui.dsl.builder.bindItem
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
+import com.intellij.util.ui.ColorIcon
+import javax.swing.JComponent
+import javax.swing.JLabel
 
 class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
     private val service = GruvboxService.getInstance()
@@ -30,6 +35,7 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
                     .comment("The platform's \"Highlight on caret movement: current scope\"")
             }
         }
+        keywordsGroup()
         group("Interface") {
             row("Accent:") { comboBox(ACCENTS).bindItem({ state.accent ?: "aqua" }, { state.accent = it ?: "aqua" }) }
             buttonsGroup("Selected editor tab:") {
@@ -55,6 +61,62 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
                 )
             }
         }
+    }
+
+    private fun Panel.keywordsGroup() {
+        val variant = service.activeVariant() ?: service.palette.variants.values.firstOrNull()
+        val table = variant?.keywords
+        val familyLabels = KEYWORD_FAMILIES.associateWith { keywordFamilyLabel(variant, it) }
+        val brightness = table?.brightness.orEmpty()
+        val strength = table?.strength.orEmpty()
+        lateinit var family: ComboBox<String>
+        lateinit var bright: ComboBox<String>
+        lateinit var strong: ComboBox<String>
+        lateinit var swatch: JLabel
+        lateinit var hint: JComponent
+        fun choice() = KeywordChoice(
+            KEYWORD_FAMILIES.firstOrNull { familyLabels[it] == family.item } ?: STOCK,
+            brightness.indexOf(bright.item).coerceAtLeast(0),
+            strength.indexOf(strong.item).coerceAtLeast(0),
+        )
+        fun refresh() {
+            val choice = choice()
+            bright.isEnabled = choice.tunable
+            strong.isEnabled = choice.tunable
+            val color = variant?.let { keywordColor(it, choice) }
+            val bg = variant?.roles?.get("bg0")
+            if (color == null || bg == null) {
+                swatch.icon = null
+                swatch.text = "Keywords as the scheme ships them"
+                hint.isVisible = false
+                return
+            }
+            val ratio = contrastRatio(color, bg)
+            swatch.icon = ColorIcon(14, color)
+            swatch.text = "#%06x  %.1f:1 on bg0".format(color.rgb and 0xffffff, ratio)
+            hint.isVisible = ratio < 4.5
+        }
+        group("Keywords") {
+            row("Family:") {
+                family = comboBox(KEYWORD_FAMILIES.map { familyLabels.getValue(it) })
+                    .bindItem({ familyLabels[state.keywordFamily] ?: familyLabels.getValue(STOCK) }, { label -> state.keywordFamily = KEYWORD_FAMILIES.firstOrNull { familyLabels[it] == label } ?: STOCK })
+                    .component
+            }
+            row("Brightness:") {
+                bright = comboBox(brightness)
+                    .bindItem({ brightness.getOrNull(state.keywordBrightness) }, { state.keywordBrightness = brightness.indexOf(it).coerceAtLeast(0) })
+                    .component
+            }
+            row("Strength:") {
+                strong = comboBox(strength)
+                    .bindItem({ strength.getOrNull(state.keywordStrength) }, { state.keywordStrength = strength.indexOf(it).coerceAtLeast(0) })
+                    .component
+            }
+            row { swatch = label("").component }
+            row { hint = comment("Below 4.5:1; Faint and Ghost are meant to recede, so this is a hint, not an error").component }
+        }
+        for (combo in listOf(family, bright, strong)) combo.addActionListener { refresh() }
+        refresh()
     }
 
     override fun apply() {

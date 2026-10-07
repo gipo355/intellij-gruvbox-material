@@ -9,7 +9,7 @@ import com.intellij.openapi.project.DumbAwareToggleAction
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import kotlin.reflect.KMutableProperty1
 
-/** Main toolbar chip, visible only under one of our themes: variants, readability toggles, accent and reading font. */
+/** Main toolbar chip, visible only under one of our themes: variants, readability toggles, accent, keywords and reading font. */
 class GruvboxChipAction : DumbAwareAction() {
     override fun getActionUpdateThread() = ActionUpdateThread.BGT
 
@@ -43,9 +43,28 @@ class GruvboxChipAction : DumbAwareAction() {
                 })
             }
         })
+        add(DefaultActionGroup("Keywords", true).apply {
+            val variant = service.activeVariant()
+            for (family in KEYWORD_FAMILIES) {
+                add(Choice(keywordFamilyLabel(variant, family), { state().keywords.family == family }) {
+                    state().keywordFamily = family
+                    service.applyScheme()
+                })
+            }
+            add(Separator.create())
+            val rows = variant?.keywords?.brightness?.size ?: 0
+            add(Run("Brightness up", { state().keywords.tunable && state().keywordBrightness > 0 }) { stepBrightness(-1) })
+            add(Run("Brightness down", { state().keywords.tunable && state().keywordBrightness < rows - 1 }) { stepBrightness(1) })
+        })
         add(Separator.create())
         if (ReadingFont.installedFamily() != null) add(Run("Apply reading font") { ReadingFont.apply(state()) })
         if (ReadingFont.isApplied(state())) add(Run("Revert reading font") { ReadingFont.revert(state()) })
+    }
+
+    // Row 0 is the brightest, so up is towards 0.
+    private fun stepBrightness(delta: Int) {
+        state().keywordBrightness += delta
+        GruvboxService.getInstance().applyScheme()
     }
 
     private class ReadabilityToggle(text: String, private val property: KMutableProperty1<GruvboxState, Boolean>) : DumbAwareToggleAction(text) {
@@ -63,8 +82,11 @@ class GruvboxChipAction : DumbAwareAction() {
         override fun setSelected(e: AnActionEvent, state: Boolean) = select()
     }
 
-    private class Run(text: String, private val run: () -> Unit) : DumbAwareAction(text) {
+    private class Run(text: String, private val enabled: () -> Boolean = { true }, private val run: () -> Unit) : DumbAwareAction(text) {
         override fun getActionUpdateThread() = ActionUpdateThread.EDT
+        override fun update(e: AnActionEvent) {
+            e.presentation.isEnabled = enabled()
+        }
         override fun actionPerformed(e: AnActionEvent) = run()
     }
 }

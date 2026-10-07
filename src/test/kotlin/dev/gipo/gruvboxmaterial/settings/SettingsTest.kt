@@ -24,6 +24,7 @@ class SettingsTest {
         "DEFAULT_DOC_COMMENT_TAG" to attributes("a89984"),
         "DEFAULT_DOC_MARKUP" to attributes("c4a67e", effect = "89b482"),
         "DEFAULT_FUNCTION_CALL" to attributes("a9b665"),
+        "DEFAULT_KEYWORD" to attributes("ea6962"),
     )
 
     @Test
@@ -98,6 +99,62 @@ class SettingsTest {
             assertSame(key.externalName, attributes, stored[key])
             assertEquals(key.externalName, original.getValue(key.externalName), stored[key])
         }
+    }
+
+    @Test
+    fun keywordTableLookup() {
+        assertNull(keywordColor(dark, KeywordChoice()))
+        assertEquals(Color(0xd4be98), keywordColor(dark, KeywordChoice(PLAIN, brightness = 5, strength = 2)))
+        assertEquals(Color(0xcd936a), keywordColor(dark, KeywordChoice("orange", brightness = 1, strength = 1)))
+        assertEquals(Color(0xda8d53), keywordColor(dark, KeywordChoice("orange", brightness = 0, strength = 0)))
+        assertNull(keywordColor(dark, KeywordChoice("orange", brightness = 2)))
+        assertNull(keywordColor(dark, KeywordChoice("slate")))
+        assertNull(keywordColor(fixture.variants.getValue("variant-light"), KeywordChoice("orange")))
+        assertTrue(KeywordChoice("orange").tunable)
+        assertTrue(!KeywordChoice(STOCK).tunable && !KeywordChoice(PLAIN).tunable)
+    }
+
+    @Test
+    fun shippedKeywordTableMatchesTheFormula() {
+        val shipped = Palette.load()
+        for (variant in shipped.variants.values) {
+            assertEquals(Color(0xcd936a), keywordColor(variant, KeywordChoice("orange")))
+            assertEquals(Color(0xd48b85), keywordColor(variant, KeywordChoice("red")))
+            assertEquals(KEYWORD_FAMILIES - STOCK - PLAIN, variant.keywords!!.families.keys.toList())
+            assertTrue(variant.keywords!!.families.values.all { f -> f.colors.size == 7 && f.colors.all { it.size == 3 } })
+        }
+        assertTrue("DEFAULT_KEYWORD" in shipped.groups.keywords)
+    }
+
+    @Test
+    fun keywordFamilyMovesOperatorsToForegroundUnlessQuiet() {
+        val orange = Color(0xcd936a)
+        val coupled = readabilityOverrides(original, fixture.groups, dark.roles, Readability(), orange)
+        assertEquals(setOf("DEFAULT_OPERATION_SIGN", "DEFAULT_KEYWORD"), coupled.keys)
+        assertEquals(Color(0xd4be98), coupled.getValue("DEFAULT_OPERATION_SIGN").foregroundColor)
+        assertEquals(orange, coupled.getValue("DEFAULT_KEYWORD").foregroundColor)
+
+        val quiet = readabilityOverrides(original, fixture.groups, dark.roles, Readability(quietOperators = true), orange)
+        assertEquals(Color(0xa89984), quiet.getValue("DEFAULT_OPERATION_SIGN").foregroundColor)
+
+        assertTrue(readabilityOverrides(original, fixture.groups, dark.roles, Readability(), keywordColor(dark, KeywordChoice())).isEmpty())
+    }
+
+    @Test
+    fun backToStockRestoresTheShippedScheme() {
+        val stored = original.mapKeys { TextAttributesKey.find(it.key) }.toMutableMap()
+        val before = stored.toMap()
+        val overrides = SchemeOverrides()
+        overrides.apply(fakeScheme(stored), readabilityOverrides(original, fixture.groups, dark.roles, Readability(), Color(0xcd936a)))
+        assertEquals(Color(0xcd936a), stored.getValue(TextAttributesKey.find("DEFAULT_KEYWORD")).foregroundColor)
+        overrides.restore()
+        for ((key, attributes) in before) assertSame(key.externalName, attributes, stored[key])
+    }
+
+    @Test
+    fun contrastRatioFollowsWcag() {
+        assertEquals(21.0, contrastRatio(Color.WHITE, Color.BLACK), 0.01)
+        assertEquals(1.0, contrastRatio(Color(0x32302f), Color(0x32302f)), 0.0)
     }
 
     @Test

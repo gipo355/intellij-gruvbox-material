@@ -17,14 +17,15 @@ data class Readability(
 }
 
 /**
- * The attributes the enabled toggles replace, keyed by attribute name: [original] attributes with only the foreground
- * changed. Keys missing from [original] are skipped, so only attributes the scheme defines itself are touched.
+ * The attributes the enabled toggles and [keywordColor] replace, keyed by attribute name: [original] attributes with only
+ * the foreground changed. Keys missing from [original] are skipped, so only attributes the scheme defines itself are touched.
  */
 fun readabilityOverrides(
     original: Map<String, TextAttributes>,
     groups: Groups,
     roles: Map<String, Color>,
     readability: Readability,
+    keywordColor: Color? = null,
 ): Map<String, TextAttributes> {
     val result = LinkedHashMap<String, TextAttributes>()
     fun recolor(keys: List<String>, color: Color?) {
@@ -34,7 +35,10 @@ fun readabilityOverrides(
             if (attributes.foregroundColor != color) result[key] = attributes.clone().apply { foregroundColor = color }
         }
     }
+    // Operators share the stock keyword orange, so they step aside to fg0 when keywords change; quiet still wins.
     if (readability.quietOperators) recolor(groups.operators, roles["grey2"])
+    else if (keywordColor != null) recolor(groups.operators, roles["fg0"])
+    recolor(groups.keywords, keywordColor)
     if (readability.dimComments) recolor(groups.comments, roles["grey1"])
     if (readability.softenDocs) {
         val commentColor = if (readability.dimComments) roles["grey1"] else groups.comments.firstNotNullOfOrNull { original[it]?.foregroundColor }

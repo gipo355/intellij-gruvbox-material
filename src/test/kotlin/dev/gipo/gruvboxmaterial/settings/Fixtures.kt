@@ -22,6 +22,13 @@ const val FIXTURE_PALETTE = """
         "bg3": "#504945",
         "bg_current_word": "#45403d",
         "tint": "#25242380"
+      },
+      "keywords": {
+        "brightness": ["Bright", "Mid"],
+        "strength": ["Vivid", "Muted", "Soft"],
+        "families": {
+          "orange": {"label": "Orange", "colors": [["#da8d53", "#d79c73", "#d0a385"], ["#cf8449", "#cd936a", "#c69a7c"]]}
+        }
       }
     },
     "variant-light": {
@@ -40,6 +47,7 @@ const val FIXTURE_GROUPS = """
   "comments": ["DEFAULT_LINE_COMMENT", "DEFAULT_BLOCK_COMMENT"],
   "docs": ["DEFAULT_DOC_COMMENT_TAG", "DEFAULT_DOC_MARKUP"],
   "calls": ["DEFAULT_FUNCTION_CALL"],
+  "keywords": ["DEFAULT_KEYWORD"],
   "accentUiKeys": ["Component.focusColor", "*.underlineColor"]
 }
 """
