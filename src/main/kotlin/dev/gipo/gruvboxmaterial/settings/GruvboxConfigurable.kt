@@ -34,13 +34,14 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
                 checkBox("Current-scope gutter line").bindSelected(CodeInsightSettings.getInstance()::HIGHLIGHT_SCOPE)
                     .comment("The platform's \"Highlight on caret movement: current scope\"")
             }
+            row { comment("Readability and keyword colours live in memory; turn them off before editing this scheme in Editor > Color Scheme, or they may be saved into your copy.") }
         }
         keywordsGroup()
         group("Interface") {
             row("Accent:") { comboBox(ACCENTS).bindItem({ state.accent ?: "aqua" }, { state.accent = it ?: "aqua" }) }
             buttonsGroup("Selected editor tab:") {
                 row {
-                    radioButton("Underline", TabStyle.UNDERLINE)
+                    radioButton("Outline", TabStyle.UNDERLINE)
                     radioButton("Filled", TabStyle.FILLED)
                 }
             }.bind(state::tabStyle)

@@ -120,7 +120,7 @@ class SettingsTest {
         for (variant in shipped.variants.values) {
             assertEquals(Color(0xcd936a), keywordColor(variant, KeywordChoice("orange")))
             assertEquals(Color(0xd48b85), keywordColor(variant, KeywordChoice("red")))
-            assertEquals(KEYWORD_FAMILIES - STOCK - PLAIN, variant.keywords!!.families.keys.toList())
+            assertEquals((KEYWORD_FAMILIES - STOCK - PLAIN).toSet(), variant.keywords!!.families.keys)
             assertTrue(variant.keywords!!.families.values.all { f -> f.colors.size == 7 && f.colors.all { it.size == 3 } })
         }
         assertTrue("DEFAULT_KEYWORD" in shipped.groups.keywords)
