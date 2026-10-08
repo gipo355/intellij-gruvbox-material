@@ -2,9 +2,9 @@
   <colors>
     <option name="ADDED_LINES_COLOR" value="5a6619"/>
     <option name="ANNOTATIONS_COLOR" value="928374"/>
-    <option name="ANNOTATIONS_LAST_COMMIT_COLOR" value="6e6257"/>
+    <option name="ANNOTATIONS_LAST_COMMIT_COLOR" value="7a6d62"/>
     <option name="ActionButton.hoverBackground" value="eddeb5"/>
-    <option name="ActionButton.iconTextForeground" value="6e6257"/>
+    <option name="ActionButton.iconTextForeground" value="7a6d62"/>
     <option name="ActionButton.pressedBackground" value="e6d5ae"/>
     <option name="BLOCK_TERMINAL_BLOCK_BACKGROUND_END" value="f2e5bc"/>
     <option name="BLOCK_TERMINAL_BLOCK_BACKGROUND_START" value="c2ccc9"/>
@@ -108,20 +108,20 @@
     <option name="JUPYTER.GUTTER_INPUT_EXECUTION_COUNT" value="765b35"/>
     <option name="JUPYTER.GUTTER_OUTPUT_EXECUTION_COUNT" value="994745"/>
     <option name="JUPYTER.PROGRESS_STATUS_RUNNING_COLOR" value="c2ccc9"/>
-    <option name="LINE_NUMBERS_COLOR" value="d5c4a1"/>
+    <option name="LINE_NUMBERS_COLOR" value="a89984"/>
     <option name="LINE_NUMBER_ON_CARET_ROW_COLOR" value="928374"/>
     <option name="LOOKUP_COLOR" value="eddeb5"/>
     <option name="MATCHED_BRACES_INDENT_GUIDE_COLOR" value="a89984"/>
     <option name="METHOD_SEPARATORS_COLOR" value="e6d5ae"/>
     <option name="MODIFIED_LINES_COLOR" value="895402"/>
     <option name="MODIFIED_TAB_ICON" value="765b35"/>
-    <option name="NEXT_EDIT.DIFF_ADD_BACKGROUND" value="dad989"/>
+    <option name="NEXT_EDIT.DIFF_ADD_BACKGROUND" value="d7d784"/>
     <option name="NEXT_EDIT.DIFF_AFTER_BACKGROUND" value="e4e09d"/>
     <option name="NEXT_EDIT.DIFF_PANEL_BORDER" value="928374"/>
     <option name="NEXT_EDIT.EDIT_RANGE.GUTTER_BACKGROUND" value="dac9d2"/>
     <option name="NEXT_EDIT.EDIT_RANGE.LINE_BACKGROUND" value="c2ccc9"/>
     <option name="NEXT_EDIT.INSIGHT_BACKGROUND" value="dac9d2"/>
-    <option name="NEXT_EDIT.REMOVAL_BACKGROUND" value="ffc799"/>
+    <option name="NEXT_EDIT.REMOVAL_BACKGROUND" value="fec395"/>
     <option name="NEXT_EDIT.REVIEW_HINT.BACKGROUND" value="dac9d2"/>
     <option name="NEXT_EDIT_AGENT_DELEGATION.TASK_FINISHED_FLASH" value="c3ccbe"/>
     <option name="NEXT_EDIT_AGENT_DELEGATION.TASK_RANGE_BACKGROUND" value="dac9d2"/>
@@ -269,7 +269,7 @@
     </option>
     <option name="ANGLE_BRACKETS_RAINBOW_COLOR6">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="ANGLE_BRACKETS_RAINBOW_COLOR7">
@@ -340,7 +340,7 @@
     </option>
     <option name="BASH.SHEBANG">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="BEAN.ACTIVE">
@@ -348,13 +348,13 @@
     </option>
     <option name="BEAN.INACTIVE">
       <value>
-        <option name="EFFECT_COLOR" value="6e6257"/>
+        <option name="EFFECT_COLOR" value="7a6d62"/>
         <option name="EFFECT_TYPE" value="6"/>
       </value>
     </option>
     <option name="BLINKING_HIGHLIGHTS_ATTRIBUTES">
       <value>
-        <option name="EFFECT_COLOR" value="6e6257"/>
+        <option name="EFFECT_COLOR" value="7a6d62"/>
         <option name="EFFECT_TYPE" value="0"/>
       </value>
     </option>
@@ -476,7 +476,7 @@
     </option>
     <option name="BOOKMARKS_ATTRIBUTES">
       <value>
-        <option name="ERROR_STRIPE_COLOR" value="6e6257"/>
+        <option name="ERROR_STRIPE_COLOR" value="7a6d62"/>
       </value>
     </option>
     <option name="BREADCRUMBS_CURRENT">
@@ -487,7 +487,7 @@
     </option>
     <option name="BREADCRUMBS_DEFAULT">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="BREADCRUMBS_HOVERED">
@@ -551,7 +551,7 @@
     </option>
     <option name="COMPOSE_SERVICE_STATUS_NEUTRAL">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="COMPOSE_SERVICE_STATUS_SUCCESS">
@@ -658,7 +658,7 @@
     </option>
     <option name="CONSOLE_SYSTEM_OUTPUT">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="CONSOLE_USER_INPUT">
@@ -723,7 +723,7 @@
     </option>
     <option name="CSV_PLUGIN_COLUMN_COLORING_ATTRIBUTE_4">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="CSV_PLUGIN_COLUMN_COLORING_ATTRIBUTE_5">
@@ -787,12 +787,12 @@
     </option>
     <option name="CUSTOM_LINE_COMMENT_ATTRIBUTES">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="CUSTOM_MULTI_LINE_COMMENT_ATTRIBUTES">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="CUSTOM_NUMBER_ATTRIBUTES">
@@ -930,7 +930,7 @@
     </option>
     <option name="DEFAULT_BLOCK_COMMENT">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="DEFAULT_BRACES">
@@ -965,12 +965,12 @@
     </option>
     <option name="DEFAULT_DOC_COMMENT">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="DEFAULT_DOC_COMMENT_TAG">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
         <option name="EFFECT_COLOR" value="a89984"/>
         <option name="EFFECT_TYPE" value="1"/>
       </value>
@@ -982,7 +982,7 @@
     </option>
     <option name="DEFAULT_DOC_MARKUP">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="DEFAULT_DOT">
@@ -1055,7 +1055,7 @@
     </option>
     <option name="DEFAULT_LINE_COMMENT">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="DEFAULT_LOCAL_VARIABLE">
@@ -1162,14 +1162,14 @@
     <option name="DIFF_CONFLICT">
       <value>
         <option name="FOREGROUND" value="f7d4bd"/>
-        <option name="BACKGROUND" value="f5c8ba"/>
+        <option name="BACKGROUND" value="f3c5b8"/>
         <option name="ERROR_STRIPE_COLOR" value="845071"/>
       </value>
     </option>
     <option name="DIFF_DELETED">
       <value>
         <option name="FOREGROUND" value="fed3a7"/>
-        <option name="BACKGROUND" value="ffc799"/>
+        <option name="BACKGROUND" value="fec395"/>
         <option name="ERROR_STRIPE_COLOR" value="994745"/>
       </value>
     </option>
@@ -1181,14 +1181,14 @@
     <option name="DIFF_INSERTED">
       <value>
         <option name="FOREGROUND" value="e4e09d"/>
-        <option name="BACKGROUND" value="dad989"/>
+        <option name="BACKGROUND" value="d7d784"/>
         <option name="ERROR_STRIPE_COLOR" value="5a6619"/>
       </value>
     </option>
     <option name="DIFF_MODIFIED">
       <value>
         <option name="FOREGROUND" value="f7d898"/>
-        <option name="BACKGROUND" value="f5ce82"/>
+        <option name="BACKGROUND" value="f4cb7d"/>
         <option name="ERROR_STRIPE_COLOR" value="895402"/>
       </value>
     </option>
@@ -1531,7 +1531,7 @@
     </option>
     <option name="IGNORE.COMMENT">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="IGNORE.HEADER">
@@ -1617,7 +1617,7 @@
     </option>
     <option name="INDENT_GUIDES_RAINBOW_COLOR6">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="INDENT_GUIDES_RAINBOW_COLOR7">
@@ -1690,13 +1690,13 @@
     </option>
     <option name="INLINE_PARAMETER_HINT_CURRENT">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
         <option name="BACKGROUND" value="e6d5ae"/>
       </value>
     </option>
     <option name="INLINE_PARAMETER_HINT_HIGHLIGHTED">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
         <option name="BACKGROUND" value="e6d5ae"/>
       </value>
     </option>
@@ -1939,7 +1939,7 @@
     </option>
     <option name="KUBERNETES_POD_STATUS_OTHER">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="KUBERNETES_POD_STATUS_SUCCESS">
@@ -2319,7 +2319,7 @@
     </option>
     <option name="ROUND_BRACKETS_RAINBOW_COLOR6">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="ROUND_BRACKETS_RAINBOW_COLOR7">
@@ -2351,7 +2351,7 @@
     </option>
     <option name="SASS_COMMENT">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="SASS_CONSTANT">
@@ -2466,7 +2466,7 @@
     </option>
     <option name="SQUARE_BRACKETS_RAINBOW_COLOR6">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="SQUARE_BRACKETS_RAINBOW_COLOR7">
@@ -2516,7 +2516,7 @@
     </option>
     <option name="SQUIGGLY_BRACKETS_RAINBOW_COLOR6">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="SQUIGGLY_BRACKETS_RAINBOW_COLOR7">
@@ -2551,7 +2551,7 @@
     </option>
     <option name="STRUCTURE_VIEW_CODE_CELL_ATTRIBUTES">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="STRUCTURE_VIEW_MARKDOWN_HEADER_CELL_ATTRIBUTES">
@@ -2693,7 +2693,7 @@
     </option>
     <option name="Unresolved reference access">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
         <option name="EFFECT_COLOR" value="a89984"/>
         <option name="EFFECT_TYPE" value="5"/>
       </value>
@@ -2806,7 +2806,7 @@
     </option>
     <option name="markup.underline">
       <value>
-        <option name="EFFECT_COLOR" value="6e6257"/>
+        <option name="EFFECT_COLOR" value="7a6d62"/>
         <option name="EFFECT_TYPE" value="1"/>
       </value>
     </option>
@@ -2847,7 +2847,7 @@
     </option>
     <option name="org.rust.DOC_CODE">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="org.rust.DOC_EMPHASIS">
@@ -2883,17 +2883,17 @@
     </option>
     <option name="org.rust.INLINE_ERROR_DESCRIPTION">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="org.rust.INLINE_EXPLANATION">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="org.rust.INLINE_WARNING_DESCRIPTION">
       <value>
-        <option name="FOREGROUND" value="6e6257"/>
+        <option name="FOREGROUND" value="7a6d62"/>
       </value>
     </option>
     <option name="org.rust.LIFETIME">

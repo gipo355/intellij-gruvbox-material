@@ -44,14 +44,14 @@
         "search_current": "#7a3d35",
         "substitute": "#6b5428",
         "write_usage": "#4a3a2a",
-        "diff_ins": "#384120",
-        "diff_del": "#56302d",
-        "diff_mod": "#4f3719",
-        "diff_conf": "#4f3146",
-        "diff_ins_line": "#343924",
-        "diff_del_line": "#482f2c",
-        "diff_mod_line": "#433320",
-        "diff_conf_line": "#432f3c"
+        "diff_ins": "#3c4524",
+        "diff_del": "#5a3431",
+        "diff_mod": "#533b1e",
+        "diff_conf": "#53354a",
+        "diff_ins_line": "#303520",
+        "diff_del_line": "#442b28",
+        "diff_mod_line": "#3f2f1c",
+        "diff_conf_line": "#3f2b38"
       }
     },
     "dark-medium": {
@@ -97,14 +97,14 @@
         "search_current": "#70342c",
         "substitute": "#614b1e",
         "write_usage": "#413122",
-        "diff_ins": "#2d3819",
-        "diff_del": "#4b2826",
-        "diff_mod": "#442f12",
-        "diff_conf": "#44293e",
-        "diff_ins_line": "#29311d",
-        "diff_del_line": "#3e2624",
-        "diff_mod_line": "#392b19",
-        "diff_conf_line": "#392735"
+        "diff_ins": "#313c1d",
+        "diff_del": "#4f2c2a",
+        "diff_mod": "#483317",
+        "diff_conf": "#482d42",
+        "diff_ins_line": "#252c18",
+        "diff_del_line": "#392220",
+        "diff_mod_line": "#342614",
+        "diff_conf_line": "#342230"
       }
     },
     "dark-hard": {
@@ -150,14 +150,14 @@
         "search_current": "#652a23",
         "substitute": "#574113",
         "write_usage": "#372819",
-        "diff_ins": "#223012",
-        "diff_del": "#3f201f",
-        "diff_mod": "#39270b",
-        "diff_conf": "#392136",
-        "diff_ins_line": "#1e2816",
-        "diff_del_line": "#321f1e",
-        "diff_mod_line": "#2d2313",
-        "diff_conf_line": "#2e1f2d"
+        "diff_ins": "#253317",
+        "diff_del": "#432423",
+        "diff_mod": "#3c2b10",
+        "diff_conf": "#3c253a",
+        "diff_ins_line": "#1b2513",
+        "diff_del_line": "#2e1b1b",
+        "diff_mod_line": "#2a1f10",
+        "diff_conf_line": "#2a1c2a"
       }
     },
     "light-soft": {
@@ -171,7 +171,7 @@
         "fg0": "#654735",
         "grey0": "#a89984",
         "grey1": "#928374",
-        "grey2": "#6e6257",
+        "grey2": "#7a6d62",
         "red": "#994745",
         "orange": "#934e1f",
         "yellow": "#895402",
@@ -203,10 +203,10 @@
         "search_current": "#efa89d",
         "substitute": "#cbb283",
         "write_usage": "#e5d1be",
-        "diff_ins": "#dad989",
-        "diff_del": "#ffc799",
-        "diff_mod": "#f5ce82",
-        "diff_conf": "#f5c8ba",
+        "diff_ins": "#d7d784",
+        "diff_del": "#fec395",
+        "diff_mod": "#f4cb7d",
+        "diff_conf": "#f3c5b8",
         "diff_ins_line": "#e4e09d",
         "diff_del_line": "#fed3a7",
         "diff_mod_line": "#f7d898",
@@ -227,7 +227,7 @@
     }
   },
   "rules": {
-    "$comment": "No color anywhere may contrast more with the variant's bg0 than fg0 does: bright glyphs and blocks are what bloom. No bold or italic in the editor scheme. diff: bounds for the diff tints (OKLab distance from bg0 and between the four, fg0 contrast on each, as a ratio of fg0's contrast on bg0).",
+    "$comment": "No color anywhere may contrast more with the variant's bg0 than fg0 does: bright glyphs and blocks are what bloom. No bold or italic in the editor scheme. diff: bounds for the diff tints (OKLab distance from bg0 and between the four, fg0 contrast on each, as a ratio of fg0's contrast on bg0; wordVsLine: distance between each hue's block and line tint).",
     "maxContrastColor": "fg0",
     "fontTypes": "none",
     "diff": {
@@ -240,10 +240,10 @@
       "block": {
         "deltaE": [
           0.06,
-          0.08
+          0.09
         ],
         "pairwise": 0.038,
-        "contrastRatio": 0.76
+        "contrastRatio": 0.74
       },
       "line": {
         "deltaE": [
@@ -252,7 +252,8 @@
         ],
         "pairwise": 0.025,
         "contrastRatio": 0.87
-      }
+      },
+      "wordVsLine": 0.035
     }
   }
 }

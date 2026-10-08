@@ -14,7 +14,8 @@ import kotlin.math.sqrt
 
 /**
  * Quality gate for every variant in tools/palette.json: every color comes from that variant's palette, blue only where
- * restricted allows it, nothing contrasts more with bg0 than fg0, no bold/italic, diff tints inside their bounds,
+ * restricted allows it, nothing contrasts more with bg0 than fg0, no bold/italic, diff tints inside their bounds
+ * and changed words apart from their line,
  * no missing or misspelled keys. Each test collects every offender across all variants and fails once.
  */
 class ThemeLintTest {
@@ -138,12 +139,13 @@ class ThemeLintTest {
             val bg = v.colors.getValue("bg0")
             val fg = v.colors.getValue("fg0")
             val attrs = scheme(v).child("attributes")?.children("option").orEmpty().associateBy { it.getAttribute("name") }
+            val byKind = mutableMapOf<String, Map<String, String>>()
             for ((kind, field) in DIFF_FIELDS) {
                 val spec = diff.getAsJsonObject(kind)
                 val (low, high) = spec.getAsJsonArray("deltaE").map { it.asDouble }
                 // fg0 on the tint keeps this share of its contrast on bg0.
                 val floor = spec["contrastRatio"].asDouble * contrast(fg, bg)
-                val tints = DIFF_KEYS.mapNotNull { key ->
+                val tintsByKey = DIFF_KEYS.mapNotNull { key ->
                     val raw = attrs[key]?.child("value")?.children("option")?.firstOrNull { it.getAttribute("name") == field }?.getAttribute("value")
                     if (raw.isNullOrEmpty()) {
                         problems += "$key.$field is not set"
@@ -153,14 +155,23 @@ class ThemeLintTest {
                     val distance = deltaE(tint, bg)
                     if (distance < low || distance > high) problems += "$key.$field #$tint: deltaE ${"%.3f".format(distance)} vs bg0 outside [$low, $high]"
                     if (contrast(fg, tint) < floor) problems += "$key.$field #$tint: fg0 contrast ${"%.2f".format(contrast(fg, tint))} < ${"%.2f".format(floor)}"
-                    tint
-                }
+                    key to tint
+                }.toMap()
+                byKind[kind] = tintsByKey
+                val tints = tintsByKey.values.toList()
                 val pairwise = spec["pairwise"].asDouble
                 for (i in tints.indices) for (j in i + 1 until tints.size) {
                     if (deltaE(tints[i], tints[j]) < pairwise) problems += "$kind #${tints[i]} vs #${tints[j]}: deltaE ${"%.3f".format(deltaE(tints[i], tints[j]))} < $pairwise"
                 }
                 val lightness = tints.map { oklab(it)[0] }
                 if (kind == "block" && lightness.isNotEmpty() && lightness.max() - lightness.min() > 0.01) problems += "block tints differ in lightness by ${"%.3f".format(lightness.max() - lightness.min())}"
+            }
+            // Changed words (block tint) must stand out from their changed line (line tint).
+            val wordVsLine = diff["wordVsLine"].asDouble
+            for (key in DIFF_KEYS) {
+                val word = byKind.getValue("block")[key] ?: continue
+                val line = byKind.getValue("line")[key] ?: continue
+                if (deltaE(word, line) < wordVsLine) problems += "$key word #$word vs line #$line: deltaE ${"%.3f".format(deltaE(word, line))} < $wordVsLine"
             }
             problems.map { "${v.key}: $it" }
         })

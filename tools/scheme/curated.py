@@ -33,7 +33,7 @@ DiffAdd/Delete/Change/Text         diff_ins/diff_del/diff_mod_line/diff_mod (too
 Search / CurSearch                 search / search_current  SEARCH_RESULT_*, terminal search
 LspReferenceText / Write           bg_current_word / write_usage  IDENTIFIER_UNDER_CARET / WRITE_*
 Visual / CursorLine / MatchParen   bg3 / bg1 / bg3  SELECTION_BACKGROUND / CARET_ROW_COLOR / MATCHED_BRACE
-LineNr / CursorLineNr              bg5 / grey1  LINE_NUMBERS_COLOR / LINE_NUMBER_ON_CARET_ROW_COLOR
+LineNr / CursorLineNr              bg5 (light: grey0) / grey1  LINE_NUMBERS_COLOR / LINE_NUMBER_ON_CARET_ROW_COLOR
 Folded                             grey1 on bg1 FOLDED_TEXT_ATTRIBUTES
 NonText / Whitespace               bg5          WHITESPACES, SOFT_WRAP_SIGN_COLOR
 """
@@ -171,6 +171,11 @@ COLORS = {
     "NEXT_EDIT_AGENT_DELEGATION.TASK_RANGE_BACKGROUND": "bg_visual_purple",
     "NEXT_EDIT_AGENT_DELEGATION.TASK_RANGE_SHIMMER": "bg5",
     "NEXT_EDIT_AGENT_DELEGATION.TASK_FINISHED_FLASH": "bg_visual_green",
+}
+
+# Light variant only, over COLORS: bg5 on the light bg0 is too faint for line numbers.
+LIGHT_COLORS = {
+    "LINE_NUMBERS_COLOR": "grey0",
 }
 
 # ---------------------------------------------------------------- semantic core (DEFAULT_* and editor attributes)

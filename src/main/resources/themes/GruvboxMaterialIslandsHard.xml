@@ -116,13 +116,13 @@
     <option name="METHOD_SEPARATORS_COLOR" value="3c3836"/>
     <option name="MODIFIED_LINES_COLOR" value="d8a657"/>
     <option name="MODIFIED_TAB_ICON" value="c4a67e"/>
-    <option name="NEXT_EDIT.DIFF_ADD_BACKGROUND" value="223012"/>
-    <option name="NEXT_EDIT.DIFF_AFTER_BACKGROUND" value="1e2816"/>
+    <option name="NEXT_EDIT.DIFF_ADD_BACKGROUND" value="253317"/>
+    <option name="NEXT_EDIT.DIFF_AFTER_BACKGROUND" value="1b2513"/>
     <option name="NEXT_EDIT.DIFF_PANEL_BORDER" value="7c6f64"/>
     <option name="NEXT_EDIT.EDIT_RANGE.GUTTER_BACKGROUND" value="1d2021"/>
     <option name="NEXT_EDIT.EDIT_RANGE.LINE_BACKGROUND" value="1d2021"/>
     <option name="NEXT_EDIT.INSIGHT_BACKGROUND" value="382c33"/>
-    <option name="NEXT_EDIT.REMOVAL_BACKGROUND" value="3f201f"/>
+    <option name="NEXT_EDIT.REMOVAL_BACKGROUND" value="432423"/>
     <option name="NEXT_EDIT.REVIEW_HINT.BACKGROUND" value="382c33"/>
     <option name="NEXT_EDIT_AGENT_DELEGATION.TASK_FINISHED_FLASH" value="30382c"/>
     <option name="NEXT_EDIT_AGENT_DELEGATION.TASK_RANGE_BACKGROUND" value="382c33"/>
@@ -1156,7 +1156,7 @@
     <option name="DELETED_TEXT_ATTRIBUTES">
       <value>
         <option name="FOREGROUND" value="928374"/>
-        <option name="BACKGROUND" value="321f1e"/>
+        <option name="BACKGROUND" value="2e1b1b"/>
         <option name="EFFECT_COLOR" value="928374"/>
         <option name="EFFECT_TYPE" value="3"/>
       </value>
@@ -1174,40 +1174,40 @@
     </option>
     <option name="DIFF_CONFLICT">
       <value>
-        <option name="FOREGROUND" value="2e1f2d"/>
-        <option name="BACKGROUND" value="392136"/>
+        <option name="FOREGROUND" value="2a1c2a"/>
+        <option name="BACKGROUND" value="3c253a"/>
         <option name="ERROR_STRIPE_COLOR" value="d48da0"/>
       </value>
     </option>
     <option name="DIFF_DELETED">
       <value>
-        <option name="FOREGROUND" value="321f1e"/>
-        <option name="BACKGROUND" value="3f201f"/>
+        <option name="FOREGROUND" value="2e1b1b"/>
+        <option name="BACKGROUND" value="432423"/>
         <option name="ERROR_STRIPE_COLOR" value="e67d76"/>
       </value>
     </option>
     <option name="DIFF_DELETED_FROM_FS">
       <value>
-        <option name="BACKGROUND" value="321f1e"/>
+        <option name="BACKGROUND" value="2e1b1b"/>
       </value>
     </option>
     <option name="DIFF_INSERTED">
       <value>
-        <option name="FOREGROUND" value="1e2816"/>
-        <option name="BACKGROUND" value="223012"/>
+        <option name="FOREGROUND" value="1b2513"/>
+        <option name="BACKGROUND" value="253317"/>
         <option name="ERROR_STRIPE_COLOR" value="a9b665"/>
       </value>
     </option>
     <option name="DIFF_MODIFIED">
       <value>
-        <option name="FOREGROUND" value="2d2313"/>
-        <option name="BACKGROUND" value="39270b"/>
+        <option name="FOREGROUND" value="2a1f10"/>
+        <option name="BACKGROUND" value="3c2b10"/>
         <option name="ERROR_STRIPE_COLOR" value="d8a657"/>
       </value>
     </option>
     <option name="DIFF_UNKNOWN">
       <value>
-        <option name="BACKGROUND" value="2d2313"/>
+        <option name="BACKGROUND" value="2a1f10"/>
       </value>
     </option>
     <option name="DOC_CODE_BLOCK">

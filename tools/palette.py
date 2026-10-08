@@ -69,16 +69,18 @@ REFERENCE_TINTS = {
 # Light: accents at one contrast against bg0 (dark accents span 4.7-6.0 under fg0's 7.3), chroma capped.
 LIGHT_ACCENT_CONTRAST = 5.0
 LIGHT_CHROMA_CAP = 0.11
-LIGHT_COMMENT_CONTRAST = 4.7
+LIGHT_COMMENT_CONTRAST = 4.0
 
 DIFF = {
     "hues": {"ins": 125, "del": 25, "mod": 72, "conf": 335},
     # Lint bounds (asserted by ThemeLintTest) and the solver's aim inside them. contrastRatio: fg0's contrast on the
     # tint over fg0's contrast on bg0, so the floor follows each variant's text contrast.
-    "block": {"deltaE": [0.06, 0.08], "pairwise": 0.038, "contrastRatio": 0.76,
-              "aim": {"deltaE": 0.07, "pairwise": 0.042, "contrastRatio": 0.77}},
+    "block": {"deltaE": [0.06, 0.09], "pairwise": 0.038, "contrastRatio": 0.74,
+              "aim": {"deltaE": 0.08, "pairwise": 0.042, "contrastRatio": 0.75}},
     "line": {"deltaE": [0.035, 0.05], "pairwise": 0.025, "contrastRatio": 0.87,
-             "aim": {"deltaE": 0.042, "pairwise": 0.028, "contrastRatio": 0.88}},
+             "aim": {"deltaE": 0.036, "pairwise": 0.028, "contrastRatio": 0.88}},
+    # Minimum OKLab distance between each hue's block tint (changed words) and its line tint.
+    "wordVsLine": 0.035,
 }
 DIFF_KINDS = ("block", "line")
 
@@ -317,7 +319,7 @@ def build():
             "$comment": "No color anywhere may contrast more with the variant's bg0 than fg0 does: bright glyphs and "
                         "blocks are what bloom. No bold or italic in the editor scheme. diff: bounds for the diff "
                         "tints (OKLab distance from bg0 and between the four, fg0 contrast on each, as a ratio "
-                        "of fg0's contrast on bg0).",
+                        "of fg0's contrast on bg0; wordVsLine: distance between each hue's block and line tint).",
             "maxContrastColor": "fg0",
             "fontTypes": "none",
             "diff": {k: {f: x for f, x in v.items() if f != "aim"} if k in DIFF_KINDS else v for k, v in DIFF.items()},

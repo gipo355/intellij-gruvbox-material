@@ -230,16 +230,16 @@
       "fg": "#d8a657"
     },
     "DiffAdd": {
-      "bg": "#384120"
+      "bg": "#3c4524"
     },
     "DiffChange": {
-      "bg": "#433320"
+      "bg": "#3f2f1c"
     },
     "DiffDelete": {
-      "bg": "#56302d"
+      "bg": "#5a3431"
     },
     "DiffText": {
-      "bg": "#4f3719"
+      "bg": "#533b1e"
     },
     "Error": {
       "fg": "#e67d76"

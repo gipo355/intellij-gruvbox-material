@@ -29,10 +29,11 @@ DIFF_FIELDS = {"block": "BACKGROUND", "line": "FOREGROUND"}
 def check_diff(attrs, palette, rules, fail):
     """The section-2 diff bounds, on the tints the scheme actually writes."""
     bg, fg = "#" + palette["bg0"], "#" + palette["fg0"]
+    by_kind = {}
     for kind, field in DIFF_FIELDS.items():
         spec = rules[kind]
         floor = spec["contrastRatio"] * P.contrast(fg, bg)
-        tints = {}
+        tints = by_kind[kind] = {}
         for hue, key in DIFF_KEYS.items():
             value = (attrs.get(key) or {}).get(field)
             if not value:
@@ -51,6 +52,10 @@ def check_diff(attrs, palette, rules, fail):
         lightness = [P.oklab(t)[0] for t in vals]
         if kind == "block" and lightness and max(lightness) - min(lightness) > 0.01:
             fail(f"diff block: lightness offsets differ by {max(lightness) - min(lightness):.3f} (> 0.01, rounding)")
+    for hue, key in DIFF_KEYS.items():
+        word, line = by_kind["block"].get(hue), by_kind["line"].get(hue)
+        if word and line and P.delta_e(word, line) < rules["wordVsLine"]:
+            fail(f"{key}: word {word} vs line {line} deltaE {P.delta_e(word, line):.3f} < {rules['wordVsLine']}")
 
 
 def check(variant, rules):

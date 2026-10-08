@@ -232,9 +232,10 @@ def resolve_attribute(key, providers):
     return None, None
 
 
-def resolve_color(key, providers):
-    if key in curated.COLORS:
-        return curated.COLORS[key], "curated"
+def resolve_color(key, providers, dark=True):
+    table = curated.COLORS if dark else {**curated.COLORS, **curated.LIGHT_COLORS}
+    if key in table:
+        return table[key], "curated"
     for label, scheme in providers:
         if key in scheme["colors"]:
             raw = scheme["colors"][key]
@@ -256,7 +257,7 @@ def resolve(src, dark=True):
         raise SystemExit(f"keys only code defines must be curated: {uncurated}")
 
     for k in sorted(color_src):
-        v, h = resolve_color(k, providers)
+        v, h = resolve_color(k, providers, dark)
         out_colors[k], how[k] = v, h
 
     pending = sorted(attr_src)

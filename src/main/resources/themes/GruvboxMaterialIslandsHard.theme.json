@@ -39,14 +39,14 @@
     "search_current": "#652a23",
     "substitute": "#574113",
     "write_usage": "#372819",
-    "diff_ins": "#223012",
-    "diff_del": "#3f201f",
-    "diff_mod": "#39270b",
-    "diff_conf": "#392136",
-    "diff_ins_line": "#1e2816",
-    "diff_del_line": "#321f1e",
-    "diff_mod_line": "#2d2313",
-    "diff_conf_line": "#2e1f2d"
+    "diff_ins": "#253317",
+    "diff_del": "#432423",
+    "diff_mod": "#3c2b10",
+    "diff_conf": "#3c253a",
+    "diff_ins_line": "#1b2513",
+    "diff_del_line": "#2e1b1b",
+    "diff_mod_line": "#2a1f10",
+    "diff_conf_line": "#2a1c2a"
   },
   "ui": {
     "*": {
