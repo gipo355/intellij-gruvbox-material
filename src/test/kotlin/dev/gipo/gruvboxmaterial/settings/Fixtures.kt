@@ -48,6 +48,9 @@ const val FIXTURE_GROUPS = """
   "docs": ["DEFAULT_DOC_COMMENT_TAG", "DEFAULT_DOC_MARKUP"],
   "calls": ["DEFAULT_FUNCTION_CALL"],
   "keywords": ["DEFAULT_KEYWORD"],
+  "parameters": ["DEFAULT_PARAMETER", "DEFAULT_REASSIGNED_PARAMETER"],
+  "reassigned": ["DEFAULT_REASSIGNED_LOCAL_VARIABLE", "DEFAULT_REASSIGNED_PARAMETER"],
+  "annotations": ["ANNOTATION_NAME_ATTRIBUTES", "DEFAULT_METADATA"],
   "accentUiKeys": ["Component.focusColor", "*.underlineColor"]
 }
 """

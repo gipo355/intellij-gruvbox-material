@@ -29,6 +29,9 @@ data class Groups(
     val calls: List<String>,
     val accentUiKeys: List<String>,
     val keywords: List<String> = emptyList(),
+    val parameters: List<String> = emptyList(),
+    val reassigned: List<String> = emptyList(),
+    val annotations: List<String> = emptyList(),
 )
 
 /** The generated palette.json and groups.json: variants keyed by themeProvider id, and the key groups the toggles recolor. */
@@ -50,7 +53,7 @@ class Palette(val variants: Map<String, Variant>, val groups: Groups) {
             }
             val g = JsonParser.parseString(groupsJson).asJsonObject
             fun list(name: String) = g.strings(name)
-            return Palette(variants, Groups(list("operators"), list("comments"), list("docs"), list("calls"), list("accentUiKeys"), list("keywords")))
+            return Palette(variants, Groups(list("operators"), list("comments"), list("docs"), list("calls"), list("accentUiKeys"), list("keywords"), list("parameters"), list("reassigned"), list("annotations")))
         }
 
         fun load(): Palette = parse(resource("/gruvbox/palette.json"), resource("/gruvbox/groups.json"))

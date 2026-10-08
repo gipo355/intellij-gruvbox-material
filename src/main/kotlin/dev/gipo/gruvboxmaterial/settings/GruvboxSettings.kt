@@ -16,6 +16,10 @@ class GruvboxState : BaseState() {
     var dimComments by property(false)
     var softenDocs by property(false)
     var emphasizeDeclarations by property(false)
+    var italicComments by property(false)
+    var italicParameters by property(false)
+    var hideReassignUnderline by property(false)
+    var annotationStyle by enum(AnnotationStyle.PURPLE)
     var accent by string("aqua")
     var tabStyle by enum(TabStyle.UNDERLINE)
     var indentRainbowSync by property(false)
@@ -38,7 +42,7 @@ class GruvboxState : BaseState() {
     var fontLigatures by property(false)
     var fontVariants by stringSet()
 
-    val readability get() = Readability(quietOperators, dimComments, softenDocs, emphasizeDeclarations)
+    val readability get() = Readability(quietOperators, dimComments, softenDocs, emphasizeDeclarations, italicComments, italicParameters, hideReassignUnderline, annotationStyle)
     val keywords get() = KeywordChoice(keywordFamily ?: STOCK, keywordBrightness, keywordStrength)
 }
 

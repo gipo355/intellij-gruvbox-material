@@ -9,6 +9,8 @@ import com.intellij.ui.dsl.builder.bind
 import com.intellij.ui.dsl.builder.bindItem
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
+import com.intellij.ui.dsl.builder.toNullableProperty
+import com.intellij.ui.dsl.listCellRenderer.textListCellRenderer
 import com.intellij.util.ui.ColorIcon
 import javax.swing.JComponent
 import javax.swing.JLabel
@@ -30,6 +32,13 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
             row { checkBox("Dim comments").bindSelected(state::dimComments) }
             row { checkBox("Soften doc comments").bindSelected(state::softenDocs).comment("Tags, references, markup and code in the comment colour") }
             row { checkBox("Emphasize declarations").bindSelected(state::emphasizeDeclarations).comment("Function calls in the foreground colour; declarations keep theirs") }
+            row { checkBox("Italic comments").bindSelected(state::italicComments).comment("Comments and doc comments in italic; the colour still follows the options above") }
+            row { checkBox("Italic parameters").bindSelected(state::italicParameters).comment("Parameters in italic; type parameters stay as types") }
+            row { checkBox("Hide reassignment underline").bindSelected(state::hideReassignUnderline).comment("Drops the underline on reassigned locals and parameters") }
+            row("Annotations:") {
+                comboBox(AnnotationStyle.entries, textListCellRenderer { it?.label }).bindItem(state::annotationStyle.toNullableProperty())
+                    .comment("Annotation and decorator names; Keyword colour follows the keyword picker. Their arguments keep the text colour")
+            }
             row {
                 checkBox("Highlight current scope").bindSelected(CodeInsightSettings.getInstance()::HIGHLIGHT_SCOPE)
                     .comment("The platform's \"Highlight on caret movement: current scope\": brightens the enclosing block's indent guide")

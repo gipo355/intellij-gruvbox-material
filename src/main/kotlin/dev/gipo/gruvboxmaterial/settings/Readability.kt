@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.colors.impl.AbstractColorsScheme
 import com.intellij.openapi.editor.markup.TextAttributes
 import java.awt.Color
+import java.awt.Font
 import java.util.IdentityHashMap
 
 data class Readability(
@@ -12,13 +13,27 @@ data class Readability(
     val dimComments: Boolean = false,
     val softenDocs: Boolean = false,
     val emphasizeDeclarations: Boolean = false,
+    val italicComments: Boolean = false,
+    val italicParameters: Boolean = false,
+    val hideReassignUnderline: Boolean = false,
+    val annotations: AnnotationStyle = AnnotationStyle.PURPLE,
 ) {
-    val any get() = quietOperators || dimComments || softenDocs || emphasizeDeclarations
+    val any get() = quietOperators || dimComments || softenDocs || emphasizeDeclarations || italicComments || italicParameters || hideReassignUnderline ||
+        annotations != AnnotationStyle.PURPLE
+}
+
+/** The colour of annotation and decorator names; their attribute names keep fg0. */
+enum class AnnotationStyle(val label: String) {
+    PURPLE("Purple"),
+    GREY("Grey"),
+    DIM_GREY("Dim grey"),
+    KEYWORD("Keyword colour"),
 }
 
 /**
- * The attributes the enabled toggles and [keywordColor] replace, keyed by attribute name: [original] attributes with only
- * the foreground changed. Keys missing from [original] are skipped, so only attributes the scheme defines itself are touched.
+ * The attributes the enabled toggles and [keywordColor] replace, keyed by attribute name: clones of [original] with the
+ * foreground, the font style or the reassignment underline changed. Keys missing from [original] are skipped, so only
+ * attributes the scheme defines itself are touched. [keywordFamily] is the family [keywordColor] comes from.
  */
 fun readabilityOverrides(
     original: Map<String, TextAttributes>,
@@ -26,18 +41,23 @@ fun readabilityOverrides(
     roles: Map<String, Color>,
     readability: Readability,
     keywordColor: Color? = null,
+    keywordFamily: String = STOCK,
 ): Map<String, TextAttributes> {
     val result = LinkedHashMap<String, TextAttributes>()
-    fun recolor(keys: List<String>, color: Color?) {
-        if (color == null) return
+    // Each change builds on the earlier ones for the same key, so toggles touching one key combine.
+    fun change(keys: List<String>, edit: TextAttributes.() -> Unit) {
         for (key in keys) {
-            val attributes = original[key] ?: continue
-            if (attributes.foregroundColor != color) result[key] = attributes.clone().apply { foregroundColor = color }
+            val base = original[key] ?: continue
+            val changed = (result[key] ?: base).clone().apply(edit)
+            if (changed != base) result[key] = changed else result.remove(key)
         }
     }
-    // Operators share the stock keyword orange, so they step aside to fg0 when keywords change; quiet still wins.
+    fun recolor(keys: List<String>, color: Color?) {
+        if (color != null) change(keys) { foregroundColor = color }
+    }
+    // Operators step aside to fg0 only for keyword hues that clash with their orange; quiet still wins.
     if (readability.quietOperators) recolor(groups.operators, roles["grey2"])
-    else if (keywordColor != null) recolor(groups.operators, roles["fg0"])
+    else if (keywordColor != null && keywordFamily in OPERATOR_CLASHING_FAMILIES) recolor(groups.operators, roles["fg0"])
     recolor(groups.keywords, keywordColor)
     if (readability.dimComments) recolor(groups.comments, roles["grey1"])
     if (readability.softenDocs) {
@@ -45,6 +65,18 @@ fun readabilityOverrides(
         recolor(groups.docs, commentColor)
     }
     if (readability.emphasizeDeclarations) recolor(groups.calls, roles["fg0"])
+    when (readability.annotations) {
+        AnnotationStyle.PURPLE -> {}
+        AnnotationStyle.GREY -> recolor(groups.annotations, roles["grey2"])
+        AnnotationStyle.DIM_GREY -> recolor(groups.annotations, roles["grey1"])
+        AnnotationStyle.KEYWORD -> recolor(groups.annotations, keywordColor ?: original["DEFAULT_KEYWORD"]?.foregroundColor)
+    }
+    if (readability.italicComments) change(groups.comments + groups.docs) { fontType = fontType or Font.ITALIC }
+    if (readability.italicParameters) change(groups.parameters) { fontType = fontType or Font.ITALIC }
+    if (readability.hideReassignUnderline) change(groups.reassigned) {
+        effectType = null
+        effectColor = null
+    }
     return result
 }
 

@@ -1,0 +1,5 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <annotator language="kotlin" implementationClass="dev.gipo.gruvboxmaterial.literals.KotlinLiteralAnnotator"/>
+    </extensions>
+</idea-plugin>

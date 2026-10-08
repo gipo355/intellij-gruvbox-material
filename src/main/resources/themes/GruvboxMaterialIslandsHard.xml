@@ -304,6 +304,11 @@
         <option name="FOREGROUND" value="c4a67e"/>
       </value>
     </option>
+    <option name="Annotation">
+      <value>
+        <option name="FOREGROUND" value="d48da0"/>
+      </value>
+    </option>
     <option name="BAD_CHARACTER">
       <value>
         <option name="EFFECT_COLOR" value="e67d76"/>
@@ -716,6 +721,11 @@
         <option name="EFFECT_TYPE" value="1"/>
       </value>
     </option>
+    <option name="CSV_DEFAULT_QUOTE">
+      <value>
+        <option name="FOREGROUND" value="d4be98"/>
+      </value>
+    </option>
     <option name="CSV_PLUGIN_COLUMN_COLORING_ATTRIBUTE_0">
       <value>
         <option name="FOREGROUND" value="d8a657"/>
@@ -973,7 +983,7 @@
     </option>
     <option name="DEFAULT_CONSTANT">
       <value>
-        <option name="FOREGROUND" value="d4be98"/>
+        <option name="FOREGROUND" value="d48da0"/>
       </value>
     </option>
     <option name="DEFAULT_DOC_COMMENT">
@@ -1210,6 +1220,16 @@
         <option name="BACKGROUND" value="2a1f10"/>
       </value>
     </option>
+    <option name="DJANGO_URL_PATH.ID">
+      <value>
+        <option name="FOREGROUND" value="d4be98"/>
+      </value>
+    </option>
+    <option name="DOCKER_VARIABLE">
+      <value>
+        <option name="FOREGROUND" value="d4be98"/>
+      </value>
+    </option>
     <option name="DOC_CODE_BLOCK">
       <value>
         <option name="FOREGROUND" value="d4be98"/>
@@ -1390,6 +1410,16 @@
         <option name="FOREGROUND" value="a9b665"/>
       </value>
     </option>
+    <option name="GO_FUNCTION_PARAMETER">
+      <value>
+        <option name="FOREGROUND" value="d4be98"/>
+      </value>
+    </option>
+    <option name="GO_LOCAL_CONSTANT">
+      <value>
+        <option name="FOREGROUND" value="d48da0"/>
+      </value>
+    </option>
     <option name="GO_LOCAL_FUNCTION_CALL">
       <value>
         <option name="FOREGROUND" value="a9b665"/>
@@ -1403,6 +1433,22 @@
     <option name="GO_PACKAGE">
       <value>
         <option name="FOREGROUND" value="d8a657"/>
+      </value>
+    </option>
+    <option name="GO_PACKAGE_EXPORTED_CONSTANT">
+      <value>
+        <option name="FOREGROUND" value="d48da0"/>
+      </value>
+    </option>
+    <option name="GO_PACKAGE_LOCAL_CONSTANT">
+      <value>
+        <option name="FOREGROUND" value="d48da0"/>
+      </value>
+    </option>
+    <option name="GO_REASSIGNMENT_IN_SHORT_VAR_DECLARATION">
+      <value>
+        <option name="EFFECT_COLOR" value="928374"/>
+        <option name="EFFECT_TYPE" value="1"/>
       </value>
     </option>
     <option name="GO_SHADOWING_VARIABLE">
@@ -1819,6 +1865,11 @@
         <option name="EFFECT_TYPE" value="1"/>
       </value>
     </option>
+    <option name="JS.DECORATOR">
+      <value>
+        <option name="FOREGROUND" value="d48da0"/>
+      </value>
+    </option>
     <option name="JS.GLOBAL_FUNCTION">
       <value>
         <option name="FOREGROUND" value="a9b665"/>
@@ -1873,6 +1924,11 @@
     <option name="JavaScript:INJECTED_LANGUAGE_FRAGMENT">
       <value/>
     </option>
+    <option name="KOTLIN_ANNOTATION">
+      <value>
+        <option name="FOREGROUND" value="d48da0"/>
+      </value>
+    </option>
     <option name="KOTLIN_BACKING_FIELD_VARIABLE">
       <value>
         <option name="FOREGROUND" value="c4a67e"/>
@@ -1906,6 +1962,11 @@
     <option name="KOTLIN_DYNAMIC_PROPERTY_CALL">
       <value/>
     </option>
+    <option name="KOTLIN_ENUM_ENTRY">
+      <value>
+        <option name="FOREGROUND" value="d48da0"/>
+      </value>
+    </option>
     <option name="KOTLIN_FUNCTION_LITERAL_BRACES_AND_ARROW">
       <value>
         <option name="FOREGROUND" value="d4be98"/>
@@ -1930,6 +1991,11 @@
     <option name="KOTLIN_PACKAGE_FUNCTION_CALL">
       <value>
         <option name="FOREGROUND" value="a9b665"/>
+      </value>
+    </option>
+    <option name="KOTLIN_PARAMETER">
+      <value>
+        <option name="FOREGROUND" value="d4be98"/>
       </value>
     </option>
     <option name="KOTLIN_PROPERTY_WITH_BACKING_FIELD">
@@ -1978,6 +2044,11 @@
       <value>
         <option name="FOREGROUND" value="89b482"/>
         <option name="BACKGROUND" value="2e3734"/>
+      </value>
+    </option>
+    <option name="LAMBDA_PARAMETER_ATTRIBUTES">
+      <value>
+        <option name="FOREGROUND" value="d4be98"/>
       </value>
     </option>
     <option name="LESS_VARIABLE">
@@ -2042,6 +2113,11 @@
         <option name="FOREGROUND" value="d8a657"/>
       </value>
     </option>
+    <option name="LOMBOK_CLEAN">
+      <value>
+        <option name="FOREGROUND" value="d4be98"/>
+      </value>
+    </option>
     <option name="List/map to object conversion">
       <value>
         <option name="FOREGROUND" value="d8a657"/>
@@ -2089,6 +2165,11 @@
         <option name="FOREGROUND" value="d8a657"/>
       </value>
     </option>
+    <option name="MARKDOWN_CODE_FENCE_LANGUAGE">
+      <value>
+        <option name="FOREGROUND" value="d4be98"/>
+      </value>
+    </option>
     <option name="MARKDOWN_HEADER">
       <value>
         <option name="FOREGROUND" value="e78a4e"/>
@@ -2097,6 +2178,36 @@
     <option name="MARKDOWN_HEADER_BOLD">
       <value>
         <option name="FOREGROUND" value="e78a4e"/>
+      </value>
+    </option>
+    <option name="MARKDOWN_HEADER_LEVEL_1">
+      <value>
+        <option name="FOREGROUND" value="d4be98"/>
+      </value>
+    </option>
+    <option name="MARKDOWN_HEADER_LEVEL_2">
+      <value>
+        <option name="FOREGROUND" value="d4be98"/>
+      </value>
+    </option>
+    <option name="MARKDOWN_HEADER_LEVEL_3">
+      <value>
+        <option name="FOREGROUND" value="d4be98"/>
+      </value>
+    </option>
+    <option name="MARKDOWN_HEADER_LEVEL_4">
+      <value>
+        <option name="FOREGROUND" value="d4be98"/>
+      </value>
+    </option>
+    <option name="MARKDOWN_HEADER_LEVEL_5">
+      <value>
+        <option name="FOREGROUND" value="d4be98"/>
+      </value>
+    </option>
+    <option name="MARKDOWN_HEADER_LEVEL_6">
+      <value>
+        <option name="FOREGROUND" value="d4be98"/>
       </value>
     </option>
     <option name="MARKDOWN_IMAGE">
@@ -2133,7 +2244,7 @@
     </option>
     <option name="MERMAID_CONSTANT">
       <value>
-        <option name="FOREGROUND" value="d4be98"/>
+        <option name="FOREGROUND" value="d48da0"/>
       </value>
     </option>
     <option name="MERMAID_DIAGRAM_NAME">
@@ -2197,6 +2308,11 @@
         <option name="ERROR_STRIPE_COLOR" value="7c6f64"/>
       </value>
     </option>
+    <option name="PARAMETER_ATTRIBUTES">
+      <value>
+        <option name="FOREGROUND" value="d4be98"/>
+      </value>
+    </option>
     <option name="PROPERTIES.INVALID_STRING_ESCAPE">
       <value>
         <option name="FOREGROUND" value="89b482"/>
@@ -2222,6 +2338,11 @@
     <option name="PY.BUILTIN_NAME">
       <value>
         <option name="FOREGROUND" value="c4a67e"/>
+      </value>
+    </option>
+    <option name="PY.DECORATOR">
+      <value>
+        <option name="FOREGROUND" value="d48da0"/>
       </value>
     </option>
     <option name="PY.KEYWORD_ARGUMENT">
@@ -2277,6 +2398,18 @@
     <option name="RAINBOW_COLOR4">
       <value>
         <option name="FOREGROUND" value="d8a657"/>
+      </value>
+    </option>
+    <option name="REASSIGNED_LOCAL_VARIABLE_ATTRIBUTES">
+      <value>
+        <option name="EFFECT_COLOR" value="928374"/>
+        <option name="EFFECT_TYPE" value="1"/>
+      </value>
+    </option>
+    <option name="REASSIGNED_PARAMETER_ATTRIBUTES">
+      <value>
+        <option name="EFFECT_COLOR" value="928374"/>
+        <option name="EFFECT_TYPE" value="1"/>
       </value>
     </option>
     <option name="REGEXP.BRACES">
@@ -2393,7 +2526,7 @@
     </option>
     <option name="SASS_CONSTANT">
       <value>
-        <option name="FOREGROUND" value="d4be98"/>
+        <option name="FOREGROUND" value="d48da0"/>
       </value>
     </option>
     <option name="SASS_DIRECTIVE">
@@ -2578,7 +2711,7 @@
     </option>
     <option name="STATIC_FINAL_FIELD_ATTRIBUTES">
       <value>
-        <option name="FOREGROUND" value="d4be98"/>
+        <option name="FOREGROUND" value="d48da0"/>
       </value>
     </option>
     <option name="STATIC_METHOD_ATTRIBUTES">
@@ -2631,6 +2764,11 @@
       <value>
         <option name="EFFECT_COLOR" value="89b482"/>
         <option name="EFFECT_TYPE" value="5"/>
+      </value>
+    </option>
+    <option name="Static field">
+      <value>
+        <option name="FOREGROUND" value="d4be98"/>
       </value>
     </option>
     <option name="Static method access">
@@ -2709,6 +2847,16 @@
       <value>
         <option name="FOREGROUND" value="c4a67e"/>
         <option name="ERROR_STRIPE_COLOR" value="c4a67e"/>
+      </value>
+    </option>
+    <option name="TS.DECORATOR">
+      <value>
+        <option name="FOREGROUND" value="d48da0"/>
+      </value>
+    </option>
+    <option name="TS.PARAMETER">
+      <value>
+        <option name="FOREGROUND" value="d4be98"/>
       </value>
     </option>
     <option name="TS.TYPE_GUARD">
@@ -2877,6 +3025,11 @@
         <option name="FOREGROUND" value="e78a4e"/>
       </value>
     </option>
+    <option name="gvk">
+      <value>
+        <option name="FOREGROUND" value="d4be98"/>
+      </value>
+    </option>
     <option name="markup.bold">
       <value>
         <option name="FOREGROUND" value="d8a657"/>
@@ -2916,6 +3069,11 @@
     <option name="org.rust.ASSOC_TRAIT_FUNCTION_CALL">
       <value>
         <option name="FOREGROUND" value="a9b665"/>
+      </value>
+    </option>
+    <option name="org.rust.ATTRIBUTE">
+      <value>
+        <option name="FOREGROUND" value="d48da0"/>
       </value>
     </option>
     <option name="org.rust.CFG_DISABLED_CODE">

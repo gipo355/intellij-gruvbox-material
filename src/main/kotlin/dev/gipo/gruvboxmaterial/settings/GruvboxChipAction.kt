@@ -35,6 +35,17 @@ class GruvboxChipAction : DumbAwareAction() {
         add(ReadabilityToggle("Dim comments", GruvboxState::dimComments))
         add(ReadabilityToggle("Soften doc comments", GruvboxState::softenDocs))
         add(ReadabilityToggle("Emphasize declarations", GruvboxState::emphasizeDeclarations))
+        add(ReadabilityToggle("Italic comments", GruvboxState::italicComments))
+        add(ReadabilityToggle("Italic parameters", GruvboxState::italicParameters))
+        add(ReadabilityToggle("Hide reassignment underline", GruvboxState::hideReassignUnderline))
+        add(DefaultActionGroup("Annotations", true).apply {
+            for (style in AnnotationStyle.entries) {
+                add(Choice(style.label, { state().annotationStyle == style }) {
+                    state().annotationStyle = style
+                    service.applyScheme()
+                })
+            }
+        })
         add(DefaultActionGroup("Accent", true).apply {
             for (accent in ACCENTS) {
                 add(Choice(accent.replaceFirstChar(Char::uppercase), { state().accent == accent }) {

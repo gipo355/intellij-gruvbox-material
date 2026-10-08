@@ -13,7 +13,7 @@ Comment                            grey2        DEFAULT_*_COMMENT, DEFAULT_DOC_C
 @string / @character               aqua         DEFAULT_STRING
 @string.escape / @string.regexp    green        DEFAULT_VALID_STRING_ESCAPE, JS.REGEXP
 @number / @boolean                 purple       DEFAULT_NUMBER
-@constant                          fg0          DEFAULT_CONSTANT
+@constant                          purple       DEFAULT_CONSTANT, STATIC_FINAL_FIELD_ATTRIBUTES, enum entries, Go consts
 @constant.builtin, @variable.builtin purple     DEFAULT_PREDEFINED_SYMBOL
 @function / .call / .method        green        DEFAULT_FUNCTION_*, DEFAULT_*_METHOD
 @type / @type.builtin              yellow       DEFAULT_CLASS_NAME/REFERENCE, DEFAULT_INTERFACE_NAME
@@ -207,7 +207,7 @@ CORE = {
     "DEFAULT_CLASS_NAME": A(fg="yellow"),
     "DEFAULT_INTERFACE_NAME": A(fg="yellow"),
     "DEFAULT_CLASS_REFERENCE": A(fg="yellow"),
-    "DEFAULT_CONSTANT": A(fg="fg0"),
+    "DEFAULT_CONSTANT": A(fg="purple"),
     "DEFAULT_PREDEFINED_SYMBOL": A(fg="purple"),
     "DEFAULT_LOCAL_VARIABLE": A(fg="fg0"),
     "DEFAULT_GLOBAL_VARIABLE": A(fg="fg0"),
@@ -377,6 +377,18 @@ LANGUAGES = {
     "ANNOTATION_ATTRIBUTE_NAME_ATTRIBUTES": L("DEFAULT_PARAMETER"),
     "TYPE_PARAMETER_NAME_ATTRIBUTES": L("DEFAULT_CLASS_REFERENCE"),
     "IMPLICIT_ANONYMOUS_CLASS_PARAMETER_ATTRIBUTES": A(fg="fg0", effect="grey1", effect_type=LINE),
+    # Written out so the runtime parameters / reassigned groups can reach them; values equal their code fallbacks.
+    "PARAMETER_ATTRIBUTES": L("DEFAULT_PARAMETER"),
+    "LAMBDA_PARAMETER_ATTRIBUTES": L("PARAMETER_ATTRIBUTES"),
+    "REASSIGNED_PARAMETER_ATTRIBUTES": L("DEFAULT_REASSIGNED_PARAMETER"),
+    "REASSIGNED_LOCAL_VARIABLE_ATTRIBUTES": L("DEFAULT_REASSIGNED_LOCAL_VARIABLE"),
+    # Written out so the runtime annotations group can reach them; values equal their code fallbacks.
+    "KOTLIN_ANNOTATION": L("ANNOTATION_NAME_ATTRIBUTES"),
+    "Annotation": L("ANNOTATION_NAME_ATTRIBUTES"),
+    "JS.DECORATOR": L("DEFAULT_METADATA"),
+    "TS.DECORATOR": L("JS.DECORATOR"),
+    "PY.DECORATOR": L("DEFAULT_METADATA"),
+    "org.rust.ATTRIBUTE": L("DEFAULT_METADATA"),
     "Class": L("DEFAULT_CLASS_NAME"),
     # Kotlin
     "KOTLIN_LABEL": L("DEFAULT_LABEL"),
@@ -384,9 +396,11 @@ LANGUAGES = {
     "KOTLIN_TYPE_PARAMETER": L("TYPE_PARAMETER_NAME_ATTRIBUTES"),
     "KOTLIN_FUNCTION_LITERAL_BRACES_AND_ARROW": L("DEFAULT_BRACES"),
     "KOTLIN_CLOSURE_DEFAULT_PARAMETER": L("DEFAULT_PARAMETER"),
+    "KOTLIN_PARAMETER": L("DEFAULT_PARAMETER"),
+    "KOTLIN_ENUM_ENTRY": L("DEFAULT_CONSTANT"),
     "KOTLIN_BACKING_FIELD_VARIABLE": L("DEFAULT_INSTANCE_FIELD"),
     "KOTLIN_PACKAGE_FUNCTION_CALL": L("DEFAULT_FUNCTION_CALL"),
-    "KOTLIN_MUTABLE_VARIABLE": A(effect="grey1", effect_type=LINE),
+    "KOTLIN_MUTABLE_VARIABLE": L("DEFAULT_REASSIGNED_LOCAL_VARIABLE"),
     "KOTLIN_PROPERTY_WITH_BACKING_FIELD": NONE,
     "KOTLIN_SMART_CAST_VALUE": A(bg="bg_visual_green"),
     "KOTLIN_SMART_CAST_RECEIVER": A(bg="bg_visual_green"),
@@ -403,6 +417,7 @@ LANGUAGES = {
     # JavaScript / TypeScript / Angular
     "JS.LOCAL_VARIABLE": L("DEFAULT_LOCAL_VARIABLE"),
     "JS.PARAMETER": L("DEFAULT_PARAMETER"),
+    "TS.PARAMETER": L("JS.PARAMETER"),
     "JS.GLOBAL_VARIABLE": L("DEFAULT_GLOBAL_VARIABLE"),
     "JS.GLOBAL_FUNCTION": L("DEFAULT_FUNCTION_DECLARATION"),
     "JS.INSTANCE_MEMBER_FUNCTION": L("DEFAULT_INSTANCE_METHOD"),
@@ -454,6 +469,11 @@ LANGUAGES = {
     "GO_EXPORTED_FUNCTION_CALL": L("DEFAULT_FUNCTION_CALL"),
     "GO_LOCAL_FUNCTION_CALL": L("DEFAULT_FUNCTION_CALL"),
     "GO_METHOD_RECEIVER": L("DEFAULT_PARAMETER"),
+    "GO_FUNCTION_PARAMETER": L("DEFAULT_PARAMETER"),
+    "GO_LOCAL_CONSTANT": L("DEFAULT_CONSTANT"),
+    "GO_PACKAGE_EXPORTED_CONSTANT": L("DEFAULT_CONSTANT"),
+    "GO_PACKAGE_LOCAL_CONSTANT": L("DEFAULT_CONSTANT"),
+    "GO_REASSIGNMENT_IN_SHORT_VAR_DECLARATION": L("DEFAULT_REASSIGNED_LOCAL_VARIABLE"),
     "GO_PACKAGE": A(fg="yellow"),
     "GO_COMMENT_REFERENCE": A(fg="aqua"),
     "GO_SHADOWING_VARIABLE": A(fg="fg0", effect="orange", effect_type=LINE),
@@ -565,6 +585,20 @@ LANGUAGES = {
     "IGNORE.SYNTAX": L("DEFAULT_KEYWORD"),
     "IGNORE.VALUE": L("DEFAULT_STRING"),
     "IGNORE.UNUSED_ENTRY": L("NOT_USED_ELEMENT_ATTRIBUTES"),
+    # Not constants, but their code fallback is DEFAULT_CONSTANT: kept at the fg0 they had before it turned purple.
+    "MARKDOWN_HEADER_LEVEL_1": A(fg="fg0"),
+    "MARKDOWN_HEADER_LEVEL_2": A(fg="fg0"),
+    "MARKDOWN_HEADER_LEVEL_3": A(fg="fg0"),
+    "MARKDOWN_HEADER_LEVEL_4": A(fg="fg0"),
+    "MARKDOWN_HEADER_LEVEL_5": A(fg="fg0"),
+    "MARKDOWN_HEADER_LEVEL_6": A(fg="fg0"),
+    "MARKDOWN_CODE_FENCE_LANGUAGE": A(fg="fg0"),
+    "DOCKER_VARIABLE": A(fg="fg0"),
+    "CSV_DEFAULT_QUOTE": A(fg="fg0"),
+    "LOMBOK_CLEAN": A(fg="fg0"),
+    "DJANGO_URL_PATH.ID": A(fg="fg0"),
+    "gvk": A(fg="fg0"),
+    "Static field": A(fg="fg0"),
 }
 
 # ---------------------------------------------------------------- level sets that must stay distinguishable

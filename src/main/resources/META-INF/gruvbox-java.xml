@@ -1,0 +1,5 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <annotator language="JAVA" implementationClass="dev.gipo.gruvboxmaterial.literals.JavaLiteralAnnotator"/>
+    </extensions>
+</idea-plugin>

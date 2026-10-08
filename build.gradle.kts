@@ -20,6 +20,7 @@ val platformVersion = providers.gradleProperty("platformVersion").getOrElse("202
 dependencies {
     intellijPlatform {
         if (hasLocalIde) local(providers.gradleProperty("ideaHome")) else intellijIdeaUltimate(platformVersion)
+        bundledPlugins("com.intellij.java", "org.jetbrains.kotlin", "JavaScript")
     }
     testImplementation(kotlin("stdlib"))
     testImplementation("junit:junit:4.13.2")

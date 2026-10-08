@@ -23,7 +23,8 @@ colors behind the roles. Each theme selects its own editor scheme.
 - **Warm**: reds, oranges, yellows, greens, aqua and a tan in place of blue.
   Blue survives only in ANSI console output and in icons, where it keeps
   classes and interfaces apart.
-- **No bold, no italic**: color does the work.
+- **No bold, no italic**: color does the work. Italic comments and
+  parameters are optional settings, off by default.
 - **Capped contrast**: no color contrasts more with the background than the
   text does.
 - **Dim tints**: search results, diffs and usages get muted backgrounds

@@ -25,6 +25,12 @@ class SettingsTest {
         "DEFAULT_DOC_MARKUP" to attributes("c4a67e", effect = "89b482"),
         "DEFAULT_FUNCTION_CALL" to attributes("a9b665"),
         "DEFAULT_KEYWORD" to attributes("ea6962"),
+        "DEFAULT_PARAMETER" to attributes("d4be98"),
+        "DEFAULT_REASSIGNED_LOCAL_VARIABLE" to underline(),
+        "DEFAULT_REASSIGNED_PARAMETER" to underline(),
+        "DEFAULT_METADATA" to attributes("d48da0"),
+        "ANNOTATION_NAME_ATTRIBUTES" to attributes("d48da0"),
+        "ANNOTATION_ATTRIBUTE_NAME_ATTRIBUTES" to attributes("d4be98"),
     )
 
     @Test
@@ -46,6 +52,11 @@ class SettingsTest {
         val missing = shipped.variants.values.flatMap { v -> roles.filter { it !in v.roles }.map { "${v.id}: $it" } }
         assertTrue("missing roles: $missing", missing.isEmpty())
         assertTrue(shipped.groups.operators.isNotEmpty() && shipped.groups.comments.isNotEmpty() && shipped.groups.accentUiKeys.isNotEmpty())
+        assertTrue("PARAMETER_ATTRIBUTES" in shipped.groups.parameters && "TYPE_PARAMETER_NAME_ATTRIBUTES" !in shipped.groups.parameters)
+        assertTrue("DEFAULT_REASSIGNED_LOCAL_VARIABLE" in shipped.groups.reassigned)
+        val annotations = shipped.groups.annotations
+        assertTrue(annotations.toString(), listOf("DEFAULT_METADATA", "ANNOTATION_NAME_ATTRIBUTES", "KOTLIN_ANNOTATION", "TS.DECORATOR", "PY.DECORATOR").all { it in annotations })
+        assertTrue(annotations.toString(), annotations.none { "ATTRIBUTE_NAME" in it } && "KOTLIN_BUILTIN_ANNOTATION" !in annotations)
     }
 
     @Test
@@ -132,15 +143,141 @@ class SettingsTest {
     @Test
     fun keywordFamilyMovesOperatorsToForegroundUnlessQuiet() {
         val orange = Color(0xcd936a)
-        val coupled = readabilityOverrides(original, fixture.groups, dark.roles, Readability(), orange)
+        val coupled = readabilityOverrides(original, fixture.groups, dark.roles, Readability(), orange, "orange")
         assertEquals(setOf("DEFAULT_OPERATION_SIGN", "DEFAULT_KEYWORD"), coupled.keys)
         assertEquals(Color(0xd4be98), coupled.getValue("DEFAULT_OPERATION_SIGN").foregroundColor)
         assertEquals(orange, coupled.getValue("DEFAULT_KEYWORD").foregroundColor)
 
-        val quiet = readabilityOverrides(original, fixture.groups, dark.roles, Readability(quietOperators = true), orange)
+        val quiet = readabilityOverrides(original, fixture.groups, dark.roles, Readability(quietOperators = true), orange, "orange")
         assertEquals(Color(0xa89984), quiet.getValue("DEFAULT_OPERATION_SIGN").foregroundColor)
 
         assertTrue(readabilityOverrides(original, fixture.groups, dark.roles, Readability(), keywordColor(dark, KeywordChoice())).isEmpty())
+    }
+
+    @Test
+    fun onlyClashingKeywordFamiliesMoveOperators() {
+        val color = Color(0xb0a090)
+        for (family in listOf("red", "orange", "clay")) {
+            val overrides = readabilityOverrides(original, fixture.groups, dark.roles, Readability(), color, family)
+            assertEquals(family, Color(0xd4be98), overrides.getValue("DEFAULT_OPERATION_SIGN").foregroundColor)
+        }
+        for (family in listOf("stone", "slate", PLAIN)) {
+            val overrides = readabilityOverrides(original, fixture.groups, dark.roles, Readability(), color, family)
+            assertEquals(family, setOf("DEFAULT_KEYWORD"), overrides.keys)
+            val quiet = readabilityOverrides(original, fixture.groups, dark.roles, Readability(quietOperators = true), color, family)
+            assertEquals(family, Color(0xa89984), quiet.getValue("DEFAULT_OPERATION_SIGN").foregroundColor)
+        }
+    }
+
+    @Test
+    fun italicTogglesSetOnlyTheFontType() {
+        val italic = readabilityOverrides(original, fixture.groups, dark.roles, Readability(italicComments = true, italicParameters = true))
+        assertEquals(
+            setOf("DEFAULT_LINE_COMMENT", "DEFAULT_BLOCK_COMMENT", "DEFAULT_DOC_COMMENT_TAG", "DEFAULT_DOC_MARKUP", "DEFAULT_PARAMETER", "DEFAULT_REASSIGNED_PARAMETER"),
+            italic.keys,
+        )
+        for ((key, attributes) in italic) {
+            val before = original.getValue(key)
+            assertEquals(key, Font.ITALIC, attributes.fontType)
+            assertEquals(key, before.foregroundColor, attributes.foregroundColor)
+            assertEquals(key, before.effectType, attributes.effectType)
+            assertEquals(key, before.effectColor, attributes.effectColor)
+        }
+        assertEquals(Font.PLAIN, original.getValue("DEFAULT_PARAMETER").fontType)
+    }
+
+    @Test
+    fun italicCommentsCombineWithDimAndSoften() {
+        val grey1 = Color(0x928374)
+        val both = readabilityOverrides(original, fixture.groups, dark.roles, Readability(dimComments = true, softenDocs = true, italicComments = true))
+        assertEquals(setOf("DEFAULT_LINE_COMMENT", "DEFAULT_BLOCK_COMMENT", "DEFAULT_DOC_COMMENT_TAG", "DEFAULT_DOC_MARKUP"), both.keys)
+        assertTrue(both.values.all { it.foregroundColor == grey1 && it.fontType == Font.ITALIC })
+    }
+
+    @Test
+    fun hideReassignUnderlineClearsOnlyTheEffect() {
+        val hidden = readabilityOverrides(original, fixture.groups, dark.roles, Readability(hideReassignUnderline = true))
+        assertEquals(setOf("DEFAULT_REASSIGNED_LOCAL_VARIABLE", "DEFAULT_REASSIGNED_PARAMETER"), hidden.keys)
+        assertTrue(hidden.values.all { it.effectType == null && it.effectColor == null && it.foregroundColor == null && it.fontType == Font.PLAIN })
+
+        // A reassigned parameter is in both groups and keeps both changes.
+        val combined = readabilityOverrides(original, fixture.groups, dark.roles, Readability(italicParameters = true, hideReassignUnderline = true))
+        val parameter = combined.getValue("DEFAULT_REASSIGNED_PARAMETER")
+        assertEquals(Font.ITALIC, parameter.fontType)
+        assertNull(parameter.effectType)
+        assertEquals(Font.PLAIN, combined.getValue("DEFAULT_REASSIGNED_LOCAL_VARIABLE").fontType)
+        assertEquals(EffectType.LINE_UNDERSCORE, original.getValue("DEFAULT_REASSIGNED_PARAMETER").effectType)
+    }
+
+    @Test
+    fun restoreRoundTripsFontTypeAndEffect() {
+        val stored = original.mapKeys { TextAttributesKey.find(it.key) }.toMutableMap()
+        val before = stored.mapValues { (_, a) -> Triple(a.fontType, a.effectType, a.effectColor) }
+        val overrides = SchemeOverrides()
+        overrides.apply(fakeScheme(stored), readabilityOverrides(original, fixture.groups, dark.roles, Readability(dimComments = true, italicComments = true, italicParameters = true, hideReassignUnderline = true)))
+        assertEquals(Font.ITALIC, stored.getValue(TextAttributesKey.find("DEFAULT_PARAMETER")).fontType)
+        assertNull(stored.getValue(TextAttributesKey.find("DEFAULT_REASSIGNED_LOCAL_VARIABLE")).effectType)
+
+        overrides.restore()
+        for ((key, attributes) in stored) {
+            assertSame(key.externalName, original.getValue(key.externalName), attributes)
+            assertEquals(key.externalName, before.getValue(key), Triple(attributes.fontType, attributes.effectType, attributes.effectColor))
+        }
+    }
+
+    @Test
+    fun purpleAnnotationsAreTheShippedScheme() {
+        assertTrue(readabilityOverrides(original, fixture.groups, dark.roles, Readability()).isEmpty())
+        assertTrue(readabilityOverrides(original, fixture.groups, dark.roles, Readability(annotations = AnnotationStyle.PURPLE)).isEmpty())
+        assertTrue(AnnotationStyle.entries.filter { it != AnnotationStyle.PURPLE }.all { Readability(annotations = it).any })
+    }
+
+    @Test
+    fun greyAnnotationsRecolorNamesNotAttributes() {
+        val names = setOf("DEFAULT_METADATA", "ANNOTATION_NAME_ATTRIBUTES")
+        val grey = readabilityOverrides(original, fixture.groups, dark.roles, Readability(annotations = AnnotationStyle.GREY))
+        assertEquals(names, grey.keys)
+        assertTrue(grey.values.all { it.foregroundColor == Color(0xa89984) })
+
+        val dim = readabilityOverrides(original, fixture.groups, dark.roles, Readability(annotations = AnnotationStyle.DIM_GREY))
+        assertEquals(names, dim.keys)
+        assertTrue(dim.values.all { it.foregroundColor == Color(0x928374) })
+    }
+
+    @Test
+    fun keywordColourAnnotationsFollowTheKeywordPicker() {
+        val readability = Readability(annotations = AnnotationStyle.KEYWORD)
+        val ghost = Color(0x7c6f64)
+        val family = readabilityOverrides(original, fixture.groups, dark.roles, readability, ghost, "stone")
+        assertEquals(setOf("DEFAULT_KEYWORD", "DEFAULT_METADATA", "ANNOTATION_NAME_ATTRIBUTES"), family.keys)
+        val keyword = family.getValue("DEFAULT_KEYWORD").foregroundColor
+        assertEquals(ghost, keyword)
+        assertTrue(listOf("DEFAULT_METADATA", "ANNOTATION_NAME_ATTRIBUTES").all { family.getValue(it).foregroundColor == keyword })
+
+        val stock = readabilityOverrides(original, fixture.groups, dark.roles, readability, keywordColor(dark, KeywordChoice()))
+        assertEquals(setOf("DEFAULT_METADATA", "ANNOTATION_NAME_ATTRIBUTES"), stock.keys)
+        assertTrue(stock.values.all { it.foregroundColor == Color(0xea6962) })
+
+        val plain = readabilityOverrides(original, fixture.groups, dark.roles, readability, keywordColor(dark, KeywordChoice(PLAIN)), PLAIN)
+        assertTrue(listOf("DEFAULT_KEYWORD", "DEFAULT_METADATA", "ANNOTATION_NAME_ATTRIBUTES").all { plain.getValue(it).foregroundColor == Color(0xd4be98) })
+    }
+
+    @Test
+    fun annotationStyleCombinesWithItalicsAndRestores() {
+        val stored = original.mapKeys { TextAttributesKey.find(it.key) }.toMutableMap()
+        val overrides = SchemeOverrides()
+        val readability = Readability(annotations = AnnotationStyle.DIM_GREY, italicComments = true, italicParameters = true)
+        val changed = readabilityOverrides(original, fixture.groups, dark.roles, readability)
+        assertEquals(Font.ITALIC, changed.getValue("DEFAULT_PARAMETER").fontType)
+        assertEquals(Font.ITALIC, changed.getValue("DEFAULT_LINE_COMMENT").fontType)
+        assertEquals(Font.PLAIN, changed.getValue("ANNOTATION_NAME_ATTRIBUTES").fontType)
+        overrides.apply(fakeScheme(stored), changed)
+        assertEquals(Color(0x928374), stored.getValue(TextAttributesKey.find("ANNOTATION_NAME_ATTRIBUTES")).foregroundColor)
+        assertSame(original.getValue("ANNOTATION_ATTRIBUTE_NAME_ATTRIBUTES"), stored.getValue(TextAttributesKey.find("ANNOTATION_ATTRIBUTE_NAME_ATTRIBUTES")))
+
+        overrides.restore()
+        for ((key, attributes) in stored) assertSame(key.externalName, original.getValue(key.externalName), attributes)
+        assertEquals(Color(0xd48da0), stored.getValue(TextAttributesKey.find("DEFAULT_METADATA")).foregroundColor)
     }
 
     @Test
@@ -172,6 +309,11 @@ class SettingsTest {
             effectColor = Color(effect.toInt(16))
             effectType = EffectType.LINE_UNDERSCORE
         }
+    }
+
+    private fun underline() = TextAttributes().apply {
+        effectColor = Color(0x928374)
+        effectType = EffectType.LINE_UNDERSCORE
     }
 
     private fun fakeScheme(stored: MutableMap<TextAttributesKey, TextAttributes>): EditorColorsScheme =

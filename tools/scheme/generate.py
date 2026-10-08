@@ -439,9 +439,14 @@ GROUP_ROOTS = {
     "docs": {"DEFAULT_DOC_COMMENT", "DEFAULT_DOC_MARKUP", "DEFAULT_DOC_COMMENT_TAG", "DEFAULT_DOC_COMMENT_TAG_VALUE"},
     "calls": {"DEFAULT_FUNCTION_CALL"},
     "keywords": {"DEFAULT_KEYWORD"},
+    "parameters": {"DEFAULT_PARAMETER", "DEFAULT_REASSIGNED_PARAMETER"},
+    "reassigned": {"DEFAULT_REASSIGNED_LOCAL_VARIABLE", "DEFAULT_REASSIGNED_PARAMETER"},
+    "annotations": {"DEFAULT_METADATA"},
 }
 # Method keys are shared by declarations and calls; a link to one counts as a call only when the key says so.
 METHOD_ROOTS = {"DEFAULT_INSTANCE_METHOD", "DEFAULT_STATIC_METHOD"}
+# Names that link to DEFAULT_PARAMETER only for its color: annotation attributes and named arguments are not parameters.
+NOT_PARAMETERS = {"ANNOTATION_ATTRIBUTE_NAME_ATTRIBUTES", "KOTLIN_NAMED_ARGUMENT"}
 
 
 def key_groups(out_attrs, chains):
@@ -450,6 +455,7 @@ def key_groups(out_attrs, chains):
     for name, roots in GROUP_ROOTS.items():
         groups[name] = {k for k in out_attrs if k in roots or roots & set(chains.get(k, ()))}
     groups["calls"] |= {k for k in out_attrs if "CALL" in k.upper() and METHOD_ROOTS & set(chains.get(k, ()))}
+    groups["parameters"] -= NOT_PARAMETERS
     return groups
 
 
@@ -511,7 +517,7 @@ def main():
     groups["accentUiKeys"] = accent_ui_keys()
     os.makedirs(os.path.dirname(GROUPS), exist_ok=True)
     with open(GROUPS, "w") as f:
-        json.dump({k: sorted(groups[k]) for k in ("operators", "comments", "docs", "calls", "keywords", "accentUiKeys")}, f, indent=2)
+        json.dump({k: sorted(groups[k]) for k in ("operators", "comments", "docs", "calls", "keywords", "parameters", "reassigned", "annotations", "accentUiKeys")}, f, indent=2)
         f.write("\n")
 
 
