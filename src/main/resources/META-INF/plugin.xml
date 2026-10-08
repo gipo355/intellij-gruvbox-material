@@ -3,16 +3,44 @@
     <name>Gruvbox Material Islands</name>
     <vendor url="https://github.com/gipo355/intellij-gruvbox-material">gipo355</vendor>
     <description><![CDATA[
-        <p>A warm, low-glare theme: the gruvbox-material palette (material foreground) on JetBrains'
-        Islands layout, in four variants: dark soft, medium and hard, and light soft.</p>
+        <p>Warm, low-glare gruvbox-material themes for the 2026 Islands UI. The
+        <a href="https://github.com/sainnhe/gruvbox-material">gruvbox-material</a> palette (material foreground),
+        built for long sessions: no color stands out more than the text, and nothing in the code is blue.</p>
 
+        <h3>Four variants</h3>
         <ul>
-            <li><b>Warm syntax</b>: no blue in code, no bold or italic, nothing contrasts more with the background than the text.</li>
-            <li><b>Moderate contrast</b>: 6.7:1 to 9.1:1 for text on the background, by variant.</li>
-            <li><b>Dim tints</b> for search results, diffs and usages instead of bright blocks.</li>
-            <li><b>Complete scheme</b>: every editor key the IDE and its plugins define is set.</li>
+            <li><b>Gruvbox Material Islands</b>: dark soft, <code>#32302f</code>, 7.3:1 text contrast.</li>
+            <li><b>Medium</b>: <code>#282828</code>, 8.2:1.</li>
+            <li><b>Hard</b>: <code>#1d2021</code>, 9.1:1.</li>
+            <li><b>Light</b>: light soft, <code>#f2e5bc</code>, 6.7:1.</li>
+        </ul>
+        <p>Each theme selects its own editor scheme. All four render the same color roles, so code reads the same in every variant.</p>
+
+        <h3>Design</h3>
+        <ul>
+            <li><b>Warm syntax</b>: reds, oranges, yellows, greens, aqua and a tan in place of blue. <code>null</code>, <code>true</code> and <code>false</code> get the predefined-symbol purple in Java, Kotlin and JavaScript.</li>
+            <li><b>Capped contrast</b>: no color contrasts more with the background than the text does.</li>
+            <li><b>Dim tints</b> for search results, usages and diffs instead of bright blocks. Added, deleted, modified and conflict blocks sit at the same distance from the background, stay apart from each other, and keep the text readable on top.</li>
+            <li><b>Complete scheme</b>: every editor key the IDE and its plugins define, in scheme files or only in code, is set, so no stock Darcula or IntelliJ color leaks through.</li>
             <li><b>Islands layout</b>: the 2026 JetBrains UI, recolored.</li>
         </ul>
+
+        <h3>Settings</h3>
+        <p>Settings | Appearance &amp; Behavior | Gruvbox Material, or the <b>Gruvbox Material</b> chip in the main toolbar
+        for quick switching between variants and toggles.</p>
+        <ul>
+            <li><b>Readability</b>: quiet operators (grey instead of orange), dim comments, soften doc comments,
+            emphasize declarations (calls in the text color), italic comments, italic parameters,
+            hide the reassignment underline.</li>
+            <li><b>Annotations</b>: purple, grey, dim grey or the keyword color.</li>
+            <li><b>Keywords</b>: the stock color or a clay, orange, red, slate or stone family, with seven brightness steps and three strengths.</li>
+            <li><b>Accent</b>: aqua, green, yellow, orange, tan, purple or red for the UI accent.</li>
+            <li><b>Selected editor tab</b>: outline or filled.</li>
+            <li><b>Reading font</b>: a one-click Maple Mono NF preset (line spacing 1.3, glyph variants that keep l/1/I, 0/O and g/q apart); Revert restores your font.</li>
+            <li><b>Indent Rainbow</b>: optional sync of its colors to the palette; your own palette comes back when sync is off.</li>
+        </ul>
+
+        <p><a href="https://github.com/gipo355/intellij-gruvbox-material">Source and issues on GitHub</a>.</p>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
