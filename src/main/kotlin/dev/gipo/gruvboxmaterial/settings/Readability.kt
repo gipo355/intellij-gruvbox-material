@@ -17,6 +17,7 @@ data class Readability(
     val italicParameters: Boolean = false,
     val hideReassignUnderline: Boolean = false,
     val annotations: AnnotationStyle = AnnotationStyle.PURPLE,
+    val keepOperatorColor: Boolean = true,
 ) {
     val any get() = quietOperators || dimComments || softenDocs || emphasizeDeclarations || italicComments || italicParameters || hideReassignUnderline ||
         annotations != AnnotationStyle.PURPLE
@@ -55,9 +56,9 @@ fun readabilityOverrides(
     fun recolor(keys: List<String>, color: Color?) {
         if (color != null) change(keys) { foregroundColor = color }
     }
-    // Operators step aside to fg0 only for keyword hues that clash with their orange; quiet still wins.
+    // Unless kept, operators step aside to fg0 for keyword hues that clash with their orange; quiet still wins.
     if (readability.quietOperators) recolor(groups.operators, roles["grey2"])
-    else if (keywordColor != null && keywordFamily in OPERATOR_CLASHING_FAMILIES) recolor(groups.operators, roles["fg0"])
+    else if (!readability.keepOperatorColor && keywordColor != null && keywordFamily in OPERATOR_CLASHING_FAMILIES) recolor(groups.operators, roles["fg0"])
     recolor(groups.keywords, keywordColor)
     if (readability.dimComments) recolor(groups.comments, roles["grey1"])
     if (readability.softenDocs) {

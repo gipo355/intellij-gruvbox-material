@@ -141,14 +141,17 @@ class SettingsTest {
     }
 
     @Test
-    fun keywordFamilyMovesOperatorsToForegroundUnlessQuiet() {
+    fun keywordFamilyMovesOperatorsToForegroundUnlessQuietOrKept() {
         val orange = Color(0xcd936a)
-        val coupled = readabilityOverrides(original, fixture.groups, dark.roles, Readability(), orange, "orange")
+        val kept = readabilityOverrides(original, fixture.groups, dark.roles, Readability(), orange, "orange")
+        assertEquals(setOf("DEFAULT_KEYWORD"), kept.keys)
+
+        val coupled = readabilityOverrides(original, fixture.groups, dark.roles, Readability(keepOperatorColor = false), orange, "orange")
         assertEquals(setOf("DEFAULT_OPERATION_SIGN", "DEFAULT_KEYWORD"), coupled.keys)
         assertEquals(Color(0xd4be98), coupled.getValue("DEFAULT_OPERATION_SIGN").foregroundColor)
         assertEquals(orange, coupled.getValue("DEFAULT_KEYWORD").foregroundColor)
 
-        val quiet = readabilityOverrides(original, fixture.groups, dark.roles, Readability(quietOperators = true), orange, "orange")
+        val quiet = readabilityOverrides(original, fixture.groups, dark.roles, Readability(quietOperators = true, keepOperatorColor = false), orange, "orange")
         assertEquals(Color(0xa89984), quiet.getValue("DEFAULT_OPERATION_SIGN").foregroundColor)
 
         assertTrue(readabilityOverrides(original, fixture.groups, dark.roles, Readability(), keywordColor(dark, KeywordChoice())).isEmpty())
@@ -158,11 +161,11 @@ class SettingsTest {
     fun onlyClashingKeywordFamiliesMoveOperators() {
         val color = Color(0xb0a090)
         for (family in listOf("red", "orange", "clay")) {
-            val overrides = readabilityOverrides(original, fixture.groups, dark.roles, Readability(), color, family)
+            val overrides = readabilityOverrides(original, fixture.groups, dark.roles, Readability(keepOperatorColor = false), color, family)
             assertEquals(family, Color(0xd4be98), overrides.getValue("DEFAULT_OPERATION_SIGN").foregroundColor)
         }
         for (family in listOf("stone", "slate", PLAIN)) {
-            val overrides = readabilityOverrides(original, fixture.groups, dark.roles, Readability(), color, family)
+            val overrides = readabilityOverrides(original, fixture.groups, dark.roles, Readability(keepOperatorColor = false), color, family)
             assertEquals(family, setOf("DEFAULT_KEYWORD"), overrides.keys)
             val quiet = readabilityOverrides(original, fixture.groups, dark.roles, Readability(quietOperators = true), color, family)
             assertEquals(family, Color(0xa89984), quiet.getValue("DEFAULT_OPERATION_SIGN").foregroundColor)

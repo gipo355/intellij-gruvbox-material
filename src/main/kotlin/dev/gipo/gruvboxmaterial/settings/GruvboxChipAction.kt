@@ -32,6 +32,7 @@ class GruvboxChipAction : DumbAwareAction() {
             add(Separator.create())
         }
         add(ReadabilityToggle("Quiet operators", GruvboxState::quietOperators))
+        add(ReadabilityToggle("Keep operator colour", GruvboxState::keepOperatorColor))
         add(ReadabilityToggle("Dim comments", GruvboxState::dimComments))
         add(ReadabilityToggle("Soften doc comments", GruvboxState::softenDocs))
         add(ReadabilityToggle("Emphasize declarations", GruvboxState::emphasizeDeclarations))
@@ -68,7 +69,9 @@ class GruvboxChipAction : DumbAwareAction() {
             add(Run("Brightness down", { state().keywords.tunable && state().keywordBrightness < rows - 1 }) { stepBrightness(1) })
         })
         add(Separator.create())
-        if (ReadingFont.installedFamily() != null) add(Run("Apply reading font") { ReadingFont.apply(state()) })
+        for (preset in ReadingPreset.entries) {
+            if (preset.installedFamily() != null) add(Run("Apply reading font: ${preset.label}") { ReadingFont.apply(state(), preset) })
+        }
         if (ReadingFont.isApplied(state())) add(Run("Revert reading font") { ReadingFont.revert(state()) })
     }
 

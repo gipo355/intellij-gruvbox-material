@@ -8,7 +8,7 @@ const val PLAIN = "plain"
 
 val KEYWORD_FAMILIES = listOf(STOCK, "red", "orange", "clay", "stone", "slate", PLAIN)
 
-/** Keyword families whose hue clashes with the orange operators, which then move to fg0. */
+/** Keyword families whose hue clashes with the orange operators, which then move to fg0 unless kept. */
 val OPERATOR_CLASHING_FAMILIES = setOf("red", "orange", "clay")
 
 data class KeywordChoice(val family: String = STOCK, val brightness: Int = 1, val strength: Int = 1) {

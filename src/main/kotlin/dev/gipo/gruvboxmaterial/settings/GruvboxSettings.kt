@@ -13,6 +13,7 @@ val ACCENTS = listOf("aqua", "green", "yellow", "orange", "tan", "purple", "red"
 
 class GruvboxState : BaseState() {
     var quietOperators by property(false)
+    var keepOperatorColor by property(true)
     var dimComments by property(false)
     var softenDocs by property(false)
     var emphasizeDeclarations by property(false)
@@ -42,7 +43,7 @@ class GruvboxState : BaseState() {
     var fontLigatures by property(false)
     var fontVariants by stringSet()
 
-    val readability get() = Readability(quietOperators, dimComments, softenDocs, emphasizeDeclarations, italicComments, italicParameters, hideReassignUnderline, annotationStyle)
+    val readability get() = Readability(quietOperators, dimComments, softenDocs, emphasizeDeclarations, italicComments, italicParameters, hideReassignUnderline, annotationStyle, keepOperatorColor)
     val keywords get() = KeywordChoice(keywordFamily ?: STOCK, keywordBrightness, keywordStrength)
 }
 

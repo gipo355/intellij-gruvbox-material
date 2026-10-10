@@ -29,14 +29,14 @@
         <p>Settings | Appearance &amp; Behavior | Gruvbox Material, or the <b>Gruvbox Material</b> chip in the main toolbar
         for quick switching between variants and toggles.</p>
         <ul>
-            <li><b>Readability</b>: quiet operators (grey instead of orange), dim comments, soften doc comments,
+            <li><b>Readability</b>: quiet operators (grey instead of orange), keep the operator color whatever the keyword color, dim comments, soften doc comments,
             emphasize declarations (calls in the text color), italic comments, italic parameters,
             hide the reassignment underline.</li>
             <li><b>Annotations</b>: purple, grey, dim grey or the keyword color.</li>
             <li><b>Keywords</b>: the stock color or a clay, orange, red, slate or stone family, with seven brightness steps and three strengths.</li>
             <li><b>Accent</b>: aqua, green, yellow, orange, tan, purple or red for the UI accent.</li>
             <li><b>Selected editor tab</b>: outline or filled.</li>
-            <li><b>Reading font</b>: a one-click Maple Mono NF preset (line spacing 1.3, glyph variants that keep l/1/I, 0/O and g/q apart); Revert restores your font.</li>
+            <li><b>Reading font</b>: one-click Maple Mono NF and JetBrains Mono presets (line spacing 1.3, glyph variants that keep l/1/I, 0/O, g/q and rn/m apart); Revert restores your font.</li>
             <li><b>Indent Rainbow</b>: optional sync of its colors to the palette; your own palette comes back when sync is off.</li>
         </ul>
 

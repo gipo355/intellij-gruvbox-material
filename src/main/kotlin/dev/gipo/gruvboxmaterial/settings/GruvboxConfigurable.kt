@@ -29,6 +29,7 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
         }
         group("Readability") {
             row { checkBox("Quiet operators").bindSelected(state::quietOperators).comment("Operators in grey instead of orange") }
+            row { checkBox("Keep operator colour").bindSelected(state::keepOperatorColor).comment("Operators stay orange whatever the keyword colour; off moves them to the text colour next to red, orange and clay keywords") }
             row { checkBox("Dim comments").bindSelected(state::dimComments) }
             row { checkBox("Soften doc comments").bindSelected(state::softenDocs).comment("Tags, references, markup and code in the comment colour") }
             row { checkBox("Emphasize declarations").bindSelected(state::emphasizeDeclarations).comment("Function calls in the foreground colour; declarations keep theirs") }
@@ -59,17 +60,16 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
             }
         }
         group("Reading Font") {
-            val family = ReadingFont.installedFamily()
             row {
-                button("Apply Reading Preset") { ReadingFont.apply(state) }.enabled(family != null)
+                for (preset in ReadingPreset.entries) {
+                    button("Apply ${preset.label}") { ReadingFont.apply(state, preset) }.enabled(preset.installedFamily() != null)
+                }
                 button("Revert") { ReadingFont.revert(state) }
             }
-            row {
-                comment(
-                    if (family == null) "Maple Mono not installed"
-                    else "$family, line spacing ${ReadingFont.LINE_SPACING}, ligatures, glyph variants that keep l/1/I, 0/O and g/q apart. Applies immediately; Revert restores your previous font.",
-                )
+            for (preset in ReadingPreset.entries) {
+                row { comment(preset.installedFamily()?.let { "$it: ${preset.summary}" } ?: "${preset.label} not installed") }
             }
+            row { comment("Both add line spacing ${ReadingFont.LINE_SPACING} and ligatures. Applies immediately; Revert restores your previous font.") }
         }
     }
 
