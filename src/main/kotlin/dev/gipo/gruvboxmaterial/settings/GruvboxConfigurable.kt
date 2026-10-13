@@ -5,12 +5,16 @@ import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.dsl.builder.Panel
+import com.intellij.ui.dsl.builder.Row
 import com.intellij.ui.dsl.builder.bind
 import com.intellij.ui.dsl.builder.bindItem
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.dsl.builder.toNullableProperty
+import com.intellij.ui.components.JBRadioButton
 import com.intellij.ui.dsl.listCellRenderer.textListCellRenderer
+import com.intellij.ui.layout.ComponentPredicate
+import com.intellij.ui.layout.not
 import com.intellij.util.ui.ColorIcon
 import javax.swing.JComponent
 import javax.swing.JLabel
@@ -20,28 +24,33 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
     private val state = GruvboxSettings.getInstance().state
     private var variantId = service.activeVariant()?.id
     private val shipped = service.activeVariant() ?: service.palette.variants.values.firstOrNull()
+    private val styled = service.schemeVariant() ?: shipped
+    private val radios = mutableMapOf<Variant, JBRadioButton>()
     private lateinit var textContrast: ComboBox<String>
 
     override fun createPanel(): DialogPanel = panel {
         val variants = service.installedVariants()
         if (variants.isNotEmpty()) {
             buttonsGroup("Variant") {
-                for (variant in variants) row { radioButton(variant.name, variant.id) }
+                for (variant in variants) row { radios[variant] = radioButton(variant.name, variant.id).component }
             }.bind({ variantId ?: "" }, { variantId = it })
+            row { comment("Text contrast, Bold, Italic, keywords and accent below belong to ${shipped?.paletteFamily}: apply, then reopen this page to set them for the other family.") }
+                .visibleIf(sameFamily(shipped).not())
         }
-        row("Text contrast:") {
+        val contrastRow = row("Text contrast:") {
             val levels = shipped?.levels.orEmpty()
             textContrast = comboBox(listOf("") + levels.map { it.id }, textListCellRenderer { id -> textContrastLabel(shipped, levels.firstOrNull { it.id == id }) })
                 .bindItem({ state.textContrast(shipped) ?: "" }, { id -> shipped?.let { state.setTextContrast(it, id?.takeIf(String::isNotEmpty)) } })
                 .comment(textContrastComment(shipped))
                 .component
         }
+        contrastRow.enabledIf(sameFamily(shipped))
         row { checkBox("High UI contrast").bindSelected(state::highUiContrast).comment("Brighter line numbers, caret line number and indent guides") }
-        if (shipped != null) {
+        if (styled != null) {
             val groups = service.palette.groups
-            val (boldComment, italicComment) = styleComments(shipped)
-            row { checkBox("Bold").bindSelected({ state.isBold(shipped, groups) }, { state.setBold(shipped, groups, it) }).comment(boldComment) }
-            row { checkBox("Italic").bindSelected({ state.isItalic(shipped, groups) }, { state.setItalic(shipped, groups, it) }).comment(italicComment) }
+            val (boldComment, italicComment) = styleComments(styled)
+            row { checkBox("Bold").bindSelected({ state.isBold(styled, groups) }, { state.setBold(styled, groups, it) }).comment(boldComment) }.enabledIf(sameFamily(styled))
+            row { checkBox("Italic").bindSelected({ state.isItalic(styled, groups) }, { state.setItalic(styled, groups, it) }).comment(italicComment) }.enabledIf(sameFamily(styled))
         }
         group("Readability") {
             row { checkBox("Quiet operators").bindSelected(state::quietOperators).comment("Operators in grey instead of orange") }
@@ -62,9 +71,9 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
             }
             row { comment("Text contrast, high UI contrast, Bold, Italic, readability and keyword colours live in memory; turn them off before editing this scheme in Editor > Color Scheme, or they may be saved into your copy.") }
         }
-        keywordsGroup()
+        keywordsGroup().enabledIf(sameFamily(shipped))
         group("Interface") {
-            row("Accent:") { comboBox(accentChoices(shipped)).bindItem({ state.accent(shipped) }, { it?.let { accent -> state.setAccent(shipped, accent) } }) }
+            row("Accent:") { comboBox(accentChoices(shipped)).bindItem({ state.accent(shipped) }, { it?.let { accent -> state.setAccent(shipped, accent) } }) }.enabledIf(sameFamily(shipped))
             buttonsGroup("Selected editor tab:") {
                 row {
                     radioButton("Outline", TabStyle.UNDERLINE)
@@ -89,7 +98,13 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
         }
     }
 
-    private fun Panel.keywordsGroup() {
+    /** True while the selected variant radio (or none) is in [variant]'s palette family: the controls bound to that family stay meaningful. */
+    private fun sameFamily(variant: Variant?) = object : ComponentPredicate() {
+        override fun invoke() = radios.entries.firstOrNull { it.value.isSelected }?.key.let { it == null || it.paletteFamily == variant?.paletteFamily }
+        override fun addListener(listener: (Boolean) -> Unit) = radios.values.forEach { it.addItemListener { listener(invoke()) } }
+    }
+
+    private fun Panel.keywordsGroup(): Row {
         val variant = shipped?.atLevel(state.textContrast(shipped))
         val table = variant?.keywords
         val familyLabels = KEYWORD_FAMILIES.associateWith { keywordFamilyLabel(variant, it) }
@@ -124,7 +139,7 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
             swatch.text = "#%06x  %.1f:1 on bg0".format(color.rgb and 0xffffff, ratio)
             hint.isVisible = ratio < 4.5
         }
-        group("Keywords") {
+        val group = group("Keywords") {
             row("Family:") {
                 family = comboBox(KEYWORD_FAMILIES.map { familyLabels.getValue(it) })
                     .bindItem({ familyLabels[state.keywordFamily] ?: familyLabels.getValue(STOCK) }, { label -> state.keywordFamily = KEYWORD_FAMILIES.firstOrNull { familyLabels[it] == label } ?: STOCK })
@@ -145,6 +160,7 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
         }
         for (combo in listOf(family, bright, strong, textContrast)) combo.addActionListener { refresh() }
         refresh()
+        return group
     }
 
     override fun apply() {

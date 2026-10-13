@@ -3053,6 +3053,7 @@
     <option name="XPATH.FUNCTION">
       <value>
         <option name="FOREGROUND" value="eebd35"/>
+        <option name="FONT_TYPE" value="1"/>
       </value>
     </option>
     <option name="XPATH.KEYWORD">

@@ -6906,6 +6906,7 @@
         "STATIC_METHOD_ATTRIBUTES",
         "Static method access",
         "TS.DECORATOR",
+        "XPATH.FUNCTION",
         "org.rust.ASSOC_FUNCTION",
         "org.rust.ASSOC_FUNCTION_CALL",
         "org.rust.ASSOC_TRAIT_FUNCTION",

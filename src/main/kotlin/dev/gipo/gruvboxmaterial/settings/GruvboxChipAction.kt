@@ -44,14 +44,15 @@ class GruvboxChipAction : DumbAwareAction() {
             state().highUiContrast = !state().highUiContrast
             service.applyAll()
         })
-        if (active != null) {
+        val styled = service.schemeVariant()
+        if (styled != null) {
             val groups = service.palette.groups
-            add(Choice("Bold", { state().isBold(active, groups) }) {
-                state().setBold(active, groups, !state().isBold(active, groups))
+            add(Choice("Bold", { state().isBold(styled, groups) }) {
+                state().setBold(styled, groups, !state().isBold(styled, groups))
                 service.applyScheme()
             })
-            add(Choice("Italic", { state().isItalic(active, groups) }) {
-                state().setItalic(active, groups, !state().isItalic(active, groups))
+            add(Choice("Italic", { state().isItalic(styled, groups) }) {
+                state().setItalic(styled, groups, !state().isItalic(styled, groups))
                 service.applyScheme()
             })
         }

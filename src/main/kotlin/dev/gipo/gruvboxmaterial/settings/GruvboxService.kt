@@ -25,6 +25,10 @@ class GruvboxService : Disposable {
     /** The variant whose LaF is installed, or null when another theme is active. */
     fun activeVariant(): Variant? = LafManager.getInstance().currentUIThemeLookAndFeel?.id?.let { palette.variants[it] }
 
+    /** The variant whose editor scheme is the global scheme (or its editable copy): the one Bold and Italic render on. */
+    fun schemeVariant(): Variant? =
+        palette.variantForScheme(EditorColorsManager.getInstance().globalScheme.name.removePrefix(Scheme.EDITABLE_COPY_PREFIX))
+
     fun installedVariants(): List<Variant> = palette.variants.values.filter { findLaf(it.id) != null }
 
     fun switchVariant(id: String) {
@@ -55,7 +59,7 @@ class GruvboxService : Disposable {
         val hadOverrides = !schemeOverrides.isEmpty
         schemeOverrides.restore()
         val scheme = EditorColorsManager.getInstance().globalScheme
-        val shipped = palette.variantForScheme(scheme.name.removePrefix(Scheme.EDITABLE_COPY_PREFIX))
+        val shipped = schemeVariant()
         if (shipped != null) {
             val base = shipped.atLevel(null)
             val variant = shipped.atLevel(state.textContrast(shipped))
