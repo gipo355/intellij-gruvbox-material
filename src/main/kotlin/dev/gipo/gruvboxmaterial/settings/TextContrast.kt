@@ -19,7 +19,7 @@ fun attributeOverrides(
     readability: Readability,
     keywords: KeywordChoice,
 ): Map<String, TextAttributes> {
-    val swapped = foregroundOverrides(original, groups.schemeForegroundRoles[base.family]?.attributes.orEmpty(), base.roles, variant.roles)
+    val swapped = foregroundOverrides(original, groups.schemeForegroundRoles[base.schemeFamily]?.attributes.orEmpty(), base.roles, variant.roles)
     return swapped + readabilityOverrides(original + swapped, groups, variant.roles, readability, keywordColor(variant, keywords), keywords.family)
 }
 
@@ -55,13 +55,13 @@ fun foregroundOverrides(
  */
 fun colorOverrides(original: Map<String, Color>, groups: Groups, base: Variant, variant: Variant, highUiContrast: Boolean): Map<String, Color> {
     val result = LinkedHashMap<String, Color>()
-    for ((key, role) in groups.schemeForegroundRoles[base.family]?.colors.orEmpty()) {
+    for ((key, role) in groups.schemeForegroundRoles[base.schemeFamily]?.colors.orEmpty()) {
         val color = original[key] ?: continue
         val new = variant.roles[role] ?: continue
         if (color == base.roles[role] && new != color) result[key] = new
     }
     if (highUiContrast) {
-        for ((key, step) in groups.highUiContrast[base.family].orEmpty()) {
+        for ((key, step) in groups.highUiContrast[base.schemeFamily].orEmpty()) {
             if (original[key] != base.roles[step.from]) continue
             result[key] = variant.roles[step.to] ?: continue
         }

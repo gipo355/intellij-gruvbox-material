@@ -15,12 +15,11 @@ import com.intellij.util.ui.ColorIcon
 import javax.swing.JComponent
 import javax.swing.JLabel
 
-private val TEXT_CONTRAST_LABELS = mapOf("" to "Default (Material on dark, Mix on light)", "material" to "Material", "mix" to "Mix", "original" to "Original")
-
 class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
     private val service = GruvboxService.getInstance()
     private val state = GruvboxSettings.getInstance().state
     private var variantId = service.activeVariant()?.id
+    private val shipped = service.activeVariant() ?: service.palette.variants.values.firstOrNull()
     private lateinit var textContrast: ComboBox<String>
 
     override fun createPanel(): DialogPanel = panel {
@@ -31,8 +30,9 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
             }.bind({ variantId ?: "" }, { variantId = it })
         }
         row("Text contrast:") {
-            textContrast = comboBox(listOf("") + TEXT_CONTRASTS, textListCellRenderer { TEXT_CONTRAST_LABELS[it] })
-                .bindItem({ state.textContrast ?: "" }, { state.textContrast = it?.takeIf(String::isNotEmpty) })
+            val levels = shipped?.levels.orEmpty()
+            textContrast = comboBox(listOf("") + levels.map { it.id }, textListCellRenderer { id -> textContrastLabel(shipped, levels.firstOrNull { it.id == id }) })
+                .bindItem({ state.textContrast(shipped) ?: "" }, { id -> shipped?.let { state.setTextContrast(it, id?.takeIf(String::isNotEmpty)) } })
                 .comment("Follows upstream gruvbox-material's foreground option")
                 .component
         }
@@ -84,8 +84,7 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
     }
 
     private fun Panel.keywordsGroup() {
-        val shipped = service.activeVariant() ?: service.palette.variants.values.firstOrNull()
-        val variant = shipped?.atLevel(state.textContrast)
+        val variant = shipped?.atLevel(state.textContrast(shipped))
         val table = variant?.keywords
         val familyLabels = KEYWORD_FAMILIES.associateWith { keywordFamilyLabel(variant, it) }
         val brightness = table?.brightness.orEmpty()

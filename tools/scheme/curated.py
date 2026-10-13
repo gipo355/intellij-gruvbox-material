@@ -178,14 +178,14 @@ LIGHT_COLORS = {
     "LINE_NUMBERS_COLOR": "grey0",
 }
 
-# Runtime "high UI contrast" (upstream ui_contrast=high): per family, key -> (shipped role, one step up).
+# Runtime "high UI contrast" (upstream ui_contrast=high): per scheme family, key -> (shipped role, one step up).
 HIGH_UI_CONTRAST = {
-    True: {
+    "material-dark": {
         "LINE_NUMBERS_COLOR": ("bg5", "grey0"),
         "LINE_NUMBER_ON_CARET_ROW_COLOR": ("grey1", "grey2"),
         "INDENT_GUIDE": ("bg3", "bg5"),
     },
-    False: {
+    "material-light": {
         "LINE_NUMBERS_COLOR": ("grey0", "grey1"),
         "LINE_NUMBER_ON_CARET_ROW_COLOR": ("grey1", "grey2"),
         "INDENT_GUIDE": ("bg3", "bg5"),
@@ -615,6 +615,25 @@ LANGUAGES = {
     "Static field": A(fg="fg0"),
 }
 
+# ---------------------------------------------------------------- palette family layers
+# Per palette family, over the shared tables above: "attributes" replaces CORE/LANGUAGES values (syntax or chrome) or
+# adds keys, "colors" replaces or adds <colors> keys. Material is the shared tables as they are.
+FAMILY_LAYERS = {
+    "material": {"attributes": {}, "colors": {}},
+}
+
+
+def tables(family, dark):
+    """-> {colors, core, languages}: the curated tables one scheme family resolves with."""
+    layer = FAMILY_LAYERS[family]
+    attrs = layer["attributes"]
+    return {
+        "colors": {**COLORS, **({} if dark else LIGHT_COLORS), **layer["colors"]},
+        "core": {**CORE, **attrs},
+        "languages": {k: attrs.get(k, v) for k, v in LANGUAGES.items()},
+    }
+
+
 # ---------------------------------------------------------------- level sets that must stay distinguishable
 # Rainbow Brackets: the outermost level is plain text, then accents far apart in hue; no red or orange, which the
 # keyword and operator colours own.
@@ -643,8 +662,9 @@ ISLANDS_GREYS = {
     "4e5157": "bg5",
 }
 
-# ---------------------------------------------------------------- alignment with the nvim dump
-# (nvim group, nvim field, IntelliJ key, IntelliJ field). generate.py resolves both sides and reports mismatches.
+# ---------------------------------------------------------------- alignment with an nvim dump
+# (nvim group, nvim field, IntelliJ key, IntelliJ field). generate.py resolves both sides against each scheme family's
+# reference in NVIM_REFERENCES and reports mismatches.
 NVIM_ALIGN = [
     ("Normal", "fg", "TEXT", "FOREGROUND"),
     ("Normal", "bg", "TEXT", "BACKGROUND"),
@@ -719,4 +739,9 @@ NVIM_DEVIATIONS = {
     ("LspInlayHint", "INLAY_DEFAULT"): "grey0 instead of bg5: inlays sit on a bg1 pill",
     ("IblIndent", "INDENT_GUIDE"): "bg3 instead of bg5: continuous guide lines read brighter than nvim's glyphs",
     ("Changed", "MODIFIED_LINES_COLOR"): "yellow instead of tan: modified markers follow the amber diff hue",
+}
+
+# Scheme family -> its nvim highlight dump (next to generate.py) and the departures reported instead of flagged.
+NVIM_REFERENCES = {
+    "material-dark": {"file": "nvim-highlights.json", "deviations": NVIM_DEVIATIONS},
 }

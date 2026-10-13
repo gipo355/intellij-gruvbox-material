@@ -58,10 +58,12 @@ def check_diff(attrs, palette, rules, fail):
             fail(f"{key}: word {word} vs line {line} deltaE {P.delta_e(word, line):.3f} < {rules['wordVsLine']}")
 
 
-def check(variant, rules):
+def check(variant, all_rules):
     failures = []
     fail = failures.append
     meta = C.VARIANTS[variant]
+    rules = all_rules[meta["family"]]
+    plain = rules["fontTypes"] == "none"
     C.use(variant)
     by_hex = {}
     for k, v in C.PALETTE.items():
@@ -96,12 +98,13 @@ def check(variant, rules):
             fail(f"{k}: no value")
         for f, val in (fields or {}).items():
             if f == "FONT_TYPE":
-                fail(f"{k}: FONT_TYPE")
+                if plain:
+                    fail(f"{k}: FONT_TYPE")
             elif f in COLOR_FIELDS:
                 used.append((k, f, val))
             elif f != "EFFECT_TYPE":
                 fail(f"{k}: unexpected field {f}")
-    if "FONT_TYPE" in open(output).read():
+    if plain and "FONT_TYPE" in open(output).read():
         fail("FONT_TYPE appears in the file")
 
     empty = 0

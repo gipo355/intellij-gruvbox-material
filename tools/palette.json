@@ -6,6 +6,7 @@
       "name": "Gruvbox Material Islands",
       "stem": "GruvboxMaterialIslands",
       "dark": true,
+      "family": "material",
       "parentTheme": "ExperimentalDark",
       "parentScheme": "Darcula",
       "colors": {
@@ -104,6 +105,7 @@
       "name": "Gruvbox Material Islands Medium",
       "stem": "GruvboxMaterialIslandsMedium",
       "dark": true,
+      "family": "material",
       "parentTheme": "ExperimentalDark",
       "parentScheme": "Darcula",
       "colors": {
@@ -202,6 +204,7 @@
       "name": "Gruvbox Material Islands Hard",
       "stem": "GruvboxMaterialIslandsHard",
       "dark": true,
+      "family": "material",
       "parentTheme": "ExperimentalDark",
       "parentScheme": "Darcula",
       "colors": {
@@ -300,6 +303,7 @@
       "name": "Gruvbox Material Islands Light",
       "stem": "GruvboxMaterialIslandsLight",
       "dark": false,
+      "family": "material",
       "parentTheme": "ExperimentalLightWithLightHeader",
       "parentScheme": "Default",
       "colors": {
@@ -395,45 +399,49 @@
     }
   },
   "restricted": {
-    "$comment": "blue is allowed only here: ANSI blue keeps terminal output legible, and blue icons keep class/interface glyphs distinct. Patterns are regexes on the scheme attribute/color key, or on the theme.json path.",
-    "blue": {
-      "schemeKeys": [
-        "^CONSOLE_BLUE.*",
-        "^CONSOLE_CYAN.*"
-      ],
-      "themePaths": [
-        "^icons\\."
-      ]
+    "material": {
+      "$comment": "blue is allowed only here: ANSI blue keeps terminal output legible, and blue icons keep class/interface glyphs distinct. Patterns are regexes on the scheme attribute/color key, or on the theme.json path.",
+      "blue": {
+        "schemeKeys": [
+          "^CONSOLE_BLUE.*",
+          "^CONSOLE_CYAN.*"
+        ],
+        "themePaths": [
+          "^icons\\."
+        ]
+      }
     }
   },
   "rules": {
-    "$comment": "No color anywhere may contrast more with the variant's bg0 than fg0 does: bright glyphs and blocks are what bloom. No bold or italic in the editor scheme. diff: bounds for the diff tints (OKLab distance from bg0 and between the four, fg0 contrast on each, as a ratio of fg0's contrast on bg0; wordVsLine: distance between each hue's block and line tint).",
-    "maxContrastColor": "fg0",
-    "fontTypes": "none",
-    "diff": {
-      "hues": {
-        "ins": 125,
-        "del": 25,
-        "mod": 72,
-        "conf": 335
-      },
-      "block": {
-        "deltaE": [
-          0.06,
-          0.09
-        ],
-        "pairwise": 0.038,
-        "contrastRatio": 0.74
-      },
-      "line": {
-        "deltaE": [
-          0.035,
-          0.05
-        ],
-        "pairwise": 0.025,
-        "contrastRatio": 0.87
-      },
-      "wordVsLine": 0.035
+    "material": {
+      "$comment": "No color anywhere may contrast more with the variant's bg0 than fg0 does: bright glyphs and blocks are what bloom. No bold or italic in the editor scheme. diff: bounds for the diff tints (OKLab distance from bg0 and between the four, fg0 contrast on each, as a ratio of fg0's contrast on bg0; wordVsLine: distance between each hue's block and line tint).",
+      "maxContrastColor": "fg0",
+      "fontTypes": "none",
+      "diff": {
+        "hues": {
+          "ins": 125,
+          "del": 25,
+          "mod": 72,
+          "conf": 335
+        },
+        "block": {
+          "deltaE": [
+            0.06,
+            0.09
+          ],
+          "pairwise": 0.038,
+          "contrastRatio": 0.74
+        },
+        "line": {
+          "deltaE": [
+            0.035,
+            0.05
+          ],
+          "pairwise": 0.025,
+          "contrastRatio": 0.87
+        },
+        "wordVsLine": 0.035
+      }
     }
   }
 }

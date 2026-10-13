@@ -31,10 +31,11 @@ class GruvboxChipAction : DumbAwareAction() {
             for (variant in variants) add(Choice(variant.name, { service.activeVariant()?.id == variant.id }) { service.switchVariant(variant.id) })
             add(Separator.create())
         }
+        val active = service.activeVariant()
         add(DefaultActionGroup("Text contrast", true).apply {
-            for (level in listOf(null) + TEXT_CONTRASTS) {
-                add(Choice(level?.replaceFirstChar(Char::uppercase) ?: "Default", { state().textContrast == level }) {
-                    state().textContrast = level
+            if (active != null) for (level in listOf(null) + active.levels) {
+                add(Choice(textContrastLabel(active, level), { state().textContrast(active) == level?.id }) {
+                    state().setTextContrast(active, level?.id)
                     service.applyAll()
                 })
             }
@@ -68,7 +69,7 @@ class GruvboxChipAction : DumbAwareAction() {
             }
         })
         add(DefaultActionGroup("Keywords", true).apply {
-            val variant = service.activeVariant()?.atLevel(state().textContrast)
+            val variant = active?.atLevel(state().textContrast(active))
             for (family in KEYWORD_FAMILIES) {
                 add(Choice(keywordFamilyLabel(variant, family), { state().keywords.family == family }) {
                     state().keywordFamily = family

@@ -76,6 +76,7 @@ FOREGROUND_FG0 = {
     True: {"material": "#d4be98", "mix": "#e2cca9", "original": "#ebdbb2"},
     False: {"material": "#654735", "mix": "#514036", "original": "#3c3836"},
 }
+FOREGROUND_LABELS = {"material": "Material", "mix": "Mix", "original": "Original"}
 # User-approved: dark ships material, light ships upstream 'mix' text, darker than material's #654735.
 DEFAULT_FOREGROUND = {True: "material", False: "mix"}
 LIGHT_FG0 = FOREGROUND_FG0[False][DEFAULT_FOREGROUND[False]]
@@ -97,13 +98,13 @@ DIFF_KINDS = ("block", "line")
 
 VARIANTS = {
     "dark-soft": {"id": "f869fff9-c7e3-4656-b344-d228bf76a6c3", "name": "Gruvbox Material Islands",
-                  "stem": "GruvboxMaterialIslands", "dark": True},
+                  "stem": "GruvboxMaterialIslands", "dark": True, "family": "material"},
     "dark-medium": {"id": "275611fd-a504-467e-9c31-f0470ba50762", "name": "Gruvbox Material Islands Medium",
-                    "stem": "GruvboxMaterialIslandsMedium", "dark": True},
+                    "stem": "GruvboxMaterialIslandsMedium", "dark": True, "family": "material"},
     "dark-hard": {"id": "117eb1e1-e632-4fba-b735-691361c815df", "name": "Gruvbox Material Islands Hard",
-                  "stem": "GruvboxMaterialIslandsHard", "dark": True},
+                  "stem": "GruvboxMaterialIslandsHard", "dark": True, "family": "material"},
     "light-soft": {"id": "653f45a7-3ec3-431d-a49e-dfba1290c9bf", "name": "Gruvbox Material Islands Light",
-                   "stem": "GruvboxMaterialIslandsLight", "dark": False},
+                   "stem": "GruvboxMaterialIslandsLight", "dark": False, "family": "material"},
 }
 # Runtime keyword-colour choices: rows bright -> ghost (most to least visible), columns by strength.
 KEYWORDS = {
@@ -241,7 +242,7 @@ def diff_tint(bg, dl, target, hue):
     return from_oklab(L0 + dl, a0 + shift * math.cos(math.radians(hue)), b0 + shift * math.sin(math.radians(hue)))
 
 
-def diff_set(bg, fg, dark, spec):
+def diff_set(bg, fg, dark, spec, hues):
     """-> {suffix: hex}: the largest lightness offset whose tints meet every aim on the rounded hex. Where bg0 sits
     near the sRGB edge (light), the distance from bg0 may grow towards its bound and the pairwise aim relax halfway
     to its bound to keep the hues apart."""
@@ -252,7 +253,7 @@ def diff_set(bg, fg, dark, spec):
                              for t in range(round(aim["deltaE"] * 1000), top + 1, 2)]:
         for step in range(target, -1, -1):
             dl = step / 1000 * (1 if dark else -1)
-            tints = {k: diff_tint(bg, dl, target / 1000, h) for k, h in DIFF["hues"].items()}
+            tints = {k: diff_tint(bg, dl, target / 1000, h) for k, h in hues.items()}
             if None in tints.values():
                 continue
             ok = all(spec["deltaE"][0] <= delta_e(t, bg) <= spec["deltaE"][1]
@@ -275,6 +276,7 @@ def dark_soft_shares():
 
 
 def variant_colors(key, meta):
+    """Material's roles for one variant."""
     dark = meta["dark"]
     bgs = UPSTREAM_BG[key]
     bg0 = bgs["bg0"]
@@ -297,29 +299,30 @@ def variant_colors(key, meta):
     ref_bg = UPSTREAM_BG["dark-soft"]["bg0"]
     colors.update({k: tint(v, ref_bg, bg0, dark) for k, v in REFERENCE_TINTS.items()})
     for kind, suffix in (("block", ""), ("line", "_line")):
-        for k, v in diff_set(bg0, colors["fg0"], dark, DIFF[kind]).items():
+        for k, v in diff_set(bg0, colors["fg0"], dark, DIFF[kind], DIFF["hues"]).items():
             colors[f"diff_{k}{suffix}"] = v
     return {k: colors[k] for k in ROLE_ORDER}
 
 
-def foregrounds(colors, dark):
+def foregrounds(colors, dark, family):
     """{level: {role: hex}}: the shipped level as shipped, the others re-solved to keep each role's share of fg0."""
     bg = colors["bg0"]
     text = contrast(colors["fg0"], bg)
+    roles = family["foregroundRoles"]
     levels = {}
-    for level, fg0 in FOREGROUND_FG0[dark].items():
-        if level == DEFAULT_FOREGROUND[dark]:
-            levels[level] = {k: colors[k] for k in FOREGROUND_ROLES}
+    for level, fg0 in family["foregroundFg0"][dark].items():
+        if level == family["defaultForeground"][dark]:
+            levels[level] = {k: colors[k] for k in roles}
             continue
         target = contrast(fg0, bg)
         levels[level] = {"fg0": fg0, **{
-            k: at_contrast(colors[k], bg, contrast(colors[k], bg) / text * target, None if dark else LIGHT_CHROMA_CAP)
-            for k in FOREGROUND_ROLES[1:]}}
+            k: at_contrast(colors[k], bg, contrast(colors[k], bg) / text * target, family["chromaCap"][dark])
+            for k in roles[1:]}}
     return levels
 
 
 def keyword_table(dark, bg, fg, level=None):
-    """{brightness, strength, families: {key: {label, colors: rows x strengths}}} for one variant; fg is the level's
+    """Material's {brightness, strength, families: {key: {label, colors: rows x strengths}}} for one variant; fg is the level's
     fg0 (dark: the grid is the shipped level, other levels keep each entry's share of fg0's contrast)."""
     soft = UPSTREAM_BG["dark-soft"]["bg0"]
     reference = contrast(UPSTREAM_FG[True]["fg0"], soft)
@@ -340,24 +343,17 @@ def keyword_table(dark, bg, fg, level=None):
     return {"brightness": KEYWORDS["brightness"], "strength": KEYWORDS["strength"], "families": families}
 
 
-def build():
-    variants = {}
-    for key, meta in VARIANTS.items():
-        theme_parent, scheme_parent = PARENTS[meta["dark"]]
-        colors = variant_colors(key, meta)
-        variants[key] = {**meta, "parentTheme": theme_parent, "parentScheme": scheme_parent, "colors": colors,
-                         "defaultForeground": DEFAULT_FOREGROUND[meta["dark"]],
-                         "foregrounds": foregrounds(colors, meta["dark"])}
-    soft = variants["dark-soft"]["colors"]
-    drift = {k: (v, soft[k]) for k, v in REFERENCE_TINTS.items() if soft[k] != v}
-    if drift:
-        raise SystemExit(f"dark-soft tints do not round-trip: {drift}")
-    return {
-        "$comment": "Generated by tools/palette.py: every color the theme may use, per variant. Generators map into "
-                    "role names; ThemeLintTest rejects anything outside the variant's roles. Base: "
-                    "sainnhe/gruvbox-material, foreground=material (light fg0: mix). Blue is remapped to tan everywhere except the "
-                    "keys listed in restricted.",
-        "variants": variants,
+# Palette families: each supplies its variants' roles, foreground levels, keyword tables and rules.
+FAMILIES = {
+    "material": {
+        "colors": variant_colors,
+        "keywordTable": keyword_table,
+        "foregroundRoles": FOREGROUND_ROLES,
+        "foregroundFg0": FOREGROUND_FG0,
+        "foregroundLabels": FOREGROUND_LABELS,
+        "defaultForeground": DEFAULT_FOREGROUND,
+        "chromaCap": {True: None, False: LIGHT_CHROMA_CAP},
+        "diff": DIFF,
         "restricted": {
             "$comment": "blue is allowed only here: ANSI blue keeps terminal output legible, and blue icons keep "
                         "class/interface glyphs distinct. Patterns are regexes on the scheme attribute/color key, "
@@ -371,8 +367,38 @@ def build():
                         "of fg0's contrast on bg0; wordVsLine: distance between each hue's block and line tint).",
             "maxContrastColor": "fg0",
             "fontTypes": "none",
-            "diff": {k: {f: x for f, x in v.items() if f != "aim"} if k in DIFF_KINDS else v for k, v in DIFF.items()},
         },
+    },
+}
+
+
+def rules(family):
+    diff = family["diff"]
+    return {**family["rules"],
+            "diff": {k: {f: x for f, x in v.items() if f != "aim"} if k in DIFF_KINDS else v for k, v in diff.items()}}
+
+
+def build():
+    variants = {}
+    for key, meta in VARIANTS.items():
+        family = FAMILIES[meta["family"]]
+        theme_parent, scheme_parent = PARENTS[meta["dark"]]
+        colors = family["colors"](key, meta)
+        variants[key] = {**meta, "parentTheme": theme_parent, "parentScheme": scheme_parent, "colors": colors,
+                         "defaultForeground": family["defaultForeground"][meta["dark"]],
+                         "foregrounds": foregrounds(colors, meta["dark"], family)}
+    soft = variants["dark-soft"]["colors"]
+    drift = {k: (v, soft[k]) for k, v in REFERENCE_TINTS.items() if soft[k] != v}
+    if drift:
+        raise SystemExit(f"dark-soft tints do not round-trip: {drift}")
+    return {
+        "$comment": "Generated by tools/palette.py: every color the theme may use, per variant. Generators map into "
+                    "role names; ThemeLintTest rejects anything outside the variant's roles. Base: "
+                    "sainnhe/gruvbox-material, foreground=material (light fg0: mix). Blue is remapped to tan everywhere except the "
+                    "keys listed in restricted.",
+        "variants": variants,
+        "restricted": {name: family["restricted"] for name, family in FAMILIES.items()},
+        "rules": {name: rules(family) for name, family in FAMILIES.items()},
     }
 
 
@@ -385,6 +411,7 @@ def write_json(path, data):
 
 def report(data):
     for key, v in data["variants"].items():
+        hues = FAMILIES[v["family"]]["diff"]["hues"]
         c = v["colors"]
         bg = c["bg0"]
         accents = [c[k] for k in ACCENTS if k != "blue"]
@@ -393,7 +420,7 @@ def report(data):
               f"accents {min(crs):.2f}-{max(crs):.2f}  L {min(lch(a)[0] for a in accents):.3f}-"
               f"{max(lch(a)[0] for a in accents):.3f}  max chroma {max(lch(a)[1] for a in accents):.3f}")
         for suffix in ("", "_line"):
-            tints = {k: c[f"diff_{k}{suffix}"] for k in DIFF["hues"]}
+            tints = {k: c[f"diff_{k}{suffix}"] for k in hues}
             vals = list(tints.values())
             pairs = min(delta_e(x, y) for i, x in enumerate(vals) for y in vals[i + 1:])
             cells = "  ".join(f"{k} {t} dE {delta_e(t, bg):.3f} cr {contrast(c['fg0'], t):.2f}" for k, t in tints.items())
@@ -406,17 +433,21 @@ def report(data):
                   f"max chroma {max(lch(roles[k])[1] for k in ACCENTS):.3f}")
 
 
+def runtime_variant(v):
+    family = FAMILIES[v["family"]]
+    table = family["keywordTable"]
+    return {"name": v["name"], "dark": v["dark"], "family": v["family"], "editorScheme": v["name"], "roles": v["colors"],
+            "keywords": table(v["dark"], v["colors"]["bg0"], v["colors"]["fg0"]),
+            "defaultForeground": v["defaultForeground"],
+            "foregroundLevels": [{"id": level, "label": family["foregroundLabels"][level]} for level in v["foregrounds"]],
+            "foregrounds": {level: {"roles": roles, "keywords": table(v["dark"], v["colors"]["bg0"], roles["fg0"], level)}
+                            for level, roles in v["foregrounds"].items()}}
+
+
 def main():
     data = build()
     write_json(OUT, data)
-    write_json(RUNTIME, {"variants": {
-        v["id"]: {"name": v["name"], "dark": v["dark"], "editorScheme": v["name"], "roles": v["colors"],
-                  "keywords": keyword_table(v["dark"], v["colors"]["bg0"], v["colors"]["fg0"]),
-                  "defaultForeground": v["defaultForeground"],
-                  "foregrounds": {level: {"roles": roles,
-                                          "keywords": keyword_table(v["dark"], v["colors"]["bg0"], roles["fg0"], level)}
-                                  for level, roles in v["foregrounds"].items()}}
-        for v in data["variants"].values()}})
+    write_json(RUNTIME, {"variants": {v["id"]: runtime_variant(v) for v in data["variants"].values()}})
     report(data)
 
 

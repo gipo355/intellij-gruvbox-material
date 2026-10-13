@@ -13,9 +13,16 @@ data class Variant(
     val keywords: KeywordTable? = null,
     val defaultForeground: String? = null,
     val foregrounds: Map<String, Foreground> = emptyMap(),
+    /** The palette family, e.g. material: text contrast choices are kept per palette family. */
+    val paletteFamily: String = "material",
+    /** The text contrast levels in menu order. */
+    val levels: List<Level> = emptyList(),
 ) {
-    /** The key of the per-family tables in groups.json. */
-    val family get() = if (dark) "dark" else "light"
+    /** The key of the per-family tables in groups.json: palette family and parent axis, e.g. material-dark. */
+    val schemeFamily get() = "$paletteFamily-${if (dark) "dark" else "light"}"
+
+    /** [id] when it names one of this variant's levels, else null (the default). */
+    fun level(id: String?): String? = id?.takeIf { foregrounds.containsKey(it) }
 
     /** This variant at text contrast [level]: its roles overlaid with the level's and the level's keyword table; null is the default. */
     fun atLevel(level: String?): Variant {
@@ -27,7 +34,12 @@ data class Variant(
 /** One text contrast level, upstream gruvbox-material's foreground option. */
 data class Foreground(val roles: Map<String, Color>, val keywords: KeywordTable?)
 
-val TEXT_CONTRASTS = listOf("material", "mix", "original")
+/** A text contrast level as the settings list it. */
+data class Level(val id: String, val label: String)
+
+/** [level]'s label, or for null the default entry naming [variant]'s default level. */
+fun textContrastLabel(variant: Variant?, level: Level?): String =
+    level?.label ?: variant?.levels?.firstOrNull { it.id == variant.defaultForeground }?.let { "Default (${it.label})" } ?: "Default"
 
 /** Keyword colours per family as rows of brightness, each row `[vivid, muted, soft]`. */
 data class KeywordTable(
@@ -43,20 +55,20 @@ data class Groups(
     val comments: List<String>,
     val docs: List<String>,
     val calls: List<String>,
-    val accentUiKeys: List<String>,
+    val accentUiKeys: Map<String, List<String>> = emptyMap(),
     val keywords: List<String> = emptyList(),
     val parameters: List<String> = emptyList(),
     val reassigned: List<String> = emptyList(),
     val annotations: List<String> = emptyList(),
     val schemeForegroundRoles: Map<String, SchemeRoles> = emptyMap(),
-    val uiForegroundKeys: Map<String, List<String>> = emptyMap(),
+    val uiForegroundKeys: Map<String, Map<String, List<String>>> = emptyMap(),
     val highUiContrast: Map<String, Map<String, RoleStep>> = emptyMap(),
 )
 
 /** A key's shipped role and the one high UI contrast raises it to. */
 data class RoleStep(val from: String, val to: String)
 
-/** The scheme keys whose colour is a foreground role, per family: colour keys, and attribute fields such as FOREGROUND. */
+/** The scheme keys whose colour is a foreground role, per scheme family: colour keys, and attribute fields such as FOREGROUND. */
 data class SchemeRoles(val colors: Map<String, String>, val attributes: Map<String, Map<String, String>>)
 
 /** The generated palette.json and groups.json: variants keyed by themeProvider id, and the key groups the toggles recolor. */
@@ -79,6 +91,8 @@ class Palette(val variants: Map<String, Variant>, val groups: Groups) {
                         val foreground = f.asJsonObject
                         level to Foreground(parseRoles(foreground.getAsJsonObject("roles")), foreground.getAsJsonObject("keywords")?.let(::parseKeywords))
                     }.orEmpty(),
+                    paletteFamily = o["family"]?.asString ?: "material",
+                    levels = o.getAsJsonArray("foregroundLevels")?.map { it.asJsonObject.let { l -> Level(l["id"].asString, l["label"].asString) } }.orEmpty(),
                 )
             }
             val g = JsonParser.parseString(groupsJson).asJsonObject
@@ -90,12 +104,15 @@ class Palette(val variants: Map<String, Variant>, val groups: Groups) {
                     roles.getAsJsonObject("attributes")?.entrySet()?.associate { (key, fields) -> key to fields.asJsonObject.stringMap() }.orEmpty(),
                 )
             }.orEmpty()
-            val uiKeys = g.getAsJsonObject("uiForegroundKeys")?.entrySet()?.associate { (role, keys) -> role to keys.asJsonArray.map { it.asString } }.orEmpty()
+            val uiKeys = g.getAsJsonObject("uiForegroundKeys")?.entrySet()?.associate { (family, roles) ->
+                family to roles.asJsonObject.entrySet().associate { (role, keys) -> role to keys.asJsonArray.map { it.asString } }
+            }.orEmpty()
+            val accentKeys = g.getAsJsonObject("accentUiKeys")?.entrySet()?.associate { (family, keys) -> family to keys.asJsonArray.map { it.asString } }.orEmpty()
             val highUi = g.getAsJsonObject("highUiContrast")?.entrySet()?.associate { (family, keys) -> family to keys.asJsonObject.entrySet().associate { (key, step) -> key to step.asJsonObject.let { RoleStep(it["from"].asString, it["to"].asString) } } }.orEmpty()
             return Palette(
                 variants,
                 Groups(
-                    list("operators"), list("comments"), list("docs"), list("calls"), list("accentUiKeys"), list("keywords"), list("parameters"), list("reassigned"), list("annotations"),
+                    list("operators"), list("comments"), list("docs"), list("calls"), accentKeys, list("keywords"), list("parameters"), list("reassigned"), list("annotations"),
                     schemeRoles, uiKeys, highUi,
                 ),
             )

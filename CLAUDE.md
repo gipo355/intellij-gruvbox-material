@@ -1,7 +1,8 @@
 # CLAUDE.md
 
 IntelliJ theme plugin "Gruvbox Material Islands" (id `dev.gipo.gruvboxmaterial`).
-Low-glare gruvbox-material themes on the 2026 Islands UI, in four variants:
+Low-glare gruvbox themes on the 2026 Islands UI. Each variant belongs to a
+palette family (`family` in `tools/palette.py` VARIANTS); material has four:
 dark soft, medium, hard and light soft. Per variant: `themes/<stem>.theme.json`
 (UI) and `themes/<stem>.xml` (editor scheme; dark parent `Darcula`, light parent
 `Default`). `src/main/resources/gruvbox/palette.json` and `groups.json` ship
@@ -30,9 +31,9 @@ re-runs must be byte-identical. Order:
 1. `python3 -I tools/palette.py`: roles per variant -> `tools/palette.json`
    and the runtime `palette.json`. The diff design rules and the keyword
    table live here.
-2. `IDEA_HOME=... python3 -I tools/ui/build_theme.py`: the four theme.json.
+2. `IDEA_HOME=... python3 -I tools/ui/build_theme.py`: every theme.json.
 3. `IDEA_HOME=... IDEA_PLUGINS_DIR=... python3 -I tools/scheme/generate.py`:
-   the four schemes, both required-key lists, `groups.json`.
+   every scheme, both required-key lists, `groups.json`.
    `--refresh-nvim` (with `NVIM_CONFIG`) re-dumps gruvbox-material's nvim
    highlights for the alignment report.
 4. `IDEA_HOME=... IDEA_PLUGINS_DIR=... python3 -I tools/ui/known_ui_keys.py > src/test/resources/known-ui-keys.txt`
@@ -42,16 +43,21 @@ Checks: `tools/scheme/check_scheme.py`, `tools/ui/check_theme.py`.
 
 ## Rules
 
-- `tools/palette.json` is the color contract: roles, where blue is allowed,
-  the contrast cap (nothing contrasts more with bg0 than fg0), diff bounds.
-- Scheme values are role names in `tools/scheme/curated.py` or mapped from
-  the IDE's own schemes; each family resolves once (against dark soft or light
-  soft) and every variant renders the same roles.
+- `tools/palette.json` is the color contract: roles per variant, and per
+  palette family (`restricted`, `rules`) where blue is allowed, the contrast
+  cap, fontTypes and diff bounds. Material: blue only under `restricted`,
+  nothing contrasts more with bg0 than fg0, no bold/italic.
+- Scheme values are role names in `tools/scheme/curated.py` (shared tables plus
+  a per-family layer) or mapped from the IDE's own schemes; each scheme family
+  (palette family + dark/light, e.g. `material-dark`) resolves once against its
+  mapping variant (material: dark soft, light soft) and every variant renders
+  the same roles. `groups.json` per-family sections use that key.
 - Required keys come from Darcula/Default, Islands Dark or expUI Light, plugin
   scheme files and keys only code defines (`tools/scheme/codekeys.py` scans the
   jars). A key only code defines must be curated or generation fails.
-- `ThemeLintTest` is the gate: palette only, no blue outside `restricted`,
-  contrast cap, no FONT_TYPE, required keys present, diff tints within bounds,
-  keyword table below fg0, no unknown `ui` keys.
+- `ThemeLintTest` is the gate, with each variant's family rules: palette only,
+  blue rules, contrast cap, no FONT_TYPE where fontTypes is "none", required
+  keys present, diff tints within bounds, keyword table below the cap, labelled
+  foreground levels, no unknown `ui` keys.
 - No machine paths, usernames or emails in repo files: pass directories via
   the env vars or flags above.

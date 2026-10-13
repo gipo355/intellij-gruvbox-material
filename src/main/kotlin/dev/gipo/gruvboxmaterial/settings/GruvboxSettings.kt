@@ -12,8 +12,8 @@ enum class TabStyle { UNDERLINE, FILLED }
 val ACCENTS = listOf("aqua", "green", "yellow", "orange", "tan", "purple", "red")
 
 class GruvboxState : BaseState() {
-    // One of TEXT_CONTRASTS; null follows the variant's default.
-    var textContrast by string()
+    // Text contrast level id per palette family; a missing or unknown id follows the variant's default.
+    var textContrasts by map<String, String>()
     var highUiContrast by property(false)
     var quietOperators by property(false)
     var keepOperatorColor by property(true)
@@ -48,6 +48,13 @@ class GruvboxState : BaseState() {
 
     val readability get() = Readability(quietOperators, dimComments, softenDocs, emphasizeDeclarations, italicComments, italicParameters, hideReassignUnderline, annotationStyle, keepOperatorColor)
     val keywords get() = KeywordChoice(keywordFamily ?: STOCK, keywordBrightness, keywordStrength)
+
+    /** The level chosen for [variant]'s palette family, or null for the variant's default. */
+    fun textContrast(variant: Variant?): String? = variant?.level(textContrasts[variant.paletteFamily])
+
+    fun setTextContrast(variant: Variant, level: String?) {
+        if (level == null) textContrasts.remove(variant.paletteFamily) else textContrasts[variant.paletteFamily] = level
+    }
 }
 
 @Service(Service.Level.APP)

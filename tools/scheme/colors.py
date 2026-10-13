@@ -15,17 +15,21 @@ DEFAULT_BG = "ffffff"
 FG_GREYS = ["grey0", "grey1", "grey2", "fg0"]
 BG_GREYS = ["bg0", "bg1", "bg_current_word", "bg3", "bg5"]
 
-# Hue (degrees) -> accent. 345-15 wraps through 0.
-HUE_BANDS = [
-    (15, "red"),
-    (40, "orange"),
-    (65, "yellow"),
-    (100, "green"),
-    (200, "aqua"),
-    (260, "tan"),
-    (345, "purple"),
-    (360, "red"),
-]
+# Per palette family: hue (degrees) -> accent, 345-15 wrapping through 0; and the accent that stands in for blue
+# outside the keys its restricted rules allow blue on.
+HUE_BANDS = {
+    "material": [
+        (15, "red"),
+        (40, "orange"),
+        (65, "yellow"),
+        (100, "green"),
+        (200, "aqua"),
+        (260, "tan"),
+        (345, "purple"),
+        (360, "red"),
+    ],
+}
+BLUE_STAND_IN = {"material": "tan"}
 
 # A hued fill becomes the dim tint of its accent, never the accent itself.
 TINT = {
@@ -47,20 +51,30 @@ def load_palette():
         data = json.load(f)
     variants = {k: {**v, "colors": {n: c.lstrip("#").lower() for n, c in v["colors"].items()}}
                 for k, v in data["variants"].items()}
-    blue_keys = [re.compile(p) for p in data["restricted"]["blue"]["schemeKeys"]]
+    # None: the family does not restrict blue.
+    blue_keys = {family: [re.compile(p) for p in r["blue"]["schemeKeys"]] if "blue" in r else None
+                 for family, r in data["restricted"].items()}
     return variants, blue_keys
+
+
+def scheme_family(meta):
+    """The palette family and parent axis a variant's scheme is resolved for, e.g. material-dark."""
+    return f"{meta['family']}-{'dark' if meta['dark'] else 'light'}"
 
 
 VARIANTS, BLUE_KEYS = load_palette()
 PALETTE = {}
+FAMILY = None
 DARK_UI = True
 UNDER = DARCULA_BG
 
 
 def use(variant):
-    """Maps source colors against this variant's palette: its greys, and what translucent colors sit on."""
-    global PALETTE, DARK_UI, UNDER
+    """Maps source colors against this variant's palette: its family's hue rules, its greys, and what translucent
+    colors sit on."""
+    global PALETTE, FAMILY, DARK_UI, UNDER
     PALETTE = VARIANTS[variant]["colors"]
+    FAMILY = VARIANTS[variant]["family"]
     DARK_UI = VARIANTS[variant]["dark"]
     UNDER = DARCULA_BG if DARK_UI else DEFAULT_BG
 
@@ -69,7 +83,8 @@ use("dark-soft")
 
 
 def blue_allowed(key):
-    return any(p.search(key) for p in BLUE_KEYS)
+    patterns = BLUE_KEYS[FAMILY]
+    return patterns is None or any(p.search(key) for p in patterns)
 
 
 def rgb(hex6):
@@ -108,8 +123,8 @@ def accent(hex6, key):
     if s < GREY_SATURATION:
         return None
     deg = h * 360
-    name = next(n for limit, n in HUE_BANDS if deg < limit)
-    if name == "tan" and blue_allowed(key):
+    name = next(n for limit, n in HUE_BANDS[FAMILY] if deg < limit)
+    if name == BLUE_STAND_IN.get(FAMILY) and blue_allowed(key):
         return "blue"
     return name
 

@@ -46,7 +46,8 @@ class GruvboxService : Disposable {
     fun applyAll() {
         applyScheme()
         applyUi()
-        IndentRainbowSync.getInstance()?.apply(activeVariant()?.atLevel(state.textContrast), state.indentRainbowSync)
+        val variant = activeVariant()
+        IndentRainbowSync.getInstance()?.apply(variant?.atLevel(state.textContrast(variant)), state.indentRainbowSync)
     }
 
     fun applyScheme() {
@@ -57,11 +58,11 @@ class GruvboxService : Disposable {
         val shipped = palette.variantForScheme(scheme.name.removePrefix(Scheme.EDITABLE_COPY_PREFIX))
         if (shipped != null) {
             val base = shipped.atLevel(null)
-            val variant = shipped.atLevel(state.textContrast)
+            val variant = shipped.atLevel(state.textContrast(shipped))
             val readability = state.readability
             val keywords = state.keywords
             val groups = palette.groups
-            val roles = groups.schemeForegroundRoles[shipped.family]
+            val roles = groups.schemeForegroundRoles[shipped.schemeFamily]
             val leveled = base.roles != variant.roles
             if (leveled || readability.any || keywordColor(variant, keywords) != null) {
                 val keys = groups.operators + groups.comments + groups.docs + groups.calls + groups.keywords + groups.parameters + groups.reassigned + groups.annotations +
@@ -69,14 +70,17 @@ class GruvboxService : Disposable {
                 schemeOverrides.apply(scheme, attributeOverrides(directlyDefined(scheme, keys), groups, base, variant, readability, keywords))
             }
             if (leveled || state.highUiContrast) {
-                val keys = roles?.colors?.keys.orEmpty() + groups.highUiContrast[shipped.family]?.keys.orEmpty()
+                val keys = roles?.colors?.keys.orEmpty() + groups.highUiContrast[shipped.schemeFamily]?.keys.orEmpty()
                 schemeOverrides.applyColors(scheme, colorOverrides(directlyDefinedColors(scheme, keys), groups, base, variant, state.highUiContrast))
             }
         }
         if (hadOverrides || !schemeOverrides.isEmpty) refreshEditors(scheme)
     }
 
-    fun applyUi() = uiOverrides.apply(activeVariant(), state.textContrast, palette.groups, state.accent ?: "aqua", state.tabStyle)
+    fun applyUi() {
+        val variant = activeVariant()
+        uiOverrides.apply(variant, state.textContrast(variant), palette.groups, state.accent ?: "aqua", state.tabStyle)
+    }
 
     /** Puts the shipped scheme values back so a settings save never sees the overrides. */
     fun restoreScheme() {

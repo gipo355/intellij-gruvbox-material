@@ -45,7 +45,7 @@ class SettingsTest {
         assertEquals(Color(0x80252423.toInt(), true), dark.roles["tint"])
         assertSame(dark, fixture.variantForScheme("Fixture Dark Scheme"))
         assertNull(fixture.variantForScheme("Darcula"))
-        assertEquals(listOf("Component.focusColor", "*.underlineColor"), fixture.groups.accentUiKeys)
+        assertEquals(listOf("Component.focusColor", "*.underlineColor"), fixture.groups.accentUiKeys["material-dark"])
     }
 
     @Test
@@ -54,7 +54,8 @@ class SettingsTest {
         val roles = listOf("fg0", "grey1", "grey2", "bg3", "bg_current_word") + ACCENTS
         val missing = shipped.variants.values.flatMap { v -> roles.filter { it !in v.roles }.map { "${v.id}: $it" } }
         assertTrue("missing roles: $missing", missing.isEmpty())
-        assertTrue(shipped.groups.operators.isNotEmpty() && shipped.groups.comments.isNotEmpty() && shipped.groups.accentUiKeys.isNotEmpty())
+        assertTrue(shipped.groups.operators.isNotEmpty() && shipped.groups.comments.isNotEmpty())
+        assertTrue(shipped.variants.values.all { !shipped.groups.accentUiKeys[it.schemeFamily].isNullOrEmpty() && it.schemeFamily in shipped.groups.schemeForegroundRoles })
         assertTrue("PARAMETER_ATTRIBUTES" in shipped.groups.parameters && "TYPE_PARAMETER_NAME_ATTRIBUTES" !in shipped.groups.parameters)
         assertTrue("DEFAULT_REASSIGNED_LOCAL_VARIABLE" in shipped.groups.reassigned)
         val annotations = shipped.groups.annotations
@@ -343,22 +344,52 @@ class SettingsTest {
         assertEquals(dark.roles["bg0"], original.roles["bg0"])
         assertEquals(Color(0xd99f73), keywordColor(original, KeywordChoice("orange")))
         assertSame(dark, dark.atLevel("mix"))
+        assertEquals(listOf(Level("material", "Material"), Level("original", "Original")), dark.levels)
+        assertEquals("Default (Material)", textContrastLabel(dark, null))
         val light = fixture.variants.getValue("variant-light")
-        assertEquals("light", light.family)
+        assertEquals("material", light.paletteFamily)
+        assertEquals("material-light", light.schemeFamily)
+        assertEquals("Default (Mix)", textContrastLabel(light, null))
         assertEquals(Color(0x4f3829), light.atLevel("material").roles["fg0"])
-        assertEquals(mapOf("FOREGROUND" to "tan", "EFFECT_COLOR" to "aqua"), fixture.groups.schemeForegroundRoles.getValue("dark").attributes["DEFAULT_DOC_MARKUP"])
-        assertEquals("fg0", fixture.groups.schemeForegroundRoles.getValue("dark").colors["CARET_COLOR"])
-        assertEquals(listOf("Component.focusColor", "*.underlineColor"), fixture.groups.uiForegroundKeys["aqua"])
-        assertEquals(RoleStep("bg3", "bg5"), fixture.groups.highUiContrast.getValue("dark")["INDENT_GUIDE"])
+        assertEquals(mapOf("FOREGROUND" to "tan", "EFFECT_COLOR" to "aqua"), fixture.groups.schemeForegroundRoles.getValue("material-dark").attributes["DEFAULT_DOC_MARKUP"])
+        assertEquals("fg0", fixture.groups.schemeForegroundRoles.getValue("material-dark").colors["CARET_COLOR"])
+        assertEquals(listOf("Component.focusColor", "*.underlineColor"), fixture.groups.uiForegroundKeys.getValue("material-dark")["aqua"])
+        assertEquals(RoleStep("bg3", "bg5"), fixture.groups.highUiContrast.getValue("material-dark")["INDENT_GUIDE"])
     }
 
     @Test
     fun palettesWithoutTextContrastStillParse() {
         val old = Palette.parse("""{"variants": {"v": {"name": "V", "dark": true, "editorScheme": "S", "roles": {"fg0": "#d4be98"}}}}""", """{"operators": []}""")
         val v = old.variants.getValue("v")
-        assertTrue(v.foregrounds.isEmpty() && v.defaultForeground == null)
+        assertTrue(v.foregrounds.isEmpty() && v.defaultForeground == null && v.levels.isEmpty())
+        assertEquals("material-dark", v.schemeFamily)
         assertSame(v, v.atLevel("original"))
-        assertTrue(old.groups.schemeForegroundRoles.isEmpty() && old.groups.uiForegroundKeys.isEmpty() && old.groups.highUiContrast.isEmpty())
+        assertTrue(old.groups.schemeForegroundRoles.isEmpty() && old.groups.uiForegroundKeys.isEmpty() && old.groups.highUiContrast.isEmpty() && old.groups.accentUiKeys.isEmpty())
+    }
+
+    @Test
+    fun unknownTextContrastFollowsTheDefault() {
+        val state = GruvboxState()
+        state.textContrasts["material"] = "bogus"
+        assertNull(state.textContrast(dark))
+        assertEquals(dark.atLevel(null).roles, dark.atLevel(state.textContrast(dark)).roles)
+        state.setTextContrast(dark, "original")
+        assertEquals("original", state.textContrast(dark))
+        state.setTextContrast(dark, null)
+        assertNull(state.textContrasts["material"])
+    }
+
+    @Test
+    fun textContrastIsKeptPerPaletteFamily() {
+        val other = dark.copy(id = "variant-other", paletteFamily = "other", foregrounds = dark.foregrounds + ("tuned" to dark.foregrounds.getValue("original")))
+        val state = GruvboxState()
+        state.setTextContrast(dark, "original")
+        state.setTextContrast(other, "tuned")
+        assertEquals("original", state.textContrast(dark))
+        assertEquals("tuned", state.textContrast(other))
+        // Same family as dark, but the fixture's light variant has no "original" level.
+        assertNull(state.textContrast(fixture.variants.getValue("variant-light")))
+        assertEquals(mapOf("material" to "original", "other" to "tuned"), state.textContrasts.toMap())
     }
 
     @Test

@@ -6,6 +6,7 @@ const val FIXTURE_PALETTE = """
     "variant-dark": {
       "name": "Fixture Dark",
       "dark": true,
+      "family": "material",
       "editorScheme": "Fixture Dark Scheme",
       "roles": {
         "fg0": "#d4be98",
@@ -32,6 +33,7 @@ const val FIXTURE_PALETTE = """
         }
       },
       "defaultForeground": "material",
+      "foregroundLevels": [{"id": "material", "label": "Material"}, {"id": "original", "label": "Original"}],
       "foregrounds": {
         "material": {
           "roles": {"fg0": "#d4be98", "grey1": "#928374", "grey2": "#a89984", "aqua": "#89b482", "orange": "#e78a4e", "tan": "#c4a67e"},
@@ -58,9 +60,11 @@ const val FIXTURE_PALETTE = """
     "variant-light": {
       "name": "Fixture Light",
       "dark": false,
+      "family": "material",
       "editorScheme": "Fixture Light Scheme",
       "roles": {"fg0": "#654735", "aqua": "#4c7a5d"},
       "defaultForeground": "mix",
+      "foregroundLevels": [{"id": "mix", "label": "Mix"}, {"id": "material", "label": "Material"}],
       "foregrounds": {
         "mix": {"roles": {"fg0": "#654735", "aqua": "#4c7a5d"}},
         "material": {"roles": {"fg0": "#4f3829", "aqua": "#3c6a4d"}}
@@ -80,9 +84,9 @@ const val FIXTURE_GROUPS = """
   "parameters": ["DEFAULT_PARAMETER", "DEFAULT_REASSIGNED_PARAMETER"],
   "reassigned": ["DEFAULT_REASSIGNED_LOCAL_VARIABLE", "DEFAULT_REASSIGNED_PARAMETER"],
   "annotations": ["ANNOTATION_NAME_ATTRIBUTES", "DEFAULT_METADATA"],
-  "accentUiKeys": ["Component.focusColor", "*.underlineColor"],
+  "accentUiKeys": {"material-dark": ["Component.focusColor", "*.underlineColor"]},
   "schemeForegroundRoles": {
-    "dark": {
+    "material-dark": {
       "colors": {"CARET_COLOR": "fg0", "LINE_NUMBERS_COLOR": "grey1"},
       "attributes": {
         "DEFAULT_PARAMETER": {"FOREGROUND": "fg0"},
@@ -94,7 +98,7 @@ const val FIXTURE_GROUPS = """
       }
     }
   },
-  "uiForegroundKeys": {"fg0": ["Label.foreground"], "aqua": ["Component.focusColor", "*.underlineColor"]},
-  "highUiContrast": {"dark": {"LINE_NUMBERS_COLOR": {"from": "grey1", "to": "grey2"}, "INDENT_GUIDE": {"from": "bg3", "to": "bg5"}}}
+  "uiForegroundKeys": {"material-dark": {"fg0": ["Label.foreground"], "aqua": ["Component.focusColor", "*.underlineColor"]}},
+  "highUiContrast": {"material-dark": {"LINE_NUMBERS_COLOR": {"from": "grey1", "to": "grey2"}, "INDENT_GUIDE": {"from": "bg3", "to": "bg5"}}}
 }
 """

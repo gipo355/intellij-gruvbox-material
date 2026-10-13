@@ -12,7 +12,10 @@ THEMES = os.path.join(ROOT, "src/main/resources/themes")
 KNOWN = os.path.join(ROOT, "src/test/resources/known-ui-keys.txt")
 palette_file = json.load(open(os.path.join(ROOT, "tools/palette.json")))
 PALETTE = {}
-BLUE_PATHS = [re.compile(p) for p in palette_file["restricted"]["blue"]["themePaths"]]
+RULES = {}
+# Per palette family; None: the family does not restrict blue.
+BLUE_PATHS = {family: [re.compile(p) for p in r["blue"]["themePaths"]] if "blue" in r else None
+              for family, r in palette_file["restricted"].items()}
 
 HEX = re.compile(r"^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$")
 NON_COLOR = re.compile(r"^(-?\d+(\.\d+)?(,-?\d+)*|com\.[\w.$]+)$")
@@ -64,10 +67,11 @@ def check_color(path, value, colors):
     if rgb not in PALETTE.values():
         errors.append(f"{path}: {value} is not a palette color")
         return None
-    if rgb == PALETTE["blue"] and not any(p.search(path) for p in BLUE_PATHS):
+    blue_paths = BLUE_PATHS[RULES["family"]]
+    if blue_paths is not None and rgb == PALETTE["blue"] and not any(p.search(path) for p in blue_paths):
         errors.append(f"{path}: blue outside icons")
     bg = PALETTE["bg0"]
-    if contrast(rgb, bg) > contrast(PALETTE[palette_file["rules"]["maxContrastColor"]], bg) + 1e-9:
+    if contrast(rgb, bg) > contrast(PALETTE[RULES["maxContrastColor"]], bg) + 1e-9:
         errors.append(f"{path}: {value} contrasts more with bg0 than fg0")
     return rgb
 
@@ -75,6 +79,8 @@ def check_color(path, value, colors):
 def check(meta):
     PALETTE.clear()
     PALETTE.update({k: v.lower() for k, v in meta["colors"].items()})
+    RULES.clear()
+    RULES.update({**palette_file["rules"][meta["family"]], "family": meta["family"]})
     try:
         theme = json.load(open(os.path.join(THEMES, meta["stem"] + ".theme.json")), object_pairs_hook=no_duplicates)
     except json.JSONDecodeError as e:
@@ -119,8 +125,8 @@ def main():
         for e in errors:
             print("FAIL", e)
         sys.exit(1)
-    print("OK: JSON valid, palette-only colors, blue only under icons, nothing contrasts more with bg0 than fg0, "
-          "all ui keys known")
+    print("OK: JSON valid, palette-only colors, blue only where each family restricts it, nothing contrasts more with "
+          "bg0 than the family's cap, all ui keys known")
 
 
 if __name__ == "__main__":

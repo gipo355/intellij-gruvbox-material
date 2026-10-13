@@ -3,6 +3,7 @@
     "f869fff9-c7e3-4656-b344-d228bf76a6c3": {
       "name": "Gruvbox Material Islands",
       "dark": true,
+      "family": "material",
       "editorScheme": "Gruvbox Material Islands",
       "roles": {
         "fg0": "#d4be98",
@@ -268,6 +269,20 @@
         }
       },
       "defaultForeground": "material",
+      "foregroundLevels": [
+        {
+          "id": "material",
+          "label": "Material"
+        },
+        {
+          "id": "mix",
+          "label": "Mix"
+        },
+        {
+          "id": "original",
+          "label": "Original"
+        }
+      ],
       "foregrounds": {
         "material": {
           "roles": {
@@ -976,6 +991,7 @@
     "275611fd-a504-467e-9c31-f0470ba50762": {
       "name": "Gruvbox Material Islands Medium",
       "dark": true,
+      "family": "material",
       "editorScheme": "Gruvbox Material Islands Medium",
       "roles": {
         "fg0": "#d4be98",
@@ -1241,6 +1257,20 @@
         }
       },
       "defaultForeground": "material",
+      "foregroundLevels": [
+        {
+          "id": "material",
+          "label": "Material"
+        },
+        {
+          "id": "mix",
+          "label": "Mix"
+        },
+        {
+          "id": "original",
+          "label": "Original"
+        }
+      ],
       "foregrounds": {
         "material": {
           "roles": {
@@ -1949,6 +1979,7 @@
     "117eb1e1-e632-4fba-b735-691361c815df": {
       "name": "Gruvbox Material Islands Hard",
       "dark": true,
+      "family": "material",
       "editorScheme": "Gruvbox Material Islands Hard",
       "roles": {
         "fg0": "#d4be98",
@@ -2214,6 +2245,20 @@
         }
       },
       "defaultForeground": "material",
+      "foregroundLevels": [
+        {
+          "id": "material",
+          "label": "Material"
+        },
+        {
+          "id": "mix",
+          "label": "Mix"
+        },
+        {
+          "id": "original",
+          "label": "Original"
+        }
+      ],
       "foregrounds": {
         "material": {
           "roles": {
@@ -2922,6 +2967,7 @@
     "653f45a7-3ec3-431d-a49e-dfba1290c9bf": {
       "name": "Gruvbox Material Islands Light",
       "dark": false,
+      "family": "material",
       "editorScheme": "Gruvbox Material Islands Light",
       "roles": {
         "fg0": "#514036",
@@ -3187,6 +3233,20 @@
         }
       },
       "defaultForeground": "mix",
+      "foregroundLevels": [
+        {
+          "id": "material",
+          "label": "Material"
+        },
+        {
+          "id": "mix",
+          "label": "Mix"
+        },
+        {
+          "id": "original",
+          "label": "Original"
+        }
+      ],
       "foregrounds": {
         "material": {
           "roles": {
