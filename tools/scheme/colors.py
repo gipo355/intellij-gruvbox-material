@@ -28,6 +28,16 @@ HUE_BANDS = {
         (345, "purple"),
         (360, "red"),
     ],
+    "baby": [
+        (15, "red"),
+        (40, "orange"),
+        (65, "yellow"),
+        (100, "green"),
+        (200, "aqua"),
+        (260, "blue"),
+        (345, "purple"),
+        (360, "red"),
+    ],
 }
 BLUE_STAND_IN = {"material": "tan"}
 
@@ -54,7 +64,8 @@ def load_palette():
     # None: the family does not restrict blue.
     blue_keys = {family: [re.compile(p) for p in r["blue"]["schemeKeys"]] if "blue" in r else None
                  for family, r in data["restricted"].items()}
-    return variants, blue_keys
+    families = {k: v for k, v in data["families"].items() if not k.startswith("$")}
+    return variants, blue_keys, families
 
 
 def scheme_family(meta):
@@ -62,7 +73,7 @@ def scheme_family(meta):
     return f"{meta['family']}-{'dark' if meta['dark'] else 'light'}"
 
 
-VARIANTS, BLUE_KEYS = load_palette()
+VARIANTS, BLUE_KEYS, FAMILIES = load_palette()
 PALETTE = {}
 FAMILY = None
 DARK_UI = True

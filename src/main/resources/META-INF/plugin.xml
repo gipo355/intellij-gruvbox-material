@@ -5,9 +5,10 @@
     <description><![CDATA[
         <p>Warm, low-glare gruvbox-material themes for the 2026 Islands UI. The
         <a href="https://github.com/sainnhe/gruvbox-material">gruvbox-material</a> palette (material foreground, mix text on light),
-        built for long sessions: no color stands out more than the text, and nothing in the code is blue.</p>
+        built for long sessions: no color stands out more than the text, and nothing in the code is blue.
+        A second, dark-only family ports <a href="https://github.com/luisiacc/gruvbox-baby">gruvbox-baby</a> (MIT), blue included.</p>
 
-        <h3>Four variants</h3>
+        <h3>Gruvbox Material</h3>
         <ul>
             <li><b>Gruvbox Material Islands</b>: dark soft, <code>#32302f</code>, 7.3:1 text contrast.</li>
             <li><b>Medium</b>: <code>#282828</code>, 8.2:1.</li>
@@ -16,9 +17,23 @@
         </ul>
         <p>Each theme selects its own editor scheme. All four render the same color roles, so code reads the same in every variant.</p>
 
+        <h3>Gruvbox Baby</h3>
+        <p>Text contrast per level, Baby / Original / Tuned:</p>
+        <ul>
+            <li><b>Gruvbox Baby Islands Soft</b>: <code>#32302f</code>, 9.6 / 11.6 / 7.2:1.</li>
+            <li><b>Gruvbox Baby Islands</b>: <code>#282828</code>, 10.7 / 13.0 / 8.1:1.</li>
+            <li><b>Gruvbox Baby Islands Dark</b>: <code>#1d2021</code>, 12.0 / 14.5 / 9.0:1.</li>
+        </ul>
+        <p>Baby keeps gruvbox-baby's own colors and its bold functions, constants and annotations, italic keywords and comments.
+        Original uses its <code>use_original_palette</code> colors; Tuned puts baby's hues at material's contrast.</p>
+
         <h3>Design</h3>
         <ul>
-            <li><b>Warm syntax</b>: reds, oranges, yellows, greens, aqua and a tan in place of blue. <code>null</code>, <code>true</code> and <code>false</code> get the predefined-symbol purple in Java, Kotlin and JavaScript.</li>
+            <li><b>Warm syntax</b>: in material, reds, oranges, yellows, greens, aqua and a tan in place of blue. <code>null</code>, <code>true</code> and <code>false</code> get the predefined-symbol purple in Java, Kotlin and JavaScript;
+            baby gives <code>true</code>/<code>false</code> orange and <code>null</code>/<code>undefined</code> pink, as upstream.</li>
+            <li><b>None shipped in material; Bold and Italic toggles</b>: Bold follows gruvbox-material's <code>enable_bold</code> (functions, methods, macros),
+            Italic its <code>enable_italic</code> (types, namespaces, builtins; not keywords, since upstream's treesitter keywords are plain).
+            Comments stay on the Italic comments toggle.</li>
             <li><b>Capped contrast</b>: no color contrasts more with the background than the text does.</li>
             <li><b>Dim tints</b> for search results, usages and diffs instead of bright blocks. Added, deleted, modified and conflict blocks sit at the same distance from the background, stay apart from each other, and keep the text readable on top.</li>
             <li><b>Complete scheme</b>: every editor key the IDE and its plugins define, in scheme files or only in code, is set, so no stock Darcula or IntelliJ color leaks through.</li>
@@ -29,14 +44,16 @@
         <p>Settings | Appearance &amp; Behavior | Gruvbox Material, or the <b>Gruvbox Material</b> chip in the main toolbar
         for quick switching between variants and toggles.</p>
         <ul>
-            <li><b>Text contrast</b>: gruvbox-material's material, mix or original foreground; accents, greys and keyword colors follow the text. Default is material on dark, mix on light.</li>
+            <li><b>Text contrast</b>: gruvbox-material's material, mix or original foreground; accents, greys and keyword colors follow the text. Default is material on dark, mix on light.
+            Gruvbox Baby offers Baby (default), Original and Tuned.</li>
             <li><b>High UI contrast</b>: brighter line numbers, caret line number and indent guides.</li>
+            <li><b>Bold</b> and <b>Italic</b>: the palette family's bold and italic syntax. Off by default in material, on in baby.</li>
             <li><b>Readability</b>: quiet operators (grey instead of orange), keep the operator color whatever the keyword color, dim comments, soften doc comments,
             emphasize declarations (calls in the text color), italic comments, italic parameters,
             hide the reassignment underline.</li>
             <li><b>Annotations</b>: purple, grey, dim grey or the keyword color.</li>
             <li><b>Keywords</b>: the stock color or a clay, orange, red, slate or stone family, with seven brightness steps and three strengths.</li>
-            <li><b>Accent</b>: aqua, green, yellow, orange, tan, purple or red for the UI accent.</li>
+            <li><b>Accent</b>: aqua, green, yellow, orange, tan, purple or red for the UI accent; in baby blue (default), aqua, green, yellow, orange, purple or red.</li>
             <li><b>Selected editor tab</b>: outline or filled.</li>
             <li><b>Reading font</b>: one-click Maple Mono NF and JetBrains Mono presets (line spacing 1.3, glyph variants that keep l/1/I, 0/O, g/q and rn/m apart); Revert restores your font.</li>
             <li><b>Indent Rainbow</b>: optional sync of its colors to the palette; your own palette comes back when sync is off.</li>
@@ -52,6 +69,9 @@
         <themeProvider id="275611fd-a504-467e-9c31-f0470ba50762" path="/themes/GruvboxMaterialIslandsMedium.theme.json"/>
         <themeProvider id="117eb1e1-e632-4fba-b735-691361c815df" path="/themes/GruvboxMaterialIslandsHard.theme.json"/>
         <themeProvider id="653f45a7-3ec3-431d-a49e-dfba1290c9bf" path="/themes/GruvboxMaterialIslandsLight.theme.json"/>
+        <themeProvider id="9fde195d-a4d9-4f65-9c8a-b10d228f2cbe" path="/themes/GruvboxBabyIslandsSoft.theme.json"/>
+        <themeProvider id="1b4708a0-0b5a-415f-921e-14ed37ecdc24" path="/themes/GruvboxBabyIslands.theme.json"/>
+        <themeProvider id="75967d6d-0498-4345-9a77-a05fa06a96c8" path="/themes/GruvboxBabyIslandsDark.theme.json"/>
     </extensions>
 
     <!-- Settings: readability, accent, tabs, reading font, toolbar chip. -->

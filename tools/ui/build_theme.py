@@ -27,7 +27,8 @@ VARIANTS = PALETTE["variants"]
 # Roles a family restricts stay out of the colors map: the theme paints them only where its rules allow, as literals.
 RESTRICTED = {family: {k for k in r if not k.startswith("$")} for family, r in PALETTE["restricted"].items()}
 # Scheme family -> the variant whose palette decides which parent colors are off-palette.
-MAPPING_VARIANT = {"material-dark": "dark-soft", "material-light": "light-soft"}
+MAPPING_VARIANT = {"material-dark": "dark-soft", "material-light": "light-soft", "baby-dark": "baby-soft"}
+FAMILIES = {k: v for k, v in PALETTE["families"].items() if not k.startswith("$")}
 
 T = "#00000000"
 LITERAL = re.compile(r"^@(\w+)/([0-9A-Fa-f]{0,2})$")
@@ -1008,6 +1009,27 @@ def off_palette(hex_color, palette):
     return hex_color[:7].lower() not in {v.lower() for v in palette.values()}
 
 
+def for_family(node, family):
+    """The shared tree in a family's roles: aqua (the accent keys) becomes its accent by name; a substituted role
+    that lands on the accent becomes a literal, so it stays out of the accent keys."""
+    if isinstance(node, dict):
+        return {k: for_family(v, family) for k, v in node.items()}
+    if not isinstance(node, str):
+        return node
+    fam = FAMILIES[family]
+    m = LITERAL.match(node)
+    name, alpha = (m.group(1), m.group(2)) if m else (node, None)
+    if name == "aqua":
+        target = fam["accent"]
+    elif name in fam["substitute"]:
+        target = fam["substitute"][name]
+        if alpha is None and target == fam["accent"]:
+            alpha = ""
+    else:
+        return node
+    return target if alpha is None else a(target, alpha)
+
+
 def literals(node, palette):
     """Replaces a() placeholders with the variant's hex."""
     if isinstance(node, dict):
@@ -1141,7 +1163,8 @@ def write_theme(variant, ui):
         "editorScheme": f"/themes/{meta['stem']}.xml",
         "colors": {k: v for k, v in palette.items() if k not in RESTRICTED[meta["family"]]},
         "ui": literals(ui, palette),
-        "icons": literals({"ColorPalette": {**CHECKBOX, **(ICON_HEX if meta["dark"] else ICON_HEX_LIGHT)}}, palette),
+        "icons": literals(for_family({"ColorPalette": {**CHECKBOX, **(ICON_HEX if meta["dark"] else ICON_HEX_LIGHT)}},
+                                     meta["family"]), palette),
         "iconColorsOnSelection": ICONS_ON_SELECTION,
     }
     out = os.path.join(THEMES, meta["stem"] + ".theme.json")
@@ -1177,7 +1200,7 @@ def main():
         dark_build.add_parents(ui, have, (base, exp), exp["colors"],
                                VARIANTS[MAPPING_VARIANT[f"{family}-dark"]]["colors"], "parent")
         dark_build.add_extra(ui, have, known, unused)
-        trees[f"{family}-dark"] = (ui, dark_build)
+        trees[f"{family}-dark"] = (for_family(ui, family), dark_build)
         if f"{family}-light" not in MAPPING_VARIANT:
             continue
 
@@ -1188,7 +1211,7 @@ def main():
         light_colors = {**exp_light.get("colors", {}), **light_header.get("colors", {})}
         light_build.add_parents(light_ui, light_have, (intellij, exp_light, light_header), light_colors,
                                 VARIANTS[MAPPING_VARIANT[f"{family}-light"]]["colors"], "light parent")
-        trees[f"{family}-light"] = (light_ui, light_build)
+        trees[f"{family}-light"] = (for_family(light_ui, family), light_build)
 
     missing = [m for _ui, build in trees.values() for m in build.missing]
     unused = sorted(set(unused))

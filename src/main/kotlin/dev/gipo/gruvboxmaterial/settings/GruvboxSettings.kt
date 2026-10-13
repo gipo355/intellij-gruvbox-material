@@ -9,7 +9,13 @@ import com.intellij.openapi.components.service
 
 enum class TabStyle { UNDERLINE, FILLED }
 
-val ACCENTS = listOf("aqua", "green", "yellow", "orange", "tan", "purple", "red")
+/** Accent choices per palette family; the first is the one its theme ships. */
+val ACCENTS = mapOf(
+    "material" to listOf("aqua", "green", "yellow", "orange", "tan", "purple", "red"),
+    "baby" to listOf("blue", "aqua", "green", "yellow", "orange", "purple", "red"),
+)
+
+fun accentChoices(variant: Variant?): List<String> = ACCENTS[variant?.paletteFamily] ?: ACCENTS.getValue("material")
 
 class GruvboxState : BaseState() {
     // Text contrast level id per palette family; a missing or unknown id follows the variant's default.
@@ -24,7 +30,12 @@ class GruvboxState : BaseState() {
     var italicParameters by property(false)
     var hideReassignUnderline by property(false)
     var annotationStyle by enum(AnnotationStyle.PURPLE)
+    // Material's accent from before accents were kept per palette family; read only while accents has no material entry.
     var accent by string("aqua")
+    var accents by map<String, String>()
+    // Bold and Italic per palette family; a missing entry follows what the family's scheme ships.
+    var bold by map<String, Boolean>()
+    var italic by map<String, Boolean>()
     var tabStyle by enum(TabStyle.UNDERLINE)
     var indentRainbowSync by property(false)
     var keywordFamily by string(STOCK)
@@ -54,6 +65,30 @@ class GruvboxState : BaseState() {
 
     fun setTextContrast(variant: Variant, level: String?) {
         if (level == null) textContrasts.remove(variant.paletteFamily) else textContrasts[variant.paletteFamily] = level
+    }
+
+    /** The accent chosen for [variant]'s palette family; unset or not one of its choices is the shipped one. */
+    fun accent(variant: Variant?): String {
+        val choices = accentChoices(variant)
+        val family = variant?.paletteFamily ?: "material"
+        val stored = accents[family] ?: accent.takeIf { family == "material" }
+        return stored?.takeIf { it in choices } ?: choices.first()
+    }
+
+    fun setAccent(variant: Variant?, accent: String) {
+        accents[variant?.paletteFamily ?: "material"] = accent
+    }
+
+    fun isBold(variant: Variant, groups: Groups): Boolean = bold[variant.paletteFamily] ?: groups.shipsStyles(variant)
+
+    fun isItalic(variant: Variant, groups: Groups): Boolean = italic[variant.paletteFamily] ?: groups.shipsStyles(variant)
+
+    fun setBold(variant: Variant, groups: Groups, on: Boolean) {
+        if (on == groups.shipsStyles(variant)) bold.remove(variant.paletteFamily) else bold[variant.paletteFamily] = on
+    }
+
+    fun setItalic(variant: Variant, groups: Groups, on: Boolean) {
+        if (on == groups.shipsStyles(variant)) italic.remove(variant.paletteFamily) else italic[variant.paletteFamily] = on
     }
 }
 

@@ -15,7 +15,8 @@ import kotlin.math.sqrt
 /**
  * Quality gate for every variant in tools/palette.json, under its palette family's rules and restrictions: every color
  * comes from that variant's palette, blue only where the family restricts it to, nothing contrasts more with bg0 than
- * the family's maxContrastColor, no bold/italic where its fontTypes is "none", diff tints inside its bounds and changed
+ * the family's maxContrastColor, no bold/italic where its fontTypes is "none" and exactly groups.json styles where it is
+ * "styles", diff tints inside its bounds and changed
  * words apart from their line, no missing or misspelled keys; every runtime foreground level keeps the same bounds
  * against its own fg0. Each test collects every offender across all variants and fails once.
  */
@@ -34,6 +35,7 @@ class ThemeLintTest {
         val colors: Map<String, String> = json.getAsJsonObject("colors").entrySet()
             .associate { it.key to it.value.asString.removePrefix("#").lowercase() }
         val rgb = colors.values.toSet()
+        val schemeFamily = "$family-${if (dark) "dark" else "light"}"
         val defaultForeground: String = json["defaultForeground"].asString
         val foregrounds: Map<String, Map<String, String>> = json.getAsJsonObject("foregrounds").entrySet().associate { (level, roles) ->
             level to roles.asJsonObject.entrySet().associate { it.key to it.value.asString.removePrefix("#").lowercase() }
@@ -136,7 +138,27 @@ class ThemeLintTest {
         root.child("attributes")?.children("option")?.forEach {
             if (it.child("value") != null) defined += it.getAttribute("name")
         }
-        keyList(if (v.dark) "scheme-required-keys.txt" else "scheme-required-keys-light.txt").filterNot { it in defined }.map { "${v.key}: $it" }
+        keyList(REQUIRED_KEYS[v.schemeFamily] ?: "scheme-required-keys-${v.schemeFamily}.txt").filterNot { it in defined }.map { "${v.key}: $it" }
+    })
+
+    @Test
+    fun shippedFontTypesAreTheStyleSets() = report("FONT_TYPE keys other than groups.json styles", variants.flatMap { v ->
+        val styles = parseJson(resource(GROUPS) ?: throw AssertionError("$GROUPS is not on the classpath"))
+            .getAsJsonObject("styles").getAsJsonObject(v.schemeFamily) ?: return@flatMap listOf("${v.key}: no styles for ${v.schemeFamily}")
+        val problems = mutableListOf<String>()
+        if (styles["shipped"].asBoolean == v.rules.plainFonts) problems += "styles.shipped is ${styles["shipped"]}, fontTypes says otherwise"
+        if (!v.rules.plainFonts) {
+            val bold = styles.getAsJsonArray("bold").map { it.asString }.toSet()
+            val italic = styles.getAsJsonArray("italic").map { it.asString }.toSet()
+            val expected = (bold + italic).associateWith { (if (it in bold) 1 else 0) + (if (it in italic) 2 else 0) }
+            val shipped = scheme(v).child("attributes")?.children("option").orEmpty().mapNotNull { attr ->
+                attr.child("value")?.children("option")?.firstOrNull { it.getAttribute("name") == "FONT_TYPE" }
+                    ?.let { attr.getAttribute("name") to it.getAttribute("value").toInt() }
+            }.toMap()
+            (expected.keys + shipped.keys).filter { expected[it] != shipped[it] }.sorted()
+                .forEach { problems += "$it: FONT_TYPE ${shipped[it]}, styles ${expected[it]}" }
+        }
+        problems.map { "${v.key}: $it" }
     })
 
     // IntelliJ does not follow baseAttributes to the named key: it uses the key's coded fallback, else Darcula's value.
@@ -435,6 +457,9 @@ class ThemeLintTest {
 
     companion object {
         const val RUNTIME_PALETTE = "/gruvbox/palette.json"
+        const val GROUPS = "/gruvbox/groups.json"
+        // Material's lists predate per-family names; other scheme families use scheme-required-keys-<family>.txt.
+        val REQUIRED_KEYS = mapOf("material-dark" to "scheme-required-keys.txt", "material-light" to "scheme-required-keys-light.txt")
         val DIFF_KEYS = listOf("DIFF_INSERTED", "DIFF_DELETED", "DIFF_MODIFIED", "DIFF_CONFLICT")
         val DIFF_FIELDS = mapOf("block" to "BACKGROUND", "line" to "FOREGROUND")
         val COLOR_OPTIONS = setOf("FOREGROUND", "BACKGROUND", "EFFECT_COLOR", "ERROR_STRIPE_COLOR")

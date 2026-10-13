@@ -2,8 +2,9 @@
 
 IntelliJ theme plugin "Gruvbox Material Islands" (id `dev.gipo.gruvboxmaterial`).
 Low-glare gruvbox themes on the 2026 Islands UI. Each variant belongs to a
-palette family (`family` in `tools/palette.py` VARIANTS); material has four:
-dark soft, medium, hard and light soft. Per variant: `themes/<stem>.theme.json`
+palette family (`family` in `tools/palette.py` VARIANTS): material has dark
+soft, medium, hard and light soft; baby (a port of gruvbox-baby, reference data
+in `tools/scheme/baby/`) has dark, medium and soft. Per variant: `themes/<stem>.theme.json`
 (UI) and `themes/<stem>.xml` (editor scheme; dark parent `Darcula`, light parent
 `Default`). `src/main/resources/gruvbox/palette.json` and `groups.json` ship
 variant roles, the keyword color table and key groups; the settings code in

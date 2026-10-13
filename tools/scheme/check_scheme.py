@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import colors as C  # noqa: E402
 import palette as P  # noqa: E402
-from generate import REQUIRED, scheme_path  # noqa: E402
+from generate import FONT_BITS, GROUPS, REQUIRED, scheme_path  # noqa: E402
 
 COLOR_FIELDS = ("FOREGROUND", "BACKGROUND", "EFFECT_COLOR", "ERROR_STRIPE_COLOR")
 LEVEL_SET = re.compile(r"^(.*?(?:RAINBOW_COLOR|COLUMN_COLORING_ATTRIBUTE_|^RAINBOW_COLOR))(\d+)$")
@@ -77,7 +77,7 @@ def check(variant, all_rules):
         "scheme", meta["name"], "142", meta["parentScheme"]):
         fail(f"unexpected root {root.tag} {root.attrib}")
 
-    colors, attrs = {}, {}
+    colors, attrs, fonts = {}, {}, {}
     used = []  # (key, field, value)
     for o in root.find("colors").findall("option"):
         k = o.get("name")
@@ -98,6 +98,7 @@ def check(variant, all_rules):
             fail(f"{k}: no value")
         for f, val in (fields or {}).items():
             if f == "FONT_TYPE":
+                fonts[k] = val
                 if plain:
                     fail(f"{k}: FONT_TYPE")
             elif f in COLOR_FIELDS:
@@ -106,6 +107,13 @@ def check(variant, all_rules):
                 fail(f"{k}: unexpected field {f}")
     if plain and "FONT_TYPE" in open(output).read():
         fail("FONT_TYPE appears in the file")
+    if not plain:
+        with open(GROUPS) as f:
+            styles = json.load(f)["styles"][C.scheme_family(meta)]
+        expected = {k: str(sum(bit for style, bit in FONT_BITS.items() if k in styles[style]))
+                    for k in set(styles["bold"]) | set(styles["italic"])}
+        if fonts != expected:
+            fail(f"FONT_TYPE keys differ from groups.json styles: {sorted(set(fonts.items()) ^ set(expected.items()))[:10]}")
 
     empty = 0
     for k, f, val in used:
@@ -129,7 +137,7 @@ def check(variant, all_rules):
 
     check_diff(attrs, C.PALETTE, rules["diff"], fail)
 
-    required = [l.strip() for l in open(REQUIRED[meta["dark"]]) if l.strip() and not l.startswith("#")]
+    required = [l.strip() for l in open(REQUIRED[C.scheme_family(meta)]) if l.strip() and not l.startswith("#")]
     missing = [k for k in required if k not in colors and k not in attrs]
     for k in missing:
         fail(f"required key not defined: {k}")

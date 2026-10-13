@@ -61,13 +61,17 @@ class GruvboxService : Disposable {
             val variant = shipped.atLevel(state.textContrast(shipped))
             val readability = state.readability
             val keywords = state.keywords
-            val groups = palette.groups
+            val groups = palette.groups.forFamily(shipped.schemeFamily)
             val roles = groups.schemeForegroundRoles[shipped.schemeFamily]
+            val styles = groups.styles[shipped.schemeFamily]
+            val bold = state.isBold(shipped, groups)
+            val italic = state.isItalic(shipped, groups)
             val leveled = base.roles != variant.roles
-            if (leveled || readability.any || keywordColor(variant, keywords) != null) {
+            val restyled = styles != null && (bold != styles.shipped || italic != styles.shipped)
+            if (leveled || restyled || readability.any || keywordColor(variant, keywords) != null) {
                 val keys = groups.operators + groups.comments + groups.docs + groups.calls + groups.keywords + groups.parameters + groups.reassigned + groups.annotations +
-                    roles?.attributes?.keys.orEmpty()
-                schemeOverrides.apply(scheme, attributeOverrides(directlyDefined(scheme, keys), groups, base, variant, readability, keywords))
+                    roles?.attributes?.keys.orEmpty() + styles?.bold.orEmpty() + styles?.italic.orEmpty()
+                schemeOverrides.apply(scheme, attributeOverrides(directlyDefined(scheme, keys), groups, base, variant, readability, keywords, bold, italic))
             }
             if (leveled || state.highUiContrast) {
                 val keys = roles?.colors?.keys.orEmpty() + groups.highUiContrast[shipped.schemeFamily]?.keys.orEmpty()
@@ -79,7 +83,7 @@ class GruvboxService : Disposable {
 
     fun applyUi() {
         val variant = activeVariant()
-        uiOverrides.apply(variant, state.textContrast(variant), palette.groups, state.accent ?: "aqua", state.tabStyle)
+        uiOverrides.apply(variant, state.textContrast(variant), palette.groups, state.accent(variant), state.tabStyle)
     }
 
     /** Puts the shipped scheme values back so a settings save never sees the overrides. */

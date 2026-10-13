@@ -190,6 +190,11 @@ HIGH_UI_CONTRAST = {
         "LINE_NUMBER_ON_CARET_ROW_COLOR": ("grey1", "grey2"),
         "INDENT_GUIDE": ("bg3", "bg5"),
     },
+    "baby-dark": {
+        "LINE_NUMBERS_COLOR": ("medium_gray", "grey0"),
+        "LINE_NUMBER_ON_CARET_ROW_COLOR": ("grey0", "grey2"),
+        "INDENT_GUIDE": ("bg3", "bg5"),
+    },
 }
 
 # ---------------------------------------------------------------- semantic core (DEFAULT_* and editor attributes)
@@ -616,21 +621,114 @@ LANGUAGES = {
 }
 
 # ---------------------------------------------------------------- palette family layers
+# Gruvbox-baby (luisiacc/gruvbox-baby bd52e62, tools/scheme/baby/baby.json): its treesitter captures and LSP semantic
+# tokens (IntelliJ's semantic keys play the LSP role) over its legacy Vim groups; where it sets nothing, the shared
+# tables with tan read as blue.
+BABY_ATTRIBUTES = {
+    "DEFAULT_IDENTIFIER": A(fg="blue"),
+    "DEFAULT_LOCAL_VARIABLE": A(fg="blue"),
+    "DEFAULT_GLOBAL_VARIABLE": A(fg="blue"),
+    "DEFAULT_REASSIGNED_LOCAL_VARIABLE": A(fg="blue", effect="grey1", effect_type=LINE),
+    "DEFAULT_PARAMETER": A(fg="blue_gray"),
+    "DEFAULT_REASSIGNED_PARAMETER": A(fg="blue_gray", effect="grey1", effect_type=LINE),
+    "DEFAULT_INSTANCE_FIELD": A(fg="blue_gray"),
+    "DEFAULT_STATIC_FIELD": A(fg="blue_gray"),
+    "DEFAULT_FUNCTION_DECLARATION": A(fg="yellow"),
+    "DEFAULT_FUNCTION_CALL": A(fg="yellow"),
+    "DEFAULT_INSTANCE_METHOD": A(fg="yellow"),
+    "DEFAULT_STATIC_METHOD": A(fg="yellow"),
+    "DEFAULT_CLASS_NAME": A(fg="aqua"),
+    "DEFAULT_INTERFACE_NAME": A(fg="aqua"),
+    "DEFAULT_CLASS_REFERENCE": A(fg="aqua"),
+    # Code-only keys falling back to the function roots: @constructor is plain clean_green.
+    "CONSTRUCTOR_CALL_ATTRIBUTES": A(fg="aqua"),
+    "CONSTRUCTOR_DECLARATION_ATTRIBUTES": A(fg="aqua"),
+    "KOTLIN_CONSTRUCTOR": A(fg="aqua"),
+    "DEFAULT_TAG": A(fg="aqua"),
+    "DEFAULT_STRING": A(fg="green"),
+    "DEFAULT_VALID_STRING_ESCAPE": A(fg="dark_gray"),
+    "DEFAULT_INVALID_STRING_ESCAPE": A(fg="green", effect="red", effect_type=WAVE),
+    "JS.REGEXP": A(fg="dark_gray"),
+    "DEFAULT_PREDEFINED_SYMBOL": A(fg="orange"),
+    "DEFAULT_CONSTANT": A(fg="pink"),
+    # null / undefined from the literal annotators (@constant.builtin); unset in material, which falls back to
+    # DEFAULT_PREDEFINED_SYMBOL.
+    "GRUVBOX_NULL": A(fg="pink"),
+    "GO_BUILTIN_CONSTANT": A(fg="pink"),
+    "GO_BUILTIN_VARIABLE": A(fg="blue_gray"),
+    "GO_BUILTIN_TYPE_REFERENCE": A(fg="blue_gray"),
+    "PY.SELF_PARAMETER": A(fg="blue_gray"),
+    "org.rust.SELF_PARAMETER": A(fg="blue_gray"),
+    "org.rust.SELF_EXPRESSION": A(fg="blue_gray"),
+    "DEFAULT_LINE_COMMENT": A(fg="grey0"),
+    "DEFAULT_BLOCK_COMMENT": A(fg="grey0"),
+    "DEFAULT_DOC_COMMENT": A(fg="grey0"),
+    "DEFAULT_DOC_MARKUP": A(fg="grey0"),
+    "DEFAULT_DOC_COMMENT_TAG": A(fg="grey0", effect="grey0", effect_type=LINE),
+    "DEFAULT_METADATA": A(fg="orange"),
+    "DEFAULT_LABEL": A(fg="blue_gray"),
+    "GO_PACKAGE": A(fg="aqua"),
+    "org.rust.CRATE": A(fg="aqua"),
+    "KOTLIN_ENUM_ENTRY": A(fg="aqua"),
+    "org.rust.ENUM_VARIANT": A(fg="aqua"),
+    "DEFAULT_OPERATION_SIGN": A(fg="fg0"),
+    "DEFAULT_COMMA": A(fg="fg0"),
+    "DEFAULT_SEMICOLON": A(fg="fg0"),
+    "DEFAULT_DOT": A(fg="fg0"),
+    "MARKDOWN_HEADER": A(fg="yellow"),
+    "DEFAULT_ATTRIBUTE": A(fg="yellow"),
+    "HTML_TAG": A(fg="grey0"),
+    "XML_TAG": A(fg="grey0"),
+    "HTML_CUSTOM_TAG_NAME": A(fg="aqua"),
+    "XML_CUSTOM_TAG_NAME": A(fg="aqua"),
+    "TODO_DEFAULT_ATTRIBUTES": A(fg="purple", stripe="purple"),
+    "INFO_ATTRIBUTES": A(effect="dark_gray", effect_type=WAVE, stripe="dark_gray"),
+    "GRAMMAR_ERROR": A(effect="bright_yellow", effect_type=WAVE),
+    "GO_BUILTIN_FUNCTION_CALL": A(fg="yellow"),
+    "org.rust.MACRO": A(fg="orange"),
+    "org.rust.LIFETIME": A(fg="orange"),
+    "org.rust.TYPE_PARAMETER": A(fg="aqua"),
+    "GO_SHADOWING_VARIABLE": A(fg="blue", effect="orange", effect_type=LINE),
+    "IMPLICIT_ANONYMOUS_CLASS_PARAMETER_ATTRIBUTES": A(fg="blue_gray", effect="grey1", effect_type=LINE),
+    "FOLDED_TEXT_ATTRIBUTES": A(fg="grey0", bg="bg1"),
+}
+BABY_COLORS = {
+    "SELECTION_BACKGROUND": "medium_gray",
+    "LINE_NUMBERS_COLOR": "medium_gray",
+    "LINE_NUMBER_ON_CARET_ROW_COLOR": "grey0",
+    "RIGHT_MARGIN_COLOR": "bg_dim",
+    "ADDED_LINES_COLOR": "forest_green",
+    "IGNORED_ADDED_LINES_BORDER_COLOR": "forest_green",
+    "DELETED_LINES_COLOR": "error_red",
+    "IGNORED_DELETED_LINES_BORDER_COLOR": "error_red",
+}
+
 # Per palette family, over the shared tables above: "attributes" replaces CORE/LANGUAGES values (syntax or chrome) or
 # adds keys, "colors" replaces or adds <colors> keys. Material is the shared tables as they are.
 FAMILY_LAYERS = {
     "material": {"attributes": {}, "colors": {}},
+    "baby": {"attributes": BABY_ATTRIBUTES, "colors": BABY_COLORS},
 }
 
 
-def tables(family, dark):
-    """-> {colors, core, languages}: the curated tables one scheme family resolves with."""
+def _substituted(entry, substitute):
+    if not substitute or not entry["value"]:
+        return entry
+    return {"base": entry["base"], "value": {f: substitute.get(v, v) for f, v in entry["value"].items()}}
+
+
+def tables(family, dark, substitute=None):
+    """-> {colors, core, languages, cycles}: the curated tables one scheme family resolves with; substitute maps the
+    shared tables' roles the family lacks (tools/palette.json families) onto its own."""
     layer = FAMILY_LAYERS[family]
     attrs = layer["attributes"]
+    substitute = substitute or {}
+    colors = {k: substitute.get(v, v) for k, v in {**COLORS, **({} if dark else LIGHT_COLORS)}.items()}
     return {
-        "colors": {**COLORS, **({} if dark else LIGHT_COLORS), **layer["colors"]},
-        "core": {**CORE, **attrs},
-        "languages": {k: attrs.get(k, v) for k, v in LANGUAGES.items()},
+        "colors": {**colors, **layer["colors"]},
+        "core": {**{k: _substituted(v, substitute) for k, v in CORE.items()}, **attrs},
+        "languages": {k: attrs.get(k, _substituted(v, substitute)) for k, v in LANGUAGES.items()},
+        "cycles": [(p, [substitute.get(r, r) for r in cycle]) for p, cycle in CYCLES],
     }
 
 

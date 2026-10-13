@@ -22,7 +22,7 @@ class UiOverrides {
             val base = variant.atLevel(null).roles
             val roles = variant.atLevel(level).roles
             for ((role, keys) in groups.uiForegroundKeys[variant.schemeFamily].orEmpty()) recolor(current, keys, base[role], roles[role])
-            recolor(current, groups.accentUiKeys[variant.schemeFamily].orEmpty(), roles["aqua"], roles[accent])
+            recolor(current, groups.accentUiKeys[variant.schemeFamily].orEmpty(), roles[groups.accentRole[variant.schemeFamily] ?: "aqua"], roles[accent])
             if (tabStyle == TabStyle.FILLED) fillTabs(current, roles)
         }
         repaintAll()

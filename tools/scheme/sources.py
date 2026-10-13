@@ -33,6 +33,9 @@ PROVIDER_RE = re.compile(rb"<additionalTextAttributesProvider\b")
 CHAIN_SCHEMES = ("Darcula", "Default")
 ATTR_RE = re.compile(rb'(\w+)\s*=\s*"([^"]*)"')
 
+# This plugin's own installed build: its schemes and code keys are outputs, not sources.
+OWN_PLUGIN_ID = b"<id>dev.gipo.gruvboxmaterial</id>"
+
 # java.awt.Color names some plugins write instead of hex (Jupyter: "gray").
 NAMED_COLORS = {"gray": "808080", "grey": "808080", "black": "000000", "white": "ffffff"}
 
@@ -68,9 +71,20 @@ def discover_plugins(ide_home, user_plugins):
                 name = name[: -len(".jar")]
             else:
                 continue
-            if jars:
+            if jars and not _is_own(jars):
                 plugins.append(Plugin(name, d, jars, True))
     return plugins
+
+
+def _is_own(jars):
+    for jar in jars:
+        z = _open(jar)
+        if z is None:
+            continue
+        with z:
+            if "META-INF/plugin.xml" in z.namelist() and OWN_PLUGIN_ID in z.read("META-INF/plugin.xml"):
+                return True
+    return False
 
 
 def _is_descriptor(entry):

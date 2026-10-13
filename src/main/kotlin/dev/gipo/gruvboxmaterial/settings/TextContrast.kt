@@ -5,11 +5,13 @@ import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.colors.impl.AbstractColorsScheme
 import com.intellij.openapi.editor.markup.TextAttributes
 import java.awt.Color
+import java.awt.Font
 
 /**
- * The attributes [variant]'s text contrast level and the readability toggles replace, for [original] the attributes the
- * scheme defines itself. [base] is the same variant at its default level, the one the scheme ships. The toggles build on
- * the swapped attributes, so they compare against and recolour with the level's colours.
+ * The attributes [variant]'s text contrast level, Bold and Italic and the readability toggles replace, for [original]
+ * the attributes the scheme defines itself. [base] is the same variant at its default level, the one the scheme ships;
+ * null [bold] or [italic] keeps what the scheme ships. Each step builds on the one before, so the toggles compare against
+ * and recolour with the level's colours, and Italic comments still applies after Italic is off.
  */
 fun attributeOverrides(
     original: Map<String, TextAttributes>,
@@ -18,9 +20,30 @@ fun attributeOverrides(
     variant: Variant,
     readability: Readability,
     keywords: KeywordChoice,
+    bold: Boolean? = null,
+    italic: Boolean? = null,
 ): Map<String, TextAttributes> {
-    val swapped = foregroundOverrides(original, groups.schemeForegroundRoles[base.schemeFamily]?.attributes.orEmpty(), base.roles, variant.roles)
-    return swapped + readabilityOverrides(original + swapped, groups, variant.roles, readability, keywordColor(variant, keywords), keywords.family)
+    val family = groups.forFamily(base.schemeFamily)
+    val swapped = foregroundOverrides(original, family.schemeForegroundRoles[base.schemeFamily]?.attributes.orEmpty(), base.roles, variant.roles)
+    val styled = swapped + styleOverrides(original + swapped, family.styles[base.schemeFamily], bold, italic)
+    return styled + readabilityOverrides(original + styled, family, variant.roles, readability, keywordColor(variant, keywords), keywords.family)
+}
+
+/** Clones of [original] with each style set's font bit set or cleared, for a [bold] or [italic] that differs from what [styles] ships. */
+fun styleOverrides(original: Map<String, TextAttributes>, styles: Styles?, bold: Boolean?, italic: Boolean?): Map<String, TextAttributes> {
+    val result = LinkedHashMap<String, TextAttributes>()
+    if (styles == null) return result
+    fun set(keys: List<String>, bit: Int, on: Boolean?) {
+        if (on == null || on == styles.shipped) return
+        for (key in keys) {
+            val base = original[key] ?: continue
+            val changed = (result[key] ?: base).clone().apply { fontType = if (on) fontType or bit else fontType and bit.inv() }
+            if (changed != base) result[key] = changed else result.remove(key)
+        }
+    }
+    set(styles.bold, Font.BOLD, bold)
+    set(styles.italic, Font.ITALIC, italic)
+    return result
 }
 
 /** Clones of [original] with each listed field that holds its role's [from] colour moved to the [to] one. */

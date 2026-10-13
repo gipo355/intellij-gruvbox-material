@@ -33,10 +33,16 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
             val levels = shipped?.levels.orEmpty()
             textContrast = comboBox(listOf("") + levels.map { it.id }, textListCellRenderer { id -> textContrastLabel(shipped, levels.firstOrNull { it.id == id }) })
                 .bindItem({ state.textContrast(shipped) ?: "" }, { id -> shipped?.let { state.setTextContrast(it, id?.takeIf(String::isNotEmpty)) } })
-                .comment("Follows upstream gruvbox-material's foreground option")
+                .comment(textContrastComment(shipped))
                 .component
         }
         row { checkBox("High UI contrast").bindSelected(state::highUiContrast).comment("Brighter line numbers, caret line number and indent guides") }
+        if (shipped != null) {
+            val groups = service.palette.groups
+            val (boldComment, italicComment) = styleComments(shipped)
+            row { checkBox("Bold").bindSelected({ state.isBold(shipped, groups) }, { state.setBold(shipped, groups, it) }).comment(boldComment) }
+            row { checkBox("Italic").bindSelected({ state.isItalic(shipped, groups) }, { state.setItalic(shipped, groups, it) }).comment(italicComment) }
+        }
         group("Readability") {
             row { checkBox("Quiet operators").bindSelected(state::quietOperators).comment("Operators in grey instead of orange") }
             row { checkBox("Keep operator colour").bindSelected(state::keepOperatorColor).comment("Operators stay orange whatever the keyword colour; off moves them to the text colour next to red, orange and clay keywords") }
@@ -54,11 +60,11 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
                 checkBox("Highlight current scope").bindSelected(CodeInsightSettings.getInstance()::HIGHLIGHT_SCOPE)
                     .comment("The platform's \"Highlight on caret movement: current scope\": brightens the enclosing block's indent guide")
             }
-            row { comment("Text contrast, high UI contrast, readability and keyword colours live in memory; turn them off before editing this scheme in Editor > Color Scheme, or they may be saved into your copy.") }
+            row { comment("Text contrast, high UI contrast, Bold, Italic, readability and keyword colours live in memory; turn them off before editing this scheme in Editor > Color Scheme, or they may be saved into your copy.") }
         }
         keywordsGroup()
         group("Interface") {
-            row("Accent:") { comboBox(ACCENTS).bindItem({ state.accent ?: "aqua" }, { state.accent = it ?: "aqua" }) }
+            row("Accent:") { comboBox(accentChoices(shipped)).bindItem({ state.accent(shipped) }, { it?.let { accent -> state.setAccent(shipped, accent) } }) }
             buttonsGroup("Selected editor tab:") {
                 row {
                     radioButton("Outline", TabStyle.UNDERLINE)

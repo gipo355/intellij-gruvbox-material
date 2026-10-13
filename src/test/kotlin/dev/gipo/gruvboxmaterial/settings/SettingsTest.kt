@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.colors.impl.EditorColorsSchemeImpl
 import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.TextAttributes
+import com.intellij.util.xmlb.XmlSerializer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
@@ -51,9 +52,13 @@ class SettingsTest {
     @Test
     fun shippedPaletteCoversEveryRoleTheFeaturesRead() {
         val shipped = Palette.load()
-        val roles = listOf("fg0", "grey1", "grey2", "bg3", "bg_current_word") + ACCENTS
-        val missing = shipped.variants.values.flatMap { v -> roles.filter { it !in v.roles }.map { "${v.id}: $it" } }
+        val roles = listOf("fg0", "grey1", "grey2", "bg3", "bg_current_word")
+        val missing = shipped.variants.values.flatMap { v -> (roles + accentChoices(v)).filter { it !in v.roles }.map { "${v.id}: $it" } }
         assertTrue("missing roles: $missing", missing.isEmpty())
+        for (v in shipped.variants.values) {
+            assertEquals(v.name, accentChoices(v).first(), shipped.groups.accentRole[v.schemeFamily])
+            assertTrue(v.name, v.schemeFamily in shipped.groups.styles && v.schemeFamily in shipped.groups.keyGroups)
+        }
         assertTrue(shipped.groups.operators.isNotEmpty() && shipped.groups.comments.isNotEmpty())
         assertTrue(shipped.variants.values.all { !shipped.groups.accentUiKeys[it.schemeFamily].isNullOrEmpty() && it.schemeFamily in shipped.groups.schemeForegroundRoles })
         assertTrue("PARAMETER_ATTRIBUTES" in shipped.groups.parameters && "TYPE_PARAMETER_NAME_ATTRIBUTES" !in shipped.groups.parameters)
@@ -393,6 +398,99 @@ class SettingsTest {
     }
 
     @Test
+    fun boldAndItalicFollowTheFamilyUntilSet() {
+        val state = GruvboxState()
+        assertEquals(listOf(false, false), listOf(state.isBold(material, shipped.groups), state.isItalic(material, shipped.groups)))
+        assertEquals(listOf(true, true), listOf(state.isBold(baby, shipped.groups), state.isItalic(baby, shipped.groups)))
+        state.setItalic(baby, shipped.groups, false)
+        state.setBold(material, shipped.groups, true)
+        assertEquals(listOf(true, false), listOf(state.isBold(baby, shipped.groups), state.isItalic(baby, shipped.groups)))
+        assertEquals(listOf(true, false), listOf(state.isBold(material, shipped.groups), state.isItalic(material, shipped.groups)))
+        // Back to the family's own choice leaves the entry unset.
+        state.setItalic(baby, shipped.groups, true)
+        state.setBold(material, shipped.groups, false)
+        assertTrue(state.bold.isEmpty() && state.italic.isEmpty())
+    }
+
+    @Test
+    fun boldAndItalicSurviveSerialization() {
+        val state = GruvboxState()
+        state.setBold(baby, shipped.groups, false)
+        state.setItalic(material, shipped.groups, true)
+        state.setAccent(baby, "red")
+        val restored = XmlSerializer.deserialize(XmlSerializer.serialize(state), GruvboxState::class.java)
+        assertEquals(listOf(false, true), listOf(restored.isBold(baby, shipped.groups), restored.isItalic(baby, shipped.groups)))
+        assertEquals(listOf(false, true), listOf(restored.isBold(material, shipped.groups), restored.isItalic(material, shipped.groups)))
+        assertEquals(listOf("aqua", "red"), listOf(restored.accent(material), restored.accent(baby)))
+    }
+
+    @Test
+    fun turningBoldAndItalicOffStripsBabysStyles() {
+        val styles = shipped.groups.styles.getValue(baby.schemeFamily)
+        val original = shippedStyles(styles)
+        val plain = attributeOverrides(original, shipped.groups, baby, baby, Readability(), KeywordChoice(), bold = false, italic = false)
+        assertEquals(original.keys, plain.keys)
+        assertTrue(plain.values.all { it.fontType == Font.PLAIN })
+        assertEquals(original.mapValues { it.value.foregroundColor }, plain.mapValues { it.value.foregroundColor })
+        assertTrue(attributeOverrides(original, shipped.groups, baby, baby, Readability(), KeywordChoice()).isEmpty())
+    }
+
+    @Test
+    fun turningBoldAndItalicOnAddsMaterialsStyles() {
+        val styles = shipped.groups.styles.getValue(material.schemeFamily)
+        val keys = styles.bold + styles.italic
+        val original = keys.associateWith { TextAttributes().apply { foregroundColor = Color(0xa9b665) } }
+        val styled = attributeOverrides(original, shipped.groups, material, material, Readability(), KeywordChoice(), bold = true, italic = true)
+        for (key in keys) {
+            val expected = (if (key in styles.bold) Font.BOLD else 0) or (if (key in styles.italic) Font.ITALIC else 0)
+            assertEquals(key, expected, styled.getValue(key).fontType)
+        }
+        assertTrue("PY.SELF_PARAMETER" in styles.italic && "DEFAULT_PREDEFINED_SYMBOL" in styles.italic && "DEFAULT_LINE_COMMENT" !in styles.italic)
+        assertTrue(attributeOverrides(original, shipped.groups, material, material, Readability(), KeywordChoice(), bold = false, italic = false).isEmpty())
+    }
+
+    @Test
+    fun italicCommentsStillApplyAfterItalicIsOff() {
+        val original = shippedStyles(shipped.groups.styles.getValue(baby.schemeFamily))
+        val result = attributeOverrides(original, shipped.groups, baby, baby, Readability(italicComments = true), KeywordChoice(), italic = false)
+        assertEquals(Font.ITALIC, result.getValue("DEFAULT_LINE_COMMENT").fontType)
+        assertEquals(Font.PLAIN, result.getValue("DEFAULT_KEYWORD").fontType)
+        assertEquals(Font.BOLD, (result["DEFAULT_FUNCTION_CALL"] ?: original.getValue("DEFAULT_FUNCTION_CALL")).fontType)
+    }
+
+    @Test
+    fun accentIsKeptPerPaletteFamily() {
+        val state = GruvboxState()
+        assertEquals(listOf("aqua", "blue"), listOf(state.accent(material), state.accent(baby)))
+        state.accent = "green"
+        assertEquals(listOf("green", "blue"), listOf(state.accent(material), state.accent(baby)))
+        state.setAccent(baby, "red")
+        state.accents["material"] = "orange"
+        assertEquals(listOf("orange", "red"), listOf(state.accent(material), state.accent(baby)))
+        state.setAccent(baby, "tan")
+        assertEquals("blue", state.accent(baby))
+    }
+
+    @Test
+    fun babyAccentRecolorsFromBlue() {
+        val defaults = UIManager.getLookAndFeelDefaults()
+        val key = shipped.groups.accentUiKeys.getValue(baby.schemeFamily).first { !it.startsWith("*.") }
+        val previous = defaults[key]
+        defaults[key] = baby.roles.getValue("blue")
+        val overrides = UiOverrides()
+        overrides.apply(baby, null, shipped.groups, "green", TabStyle.UNDERLINE)
+        assertEquals(baby.roles.getValue("green").rgb, (defaults[key] as Color).rgb)
+        overrides.restore()
+        defaults[key] = previous
+    }
+
+    @Test
+    fun babyIndentRainbowUsesBlueForTan() {
+        val colors = listOf("orange", "yellow", "green", "aqua", "blue", "purple").map { baby.roles.getValue(it) }
+        assertEquals(indentRainbowPalette(colors), indentRainbowPalette(baby))
+    }
+
+    @Test
     fun defaultTextContrastIsANoOp() {
         for (level in listOf(null, "material")) {
             assertTrue(attributeOverrides(original, fixture.groups, dark.atLevel(null), dark.atLevel(level), Readability(), KeywordChoice()).isEmpty())
@@ -489,6 +587,18 @@ class SettingsTest {
         assertSame(focus, defaults["Component.focusColor"])
         assertSame(underline, defaults["Fixture.underlineColor"])
         for ((key, value) in previous) defaults[key] = value
+    }
+
+    private val shipped by lazy { Palette.load() }
+    private val material by lazy { shipped.variants.values.first { it.paletteFamily == "material" && it.dark } }
+    private val baby by lazy { shipped.variants.values.first { it.paletteFamily == "baby" } }
+
+    /** Attributes carrying [styles]' font bits, as a scheme that ships them defines them. */
+    private fun shippedStyles(styles: Styles) = (styles.bold + styles.italic).associateWith { key ->
+        TextAttributes().apply {
+            foregroundColor = Color(0xfb4934)
+            fontType = (if (key in styles.bold) Font.BOLD else 0) or (if (key in styles.italic) Font.ITALIC else 0)
+        }
     }
 
     private val schemeColors = mapOf(

@@ -17,13 +17,22 @@ for dark soft/medium/hard and light soft. On top of it, every number below is co
   - foreground levels (runtime only, upstream foreground=material/mix/original): each level's fg0 from upstream; every
     grey and accent keeps the share of fg0's contrast on bg0 it has in the shipped level, same hue (light: chroma
     capped); keyword entries keep their share the same way. The shipped level is the shipped roles, unchanged.
+
+Baby family: luisiacc/gruvbox-baby (commit bd52e62, MIT), read from tools/scheme/baby/baby.json, dark only:
+  - backgrounds: the material ladder and tints with the same bg0; bg_dim, bg1 and medium_gray from baby;
+  - levels: Baby (shipped) = baby's palette, Original = its use_original_palette; greys in the comment hue at material's
+    dark-soft shares of fg0 (Original grey0 = its comment). Tuned = baby hues at the contrast material's same slot
+    has on that bg0, extras at their baby ratio to a parent slot, accents kept within 0.65..0.92 of fg0's contrast;
+  - diff tints: the material solver and bounds on baby's diff hues.
 """
 
+import functools
 import json
 import math
 import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BABY_JSON = os.path.join(ROOT, "tools", "scheme", "baby", "baby.json")
 OUT = os.path.join(ROOT, "tools", "palette.json")
 RUNTIME = os.path.join(ROOT, "src", "main", "resources", "gruvbox", "palette.json")
 
@@ -105,6 +114,12 @@ VARIANTS = {
                   "stem": "GruvboxMaterialIslandsHard", "dark": True, "family": "material"},
     "light-soft": {"id": "653f45a7-3ec3-431d-a49e-dfba1290c9bf", "name": "Gruvbox Material Islands Light",
                    "stem": "GruvboxMaterialIslandsLight", "dark": False, "family": "material"},
+    "baby-hard": {"id": "75967d6d-0498-4345-9a77-a05fa06a96c8", "name": "Gruvbox Baby Islands Dark",
+                  "stem": "GruvboxBabyIslandsDark", "dark": True, "family": "baby"},
+    "baby-medium": {"id": "1b4708a0-0b5a-415f-921e-14ed37ecdc24", "name": "Gruvbox Baby Islands",
+                    "stem": "GruvboxBabyIslands", "dark": True, "family": "baby"},
+    "baby-soft": {"id": "9fde195d-a4d9-4f65-9c8a-b10d228f2cbe", "name": "Gruvbox Baby Islands Soft",
+                  "stem": "GruvboxBabyIslandsSoft", "dark": True, "family": "baby"},
 }
 # Runtime keyword-colour choices: rows bright -> ghost (most to least visible), columns by strength.
 KEYWORDS = {
@@ -321,12 +336,13 @@ def foregrounds(colors, dark, family):
     return levels
 
 
-def keyword_table(dark, bg, fg, level=None):
-    """Material's {brightness, strength, families: {key: {label, colors: rows x strengths}}} for one variant; fg is the level's
+def keyword_table(dark, bg, fg, level=None, shipped_fg0=FOREGROUND_FG0[True][DEFAULT_FOREGROUND[True]],
+                  shipped_level=DEFAULT_FOREGROUND[True]):
+    """{brightness, strength, families: {key: {label, colors: rows x strengths}}} for one variant; fg is the level's
     fg0 (dark: the grid is the shipped level, other levels keep each entry's share of fg0's contrast)."""
     soft = UPSTREAM_BG["dark-soft"]["bg0"]
     reference = contrast(UPSTREAM_FG[True]["fg0"], soft)
-    shipped = contrast(FOREGROUND_FG0[True][DEFAULT_FOREGROUND[True]], bg)
+    shipped = contrast(shipped_fg0, bg)
     families = {}
     for key, (label, h, chromas) in KEYWORDS["families"].items():
         rows = []
@@ -335,7 +351,7 @@ def keyword_table(dark, bg, fg, level=None):
             if not dark:
                 row = [lch_at_contrast(C, h, bg, contrast(d, soft) / reference * contrast(fg, bg))
                        for C, d in zip(chromas, row)]
-            elif level not in (None, DEFAULT_FOREGROUND[True]):
+            elif level not in (None, shipped_level):
                 row = [lch_at_contrast(C, h, bg, contrast(d, bg) / shipped * contrast(fg, bg))
                        for C, d in zip(chromas, row)]
             rows.append(row)
@@ -343,16 +359,107 @@ def keyword_table(dark, bg, fg, level=None):
     return {"brightness": KEYWORDS["brightness"], "strength": KEYWORDS["strength"], "families": families}
 
 
+# ---------------------------------------------------------------- baby family
+
+with open(BABY_JSON) as _f:
+    BABY = json.load(_f)
+# Baby background name and the material variant sharing its bg0.
+BABY_BG = {"baby-hard": ("dark", "dark-hard"), "baby-medium": ("medium", "dark-medium"), "baby-soft": ("soft", "dark-soft")}
+BABY_PALETTES = {"baby": "default", "original": "original"}
+BABY_SLOTS = {"fg0": "foreground", "red": "red", "orange": "orange", "yellow": "soft_yellow", "green": "soft_green",
+              "aqua": "clean_green", "purple": "magenta", "blue": "light_blue"}
+BABY_ACCENTS = ["red", "orange", "yellow", "green", "aqua", "purple", "blue"]
+# Extra syntax roles and the slot each keeps its baby contrast ratio to in Tuned.
+BABY_EXTRAS = {"blue_gray": "blue", "pink": "purple", "forest_green": "green", "dark_gray": "blue",
+               "bright_yellow": "yellow", "error_red": "red"}
+BABY_FOREGROUND_ROLES = ["fg0", "grey0", "grey1", "grey2"] + BABY_ACCENTS + list(BABY_EXTRAS)
+BABY_LABELS = {"baby": "Baby", "original": "Original", "tuned": "Tuned"}
+BABY_DEFAULT = {True: "baby"}
+# Accents in Tuned stay within these shares of fg0's contrast.
+BABY_ACCENT_BAND = (0.65, 0.92)
+BABY_ROLE_ORDER = (BABY_FOREGROUND_ROLES + list(UPSTREAM_BG["dark-soft"]) + ["medium_gray"] + list(REFERENCE_TINTS)
+                   + [f"diff_{k}" for k in DIFF["hues"]] + [f"diff_{k}_line" for k in DIFF["hues"]])
+_baby_diff = BABY["palettes"]["default"]["medium"]["diff"]
+BABY_DIFF = {**DIFF, "hues": {
+    "ins": round(lch(_baby_diff["add"])[2]), "del": round(lch(_baby_diff["delete"])[2]),
+    "mod": round(lch(_baby_diff["change"])[2]),
+    # Baby's magenta (352) sits 21 degrees from del, too close for the pairwise bound; 333 is the nearest hue
+    # that fits on all three backgrounds.
+    "conf": 333}}
+
+
+def baby_palette(level, key):
+    return BABY["palettes"][BABY_PALETTES[level]][BABY_BG[key][0]]
+
+
+def baby_greys(comment, bg, fg0, exact_grey0=False):
+    text = contrast(fg0, bg)
+    shares = dark_soft_shares()
+    greys = {g: at_contrast(comment, bg, shares[g] * text) for g in ("grey0", "grey1", "grey2")}
+    if exact_grey0:
+        greys["grey0"] = comment
+    return greys
+
+
+def baby_levels(key):
+    """{level: {role: hex}} for one baby variant."""
+    twin = BABY_BG[key][1]
+    bg = UPSTREAM_BG[twin]["bg0"]
+    levels = {}
+    for level in BABY_PALETTES:
+        p = baby_palette(level, key)
+        roles = {slot: p[name] for slot, name in BABY_SLOTS.items()}
+        roles.update(baby_greys(p["comment"], bg, roles["fg0"], exact_grey0=level == "original"))
+        roles.update({k: p[k] for k in BABY_EXTRAS})
+        levels[level] = {k: roles[k] for k in BABY_FOREGROUND_ROLES}
+    baby, material = levels["baby"], variant_colors(twin, VARIANTS[twin])
+    fg0 = at_contrast(baby["fg0"], bg, contrast(material["fg0"], bg))
+    text = contrast(fg0, bg)
+    lo, hi = (s * text for s in BABY_ACCENT_BAND)
+    tuned = {"fg0": fg0, **baby_greys(baby_palette("baby", key)["comment"], bg, fg0)}
+    for k in BABY_ACCENTS:
+        tuned[k] = at_contrast(baby[k], bg, min(hi, max(lo, contrast(material[k], bg))))
+    for k, parent in BABY_EXTRAS.items():
+        ratio = contrast(baby[k], bg) / contrast(baby[parent], bg)
+        tuned[k] = at_contrast(baby[k], bg, min(hi, max(lo, ratio * contrast(tuned[parent], bg))))
+    levels["tuned"] = {k: tuned[k] for k in BABY_FOREGROUND_ROLES}
+    shipped = list(levels[BABY_DEFAULT[True]].values())
+    if len(set(shipped)) != len(shipped):
+        raise SystemExit(f"{key}: shipped baby foregrounds collide")
+    return levels
+
+
+def baby_colors(key, meta):
+    """Baby's roles for one variant: the shipped level, the twin material backgrounds with baby's overrides."""
+    twin = BABY_BG[key][1]
+    bgs = UPSTREAM_BG[twin]
+    bg0 = bgs["bg0"]
+    p = baby_palette("baby", key)
+    assert p["background"] == bg0, key
+    colors = dict(baby_levels(key)[BABY_DEFAULT[True]])
+    colors.update(bgs)
+    colors.update({"bg_dim": p["background_dark"], "bg1": p["background_light"], "medium_gray": p["medium_gray"]})
+    ref_bg = UPSTREAM_BG["dark-soft"]["bg0"]
+    colors.update({k: tint(v, ref_bg, bg0, True) for k, v in REFERENCE_TINTS.items()})
+    for kind, suffix in (("block", ""), ("line", "_line")):
+        for k, v in diff_set(bg0, colors["fg0"], True, BABY_DIFF[kind], BABY_DIFF["hues"]).items():
+            colors[f"diff_{k}{suffix}"] = v
+    return {k: colors[k] for k in BABY_ROLE_ORDER}
+
+
 # Palette families: each supplies its variants' roles, foreground levels, keyword tables and rules.
 FAMILIES = {
     "material": {
         "colors": variant_colors,
+        "foregrounds": lambda key, colors, dark, family: foregrounds(colors, dark, family),
         "keywordTable": keyword_table,
         "foregroundRoles": FOREGROUND_ROLES,
         "foregroundFg0": FOREGROUND_FG0,
         "foregroundLabels": FOREGROUND_LABELS,
         "defaultForeground": DEFAULT_FOREGROUND,
         "chromaCap": {True: None, False: LIGHT_CHROMA_CAP},
+        "accent": "aqua",
+        "substitute": {},
         "diff": DIFF,
         "restricted": {
             "$comment": "blue is allowed only here: ANSI blue keeps terminal output legible, and blue icons keep "
@@ -367,6 +474,29 @@ FAMILIES = {
                         "of fg0's contrast on bg0; wordVsLine: distance between each hue's block and line tint).",
             "maxContrastColor": "fg0",
             "fontTypes": "none",
+        },
+    },
+    "baby": {
+        "colors": baby_colors,
+        "foregrounds": lambda key, colors, dark, family: baby_levels(key),
+        "keywordTable": functools.partial(keyword_table, shipped_fg0=BABY["palettes"]["default"]["medium"]["foreground"],
+                                          shipped_level=BABY_DEFAULT[True]),
+        "foregroundRoles": BABY_FOREGROUND_ROLES,
+        "foregroundLabels": BABY_LABELS,
+        "defaultForeground": BABY_DEFAULT,
+        "accent": "blue",
+        "substitute": {"tan": "blue"},
+        "diff": BABY_DIFF,
+        "restricted": {
+            "$comment": "gruvbox-baby (luisiacc/gruvbox-baby, commit bd52e62, MIT) paints blue in syntax: blue is "
+                        "allowed everywhere.",
+        },
+        "rules": {
+            "$comment": "No color anywhere may contrast more with the variant's bg0 than fg0 does. Bold and italic "
+                        "ship on the keys in groups.json styles (gruvbox-baby's own). diff: the material bounds on "
+                        "baby's diff hues.",
+            "maxContrastColor": "fg0",
+            "fontTypes": "styles",
         },
     },
 }
@@ -386,7 +516,7 @@ def build():
         colors = family["colors"](key, meta)
         variants[key] = {**meta, "parentTheme": theme_parent, "parentScheme": scheme_parent, "colors": colors,
                          "defaultForeground": family["defaultForeground"][meta["dark"]],
-                         "foregrounds": foregrounds(colors, meta["dark"], family)}
+                         "foregrounds": family["foregrounds"](key, colors, meta["dark"], family)}
     soft = variants["dark-soft"]["colors"]
     drift = {k: (v, soft[k]) for k, v in REFERENCE_TINTS.items() if soft[k] != v}
     if drift:
@@ -399,6 +529,10 @@ def build():
         "variants": variants,
         "restricted": {name: family["restricted"] for name, family in FAMILIES.items()},
         "rules": {name: rules(family) for name, family in FAMILIES.items()},
+        "families": {
+            "$comment": "accent: the role the shipped UI accent keys use; substitute: shared-table roles the family "
+                        "lacks -> its own (scheme tables, theme tree).",
+            **{name: {"accent": family["accent"], "substitute": family["substitute"]} for name, family in FAMILIES.items()}},
     }
 
 
@@ -409,11 +543,29 @@ def write_json(path, data):
         f.write("\n")
 
 
+def baby_report(key, v):
+    bg = v["colors"]["bg0"]
+    print(f"{key:12s} " + " ".join(f"{level:>8s}" for level in v["foregrounds"]))
+    for role in BABY_FOREGROUND_ROLES:
+        print(f"  {role:13s}" + " ".join(f"{contrast(roles[role], bg):8.2f}" for roles in v["foregrounds"].values()))
+    low = {k: round(contrast(h, bg), 2) for k, h in v["foregrounds"][v["defaultForeground"]].items() if contrast(h, bg) < 3}
+    print(f"  shipped below 3.0:1: {low}")
+
+
 def report(data):
     for key, v in data["variants"].items():
         hues = FAMILIES[v["family"]]["diff"]["hues"]
         c = v["colors"]
         bg = c["bg0"]
+        if v["family"] == "baby":
+            baby_report(key, v)
+            for suffix in ("", "_line"):
+                tints = {k: c[f"diff_{k}{suffix}"] for k in hues}
+                vals = list(tints.values())
+                pairs = min(delta_e(x, y) for i, x in enumerate(vals) for y in vals[i + 1:])
+                cells = "  ".join(f"{k} {t} dE {delta_e(t, bg):.3f} cr {contrast(c['fg0'], t):.2f}" for k, t in tints.items())
+                print(f"  diff{suffix or '_block':6s} {cells}  min pair {pairs:.3f}")
+            continue
         accents = [c[k] for k in ACCENTS if k != "blue"]
         crs = [contrast(a, bg) for a in accents]
         print(f"{key:12s} TEXT {contrast(c['fg0'], bg):.2f}  comment {contrast(c['grey2'], bg):.2f}  "
