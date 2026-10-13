@@ -5,7 +5,7 @@ and the runtime key groups (src/main/resources/gruvbox/groups.json).
     NVIM_CONFIG=<nvim config dir> ... generate.py --refresh-nvim
 
 Each directory can also be passed as --ide, --user-plugins, --nvim-config. Jars are read in memory. Run
-tools/ui/build_theme.py first: the accent ui keys in groups.json come from the generated theme.json files.
+tools/ui/build_theme.py first: the accent and foreground ui keys in groups.json come from the generated theme.json files.
 
 Dark variants: every key a Darcula-parented scheme would otherwise inherit (Darcula, Islands Dark and every plugin's
 additionalTextAttributes for Darcula) is written explicitly, so nothing falls back to Darcula's colors or font
@@ -480,6 +480,70 @@ def accent_ui_keys():
     return keys
 
 
+def foreground_roles():
+    """Role names the runtime text contrast switch re-colors: the keys of every foreground level."""
+    return {r for v in C.VARIANTS.values() for roles in v["foregrounds"].values() for r in roles}
+
+
+def scheme_foreground_roles(out_colors, out_attrs):
+    """-> {colors: {key: role}, attributes: {key: {field: role}}}, foreground roles only."""
+    fg = foreground_roles()
+    attrs = {k: {f: r for f, r in sorted(out_attrs[k]["value"].items()) if f in COLOR_FIELDS and r in fg}
+             for k in sorted(out_attrs)}
+    return {"colors": {k: out_colors[k] for k in sorted(out_colors) if out_colors[k] in fg},
+            "attributes": {k: v for k, v in attrs.items() if v}}
+
+
+def ui_foreground_keys():
+    """-> {role: sorted ui keys}: ui keys whose value is that foreground role (by name, or #rrggbb[aa] on its rgb) in
+    any generated theme.json. Fails when a key resolves to different roles across variants."""
+    fg = foreground_roles()
+    by_key = collections.defaultdict(set)
+    for meta in C.VARIANTS.values():
+        path = os.path.join(THEMES, meta["stem"] + ".theme.json")
+        if not os.path.isfile(path):
+            raise SystemExit(f"{os.path.relpath(path, REPO)} missing: run tools/ui/build_theme.py first")
+        roles_by_rgb = collections.defaultdict(set)
+        for name, value in meta["colors"].items():
+            roles_by_rgb[value].add(name)
+        with open(path) as f:
+            ui = json.load(f)["ui"]
+        stack = [("", ui)]
+        while stack:
+            prefix, node = stack.pop()
+            for k, v in node.items():
+                path_key = f"{prefix}.{k}" if prefix else k
+                if k.startswith("$") or path_key.startswith("icons."):
+                    continue
+                if isinstance(v, dict):
+                    stack.append((path_key, v))
+                elif isinstance(v, str) and v in fg:
+                    by_key[path_key].add(v)
+                elif isinstance(v, str) and re.fullmatch(r"#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?", v):
+                    names = roles_by_rgb.get(v[1:7].lower(), set())
+                    if names & fg and names - fg:
+                        raise SystemExit(f"{meta['stem']}: {path_key} {v} is both a foreground and another role: {sorted(names)}")
+                    by_key[path_key] |= names & fg
+    mixed = {k: sorted(r) for k, r in by_key.items() if len(r) > 1}
+    if mixed:
+        raise SystemExit(f"ui keys with different foreground roles across variants: {mixed}")
+    out = collections.defaultdict(list)
+    for k in sorted(by_key):
+        for r in by_key[k]:
+            out[r].append(k)
+    return {r: out[r] for r in sorted(out)}
+
+
+def high_ui_contrast(out_colors, dark):
+    """-> {key: {from, to}}: the family's shipped role and the one a step up; fails when the shipped role is not the expected one."""
+    table = curated.HIGH_UI_CONTRAST[dark]
+    family_name = "dark" if dark else "light"
+    for k, (shipped, _high) in table.items():
+        if out_colors.get(k) != shipped:
+            raise SystemExit(f"high UI contrast: {family_name} {k} ships {out_colors.get(k)!r}, table expects {shipped!r}")
+    return {k: {"from": table[k][0], "to": table[k][1]} for k in sorted(table)}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ide", default=os.environ.get("IDEA_HOME"), help="IDE install dir (env IDEA_HOME)")
@@ -499,6 +563,7 @@ def main():
         refresh_nvim(args.nvim_config)
     src = sources.collect(args.ide, args.user_plugins)
     groups = collections.defaultdict(set)
+    scheme_fg, high = {}, {}
     os.makedirs(THEMES, exist_ok=True)
     for dark in (True, False):
         C.use(MAPPING_VARIANT[dark])
@@ -511,13 +576,18 @@ def main():
             f.write(render_required(color_src, attr_src, src, dark))
         for name, keys in key_groups(out_attrs, chains).items():
             groups[name] |= keys
+        family_name = "dark" if dark else "light"
+        scheme_fg[family_name] = scheme_foreground_roles(out_colors, out_attrs)
+        high[family_name] = high_ui_contrast(out_colors, dark)
         report(src, out_colors, out_attrs, how, color_src, attr_src, extra, chains, dark)
         print()
     C.use(MAPPING_VARIANT[True])
     groups["accentUiKeys"] = accent_ui_keys()
     os.makedirs(os.path.dirname(GROUPS), exist_ok=True)
+    out = {k: sorted(groups[k]) for k in ("operators", "comments", "docs", "calls", "keywords", "parameters", "reassigned", "annotations", "accentUiKeys")}
+    out.update({"schemeForegroundRoles": scheme_fg, "uiForegroundKeys": ui_foreground_keys(), "highUiContrast": high})
     with open(GROUPS, "w") as f:
-        json.dump({k: sorted(groups[k]) for k in ("operators", "comments", "docs", "calls", "keywords", "parameters", "reassigned", "annotations", "accentUiKeys")}, f, indent=2)
+        json.dump(out, f, indent=2)
         f.write("\n")
 
 

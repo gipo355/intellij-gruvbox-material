@@ -6,23 +6,24 @@ import javax.swing.UIDefaults
 import javax.swing.UIManager
 import javax.swing.plaf.ColorUIResource
 
-/** Accent and tab style as UIManager overrides on top of the installed theme, restorable while the same LaF is installed. */
+/** Text contrast, accent and tab style as UIManager overrides on top of the installed theme, restorable while the same LaF is installed. */
 class UiOverrides {
     private var defaults: UIDefaults? = null
     private val originals = LinkedHashMap<String, Any?>()
     private val wildcardOriginals = LinkedHashMap<String, Any?>()
 
-    /** Applies [accent] and [tabStyle] for [variant], or only restores when [variant] is null (another LaF is active). */
-    fun apply(variant: Variant?, accentUiKeys: List<String>, accent: String, tabStyle: TabStyle) {
+    /** Applies text contrast [level], [accent] and [tabStyle] for [variant], or only restores when [variant] is null (another LaF is active). */
+    fun apply(variant: Variant?, level: String?, groups: Groups, accent: String, tabStyle: TabStyle) {
         val current = UIManager.getLookAndFeelDefaults()
         // A LaF change rebuilds the defaults, so the old originals belong to a table nobody reads anymore.
         if (current === defaults) restoreValues(current) else forget()
         defaults = current
         if (variant != null) {
-            val from = variant.roles["aqua"]
-            val to = variant.roles[accent]
-            if (from != null && to != null && from != to) recolorAccent(current, accentUiKeys, from, to)
-            if (tabStyle == TabStyle.FILLED) fillTabs(current, variant.roles)
+            val base = variant.atLevel(null).roles
+            val roles = variant.atLevel(level).roles
+            for ((role, keys) in groups.uiForegroundKeys) recolor(current, keys, base[role], roles[role])
+            recolor(current, groups.accentUiKeys, roles["aqua"], roles[accent])
+            if (tabStyle == TabStyle.FILLED) fillTabs(current, roles)
         }
         repaintAll()
     }
@@ -33,15 +34,17 @@ class UiOverrides {
         repaintAll()
     }
 
-    private fun recolorAccent(current: UIDefaults, keys: List<String>, from: Color, to: Color) {
+    // Matches on rgb and keeps each value's own alpha, so translucent uses of a role follow it.
+    private fun recolor(current: UIDefaults, keys: List<String>, from: Color?, to: Color?) {
+        if (from == null || to == null || sameColor(from, to)) return
         val names = current.keys.filterIsInstance<String>()
         for (key in keys) {
             if (key.startsWith("*.")) {
                 val suffix = key.substring(1)
-                names.filter { it.endsWith(suffix) && sameColor(current[it], from) }.forEach { put(current, it, to) }
+                names.filter { it.endsWith(suffix) && sameColor(current[it], from) }.forEach { put(current, it, withAlpha(to, current[it] as Color)) }
                 recolorWildcard(current, suffix.removePrefix("."), from, to)
             } else if (sameColor(current[key], from)) {
-                put(current, key, to)
+                put(current, key, withAlpha(to, current[key] as Color))
             }
         }
     }
@@ -53,7 +56,7 @@ class UiOverrides {
         for (k in map.keys.filterIsInstance<String>()) {
             if (k.removePrefix(".") != suffix || !sameColor(map[k], from)) continue
             if (k !in wildcardOriginals) wildcardOriginals[k] = map[k]
-            map[k] = ColorUIResource(to)
+            map[k] = ColorUIResource(withAlpha(to, map[k] as Color))
         }
         (current["*cache"] as? MutableMap<*, *>)?.clear()
     }
@@ -88,7 +91,9 @@ class UiOverrides {
         wildcardOriginals.clear()
     }
 
-    private fun sameColor(value: Any?, color: Color) = value is Color && value.rgb == color.rgb
+    private fun sameColor(value: Any?, color: Color) = value is Color && value.rgb and 0xffffff == color.rgb and 0xffffff
+
+    private fun withAlpha(color: Color, alphaOf: Color) = Color(color.rgb and 0xffffff or (alphaOf.alpha shl 24), true)
 
     private fun repaintAll() = Window.getWindows().forEach { it.repaint() }
 }

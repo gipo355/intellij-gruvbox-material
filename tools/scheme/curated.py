@@ -178,6 +178,20 @@ LIGHT_COLORS = {
     "LINE_NUMBERS_COLOR": "grey0",
 }
 
+# Runtime "high UI contrast" (upstream ui_contrast=high): per family, key -> (shipped role, one step up).
+HIGH_UI_CONTRAST = {
+    True: {
+        "LINE_NUMBERS_COLOR": ("bg5", "grey0"),
+        "LINE_NUMBER_ON_CARET_ROW_COLOR": ("grey1", "grey2"),
+        "INDENT_GUIDE": ("bg3", "bg5"),
+    },
+    False: {
+        "LINE_NUMBERS_COLOR": ("grey0", "grey1"),
+        "LINE_NUMBER_ON_CARET_ROW_COLOR": ("grey1", "grey2"),
+        "INDENT_GUIDE": ("bg3", "bg5"),
+    },
+}
+
 # ---------------------------------------------------------------- semantic core (DEFAULT_* and editor attributes)
 CORE = {
     "TEXT": A(fg="fg0", bg="bg0"),

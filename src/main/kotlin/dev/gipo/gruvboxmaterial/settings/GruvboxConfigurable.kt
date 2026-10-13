@@ -15,10 +15,13 @@ import com.intellij.util.ui.ColorIcon
 import javax.swing.JComponent
 import javax.swing.JLabel
 
+private val TEXT_CONTRAST_LABELS = mapOf("" to "Default (Material on dark, Mix on light)", "material" to "Material", "mix" to "Mix", "original" to "Original")
+
 class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
     private val service = GruvboxService.getInstance()
     private val state = GruvboxSettings.getInstance().state
     private var variantId = service.activeVariant()?.id
+    private lateinit var textContrast: ComboBox<String>
 
     override fun createPanel(): DialogPanel = panel {
         val variants = service.installedVariants()
@@ -27,6 +30,13 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
                 for (variant in variants) row { radioButton(variant.name, variant.id) }
             }.bind({ variantId ?: "" }, { variantId = it })
         }
+        row("Text contrast:") {
+            textContrast = comboBox(listOf("") + TEXT_CONTRASTS, textListCellRenderer { TEXT_CONTRAST_LABELS[it] })
+                .bindItem({ state.textContrast ?: "" }, { state.textContrast = it?.takeIf(String::isNotEmpty) })
+                .comment("Follows upstream gruvbox-material's foreground option")
+                .component
+        }
+        row { checkBox("High UI contrast").bindSelected(state::highUiContrast).comment("Brighter line numbers, caret line number and indent guides") }
         group("Readability") {
             row { checkBox("Quiet operators").bindSelected(state::quietOperators).comment("Operators in grey instead of orange") }
             row { checkBox("Keep operator colour").bindSelected(state::keepOperatorColor).comment("Operators stay orange whatever the keyword colour; off moves them to the text colour next to red, orange and clay keywords") }
@@ -44,7 +54,7 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
                 checkBox("Highlight current scope").bindSelected(CodeInsightSettings.getInstance()::HIGHLIGHT_SCOPE)
                     .comment("The platform's \"Highlight on caret movement: current scope\": brightens the enclosing block's indent guide")
             }
-            row { comment("Readability and keyword colours live in memory; turn them off before editing this scheme in Editor > Color Scheme, or they may be saved into your copy.") }
+            row { comment("Text contrast, high UI contrast, readability and keyword colours live in memory; turn them off before editing this scheme in Editor > Color Scheme, or they may be saved into your copy.") }
         }
         keywordsGroup()
         group("Interface") {
@@ -74,7 +84,8 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
     }
 
     private fun Panel.keywordsGroup() {
-        val variant = service.activeVariant() ?: service.palette.variants.values.firstOrNull()
+        val shipped = service.activeVariant() ?: service.palette.variants.values.firstOrNull()
+        val variant = shipped?.atLevel(state.textContrast)
         val table = variant?.keywords
         val familyLabels = KEYWORD_FAMILIES.associateWith { keywordFamilyLabel(variant, it) }
         val brightness = table?.brightness.orEmpty()
@@ -93,8 +104,10 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
             val choice = choice()
             bright.isEnabled = choice.tunable
             strong.isEnabled = choice.tunable
-            val color = variant?.let { keywordColor(it, choice) }
-            val bg = variant?.roles?.get("bg0")
+            // The readout follows the text contrast combo before it is applied.
+            val leveled = shipped?.atLevel(textContrast.item?.takeIf(String::isNotEmpty))
+            val color = leveled?.let { keywordColor(it, choice) }
+            val bg = leveled?.roles?.get("bg0")
             if (color == null || bg == null) {
                 swatch.icon = null
                 swatch.text = "Keywords as the scheme ships them"
@@ -125,7 +138,7 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
             row { swatch = label("").component }
             row { hint = comment("Below 4.5:1; Faint and Ghost are meant to recede, so this is a hint, not an error").component }
         }
-        for (combo in listOf(family, bright, strong)) combo.addActionListener { refresh() }
+        for (combo in listOf(family, bright, strong, textContrast)) combo.addActionListener { refresh() }
         refresh()
     }
 

@@ -26,7 +26,8 @@ colors behind the roles. Each theme selects its own editor scheme.
 - **No bold, no italic**: color does the work. Italic comments and
   parameters are optional settings, off by default.
 - **Capped contrast**: no color contrasts more with the background than the
-  text does.
+  text does. The Text contrast setting (material, mix, original) raises the
+  text and everything under it together.
 - **Dim tints**: search results, diffs and usages get muted backgrounds
   instead of bright blocks. Diff tints are computed so added, deleted,
   modified and conflict blocks sit at the same distance from the background,

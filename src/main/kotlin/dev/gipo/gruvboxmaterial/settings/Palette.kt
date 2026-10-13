@@ -11,7 +11,23 @@ data class Variant(
     val editorScheme: String,
     val roles: Map<String, Color>,
     val keywords: KeywordTable? = null,
-)
+    val defaultForeground: String? = null,
+    val foregrounds: Map<String, Foreground> = emptyMap(),
+) {
+    /** The key of the per-family tables in groups.json. */
+    val family get() = if (dark) "dark" else "light"
+
+    /** This variant at text contrast [level]: its roles overlaid with the level's and the level's keyword table; null is the default. */
+    fun atLevel(level: String?): Variant {
+        val foreground = foregrounds[level ?: defaultForeground] ?: return this
+        return copy(roles = roles + foreground.roles, keywords = foreground.keywords ?: keywords)
+    }
+}
+
+/** One text contrast level, upstream gruvbox-material's foreground option. */
+data class Foreground(val roles: Map<String, Color>, val keywords: KeywordTable?)
+
+val TEXT_CONTRASTS = listOf("material", "mix", "original")
 
 /** Keyword colours per family as rows of brightness, each row `[vivid, muted, soft]`. */
 data class KeywordTable(
@@ -32,7 +48,16 @@ data class Groups(
     val parameters: List<String> = emptyList(),
     val reassigned: List<String> = emptyList(),
     val annotations: List<String> = emptyList(),
+    val schemeForegroundRoles: Map<String, SchemeRoles> = emptyMap(),
+    val uiForegroundKeys: Map<String, List<String>> = emptyMap(),
+    val highUiContrast: Map<String, Map<String, RoleStep>> = emptyMap(),
 )
+
+/** A key's shipped role and the one high UI contrast raises it to. */
+data class RoleStep(val from: String, val to: String)
+
+/** The scheme keys whose colour is a foreground role, per family: colour keys, and attribute fields such as FOREGROUND. */
+data class SchemeRoles(val colors: Map<String, String>, val attributes: Map<String, Map<String, String>>)
 
 /** The generated palette.json and groups.json: variants keyed by themeProvider id, and the key groups the toggles recolor. */
 class Palette(val variants: Map<String, Variant>, val groups: Groups) {
@@ -47,13 +72,33 @@ class Palette(val variants: Map<String, Variant>, val groups: Groups) {
                     name = o["name"].asString,
                     dark = o["dark"].asBoolean,
                     editorScheme = o["editorScheme"].asString,
-                    roles = o.getAsJsonObject("roles").entrySet().associate { (role, hex) -> role to parseColor(hex.asString) },
+                    roles = parseRoles(o.getAsJsonObject("roles")),
                     keywords = o.getAsJsonObject("keywords")?.let(::parseKeywords),
+                    defaultForeground = o["defaultForeground"]?.asString,
+                    foregrounds = o.getAsJsonObject("foregrounds")?.entrySet()?.associate { (level, f) ->
+                        val foreground = f.asJsonObject
+                        level to Foreground(parseRoles(foreground.getAsJsonObject("roles")), foreground.getAsJsonObject("keywords")?.let(::parseKeywords))
+                    }.orEmpty(),
                 )
             }
             val g = JsonParser.parseString(groupsJson).asJsonObject
             fun list(name: String) = g.strings(name)
-            return Palette(variants, Groups(list("operators"), list("comments"), list("docs"), list("calls"), list("accentUiKeys"), list("keywords"), list("parameters"), list("reassigned"), list("annotations")))
+            val schemeRoles = g.getAsJsonObject("schemeForegroundRoles")?.entrySet()?.associate { (family, r) ->
+                val roles = r.asJsonObject
+                family to SchemeRoles(
+                    roles.getAsJsonObject("colors")?.stringMap().orEmpty(),
+                    roles.getAsJsonObject("attributes")?.entrySet()?.associate { (key, fields) -> key to fields.asJsonObject.stringMap() }.orEmpty(),
+                )
+            }.orEmpty()
+            val uiKeys = g.getAsJsonObject("uiForegroundKeys")?.entrySet()?.associate { (role, keys) -> role to keys.asJsonArray.map { it.asString } }.orEmpty()
+            val highUi = g.getAsJsonObject("highUiContrast")?.entrySet()?.associate { (family, keys) -> family to keys.asJsonObject.entrySet().associate { (key, step) -> key to step.asJsonObject.let { RoleStep(it["from"].asString, it["to"].asString) } } }.orEmpty()
+            return Palette(
+                variants,
+                Groups(
+                    list("operators"), list("comments"), list("docs"), list("calls"), list("accentUiKeys"), list("keywords"), list("parameters"), list("reassigned"), list("annotations"),
+                    schemeRoles, uiKeys, highUi,
+                ),
+            )
         }
 
         fun load(): Palette = parse(resource("/gruvbox/palette.json"), resource("/gruvbox/groups.json"))
@@ -70,6 +115,10 @@ class Palette(val variants: Map<String, Variant>, val groups: Groups) {
         )
 
         private fun JsonObject.strings(name: String) = getAsJsonArray(name)?.map { it.asString }.orEmpty()
+
+        private fun JsonObject.stringMap() = entrySet().associate { (k, v) -> k to v.asString }
+
+        private fun parseRoles(o: JsonObject) = o.entrySet().associate { (role, hex) -> role to parseColor(hex.asString) }
 
         /** `#rrggbb` or `#rrggbbaa`. */
         fun parseColor(hex: String): Color {

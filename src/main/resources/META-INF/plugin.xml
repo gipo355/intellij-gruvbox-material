@@ -29,6 +29,8 @@
         <p>Settings | Appearance &amp; Behavior | Gruvbox Material, or the <b>Gruvbox Material</b> chip in the main toolbar
         for quick switching between variants and toggles.</p>
         <ul>
+            <li><b>Text contrast</b>: gruvbox-material's material, mix or original foreground; accents, greys and keyword colors follow the text. Default is material on dark, mix on light.</li>
+            <li><b>High UI contrast</b>: brighter line numbers, caret line number and indent guides.</li>
             <li><b>Readability</b>: quiet operators (grey instead of orange), keep the operator color whatever the keyword color, dim comments, soften doc comments,
             emphasize declarations (calls in the text color), italic comments, italic parameters,
             hide the reassignment underline.</li>

@@ -12,6 +12,9 @@ enum class TabStyle { UNDERLINE, FILLED }
 val ACCENTS = listOf("aqua", "green", "yellow", "orange", "tan", "purple", "red")
 
 class GruvboxState : BaseState() {
+    // One of TEXT_CONTRASTS; null follows the variant's default.
+    var textContrast by string()
+    var highUiContrast by property(false)
     var quietOperators by property(false)
     var keepOperatorColor by property(true)
     var dimComments by property(false)

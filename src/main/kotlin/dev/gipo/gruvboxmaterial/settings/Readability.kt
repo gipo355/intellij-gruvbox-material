@@ -1,5 +1,6 @@
 package dev.gipo.gruvboxmaterial.settings
 
+import com.intellij.openapi.editor.colors.ColorKey
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.colors.impl.AbstractColorsScheme
@@ -92,23 +93,47 @@ fun directlyDefined(scheme: EditorColorsScheme, names: Collection<String>): Map<
 /** Writes overrides into live schemes in memory and puts back the exact original objects on [restore]. */
 class SchemeOverrides {
     private val originals = IdentityHashMap<EditorColorsScheme, MutableMap<TextAttributesKey, TextAttributes?>>()
+    private val colorOriginals = IdentityHashMap<EditorColorsScheme, MutableMap<ColorKey, Color?>>()
 
-    val isEmpty get() = originals.isEmpty()
+    val isEmpty get() = originals.isEmpty() && colorOriginals.isEmpty()
 
     fun apply(scheme: EditorColorsScheme, overrides: Map<String, TextAttributes>) {
         if (overrides.isEmpty()) return
-        val saved = originals.getOrPut(scheme) { LinkedHashMap() }
+        val owners = layers(scheme) { it.directlyDefinedAttributes.keys }
         for ((name, attributes) in overrides) {
             val key = TextAttributesKey.find(name)
-            if (key !in saved) saved[key] = (scheme as? AbstractColorsScheme)?.getDirectlyDefinedAttributes(key) ?: scheme.getAttributes(key)
-            scheme.setAttributes(key, attributes)
+            val owner = owners.firstOrNull { name in it.second }?.first ?: scheme
+            val saved = originals.getOrPut(owner) { LinkedHashMap() }
+            if (key !in saved) saved[key] = (owner as? AbstractColorsScheme)?.getDirectlyDefinedAttributes(key) ?: owner.getAttributes(key)
+            owner.setAttributes(key, attributes)
         }
     }
+
+    fun applyColors(scheme: EditorColorsScheme, overrides: Map<String, Color>) {
+        if (overrides.isEmpty()) return
+        val owners = layers(scheme) { s -> s.directlyDefinedColors.keys.mapTo(HashSet()) { it.externalName } }
+        for ((name, color) in overrides) {
+            val key = ColorKey.find(name)
+            val owner = owners.firstOrNull { name in it.second }?.first ?: scheme
+            val saved = colorOriginals.getOrPut(owner) { LinkedHashMap() }
+            if (key !in saved) saved[key] = (owner as? AbstractColorsScheme)?.getDirectlyDefinedColor(key) ?: owner.getColor(key)
+            owner.setColor(key, color)
+        }
+    }
+
+    // An editable copy reads the keys it does not define from its parent, so the override goes to the scheme that
+    // defines the key: written into the copy, restore would leave the parent's value there to be saved.
+    private fun layers(scheme: EditorColorsScheme, keys: (AbstractColorsScheme) -> Set<String>) =
+        generateSequence(scheme as? AbstractColorsScheme) { it.parentScheme as? AbstractColorsScheme }.map { it to keys(it) }.toList()
 
     fun restore() {
         for ((scheme, saved) in originals) {
             for ((key, attributes) in saved) if (attributes != null) scheme.setAttributes(key, attributes)
         }
+        for ((scheme, saved) in colorOriginals) {
+            for ((key, color) in saved) if (color != null) scheme.setColor(key, color)
+        }
         originals.clear()
+        colorOriginals.clear()
     }
 }

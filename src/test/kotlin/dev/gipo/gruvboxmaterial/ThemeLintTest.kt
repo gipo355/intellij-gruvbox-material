@@ -16,7 +16,7 @@ import kotlin.math.sqrt
  * Quality gate for every variant in tools/palette.json: every color comes from that variant's palette, blue only where
  * restricted allows it, nothing contrasts more with bg0 than fg0, no bold/italic, diff tints inside their bounds
  * and changed words apart from their line,
- * no missing or misspelled keys. Each test collects every offender across all variants and fails once.
+ * no missing or misspelled keys; every runtime foreground level keeps the same bounds against its own fg0. Each test collects every offender across all variants and fails once.
  */
 class ThemeLintTest {
     private class Rgba(val rgb: String, val transparent: Boolean)
@@ -32,6 +32,10 @@ class ThemeLintTest {
         val colors: Map<String, String> = json.getAsJsonObject("colors").entrySet()
             .associate { it.key to it.value.asString.removePrefix("#").lowercase() }
         val rgb = colors.values.toSet()
+        val defaultForeground: String = json["defaultForeground"].asString
+        val foregrounds: Map<String, Map<String, String>> = json.getAsJsonObject("foregrounds").entrySet().associate { (level, roles) ->
+            level to roles.asJsonObject.entrySet().associate { it.key to it.value.asString.removePrefix("#").lowercase() }
+        }
     }
 
     private val projectDir: File = System.getProperty("projectDir")?.let(::File)
@@ -143,8 +147,9 @@ class ThemeLintTest {
             for ((kind, field) in DIFF_FIELDS) {
                 val spec = diff.getAsJsonObject(kind)
                 val (low, high) = spec.getAsJsonArray("deltaE").map { it.asDouble }
-                // fg0 on the tint keeps this share of its contrast on bg0.
-                val floor = spec["contrastRatio"].asDouble * contrast(fg, bg)
+                // fg0 on the tint keeps this share of its contrast on bg0, for every foreground level's fg0.
+                val ratio = spec["contrastRatio"].asDouble
+                val floor = ratio * contrast(fg, bg)
                 val tintsByKey = DIFF_KEYS.mapNotNull { key ->
                     val raw = attrs[key]?.child("value")?.children("option")?.firstOrNull { it.getAttribute("name") == field }?.getAttribute("value")
                     if (raw.isNullOrEmpty()) {
@@ -155,6 +160,11 @@ class ThemeLintTest {
                     val distance = deltaE(tint, bg)
                     if (distance < low || distance > high) problems += "$key.$field #$tint: deltaE ${"%.3f".format(distance)} vs bg0 outside [$low, $high]"
                     if (contrast(fg, tint) < floor) problems += "$key.$field #$tint: fg0 contrast ${"%.2f".format(contrast(fg, tint))} < ${"%.2f".format(floor)}"
+                    for ((level, roles) in v.foregrounds) {
+                        val levelFg = roles.getValue("fg0")
+                        val levelFloor = ratio * contrast(levelFg, bg)
+                        if (contrast(levelFg, tint) < levelFloor) problems += "$key.$field #$tint: $level fg0 contrast ${"%.2f".format(contrast(levelFg, tint))} < ${"%.2f".format(levelFloor)}"
+                    }
                     key to tint
                 }.toMap()
                 byKind[kind] = tintsByKey
@@ -230,6 +240,71 @@ class ThemeLintTest {
         })
     }
 
+    // The runtime text contrast switch swaps every foreground role for its level's value: each level must stay in its
+    // palette and below its own fg0, ship the same roles at runtime, and the shipped level must be the shipped roles.
+    @Test
+    fun foregroundLevelsStayInBounds() {
+        val runtime = parseJson(resource(RUNTIME_PALETTE) ?: throw AssertionError("$RUNTIME_PALETTE is not on the classpath"))
+            .getAsJsonObject("variants")
+        report("Foreground levels outside the rules", variants.flatMap { v ->
+            val problems = mutableListOf<String>()
+            val shipped = v.foregrounds[v.defaultForeground]
+            if (shipped == null) return@flatMap listOf("${v.key}: no default foreground level ${v.defaultForeground}")
+            shipped.filter { (role, hex) -> v.colors[role] != hex }.forEach { (role, hex) -> problems += "${v.defaultForeground}.$role #$hex is not the shipped #${v.colors[role]}" }
+            // Icon palettes are applied when the theme loads: no level recolours them, so the main cap check covers them.
+            val used = usedColors(v, listOf("colors", "ui"))
+            val runtimeLevels = runtime.getAsJsonObject(v.id)?.getAsJsonObject("foregrounds")
+            for ((level, roles) in v.foregrounds) {
+                if (roles.keys != shipped.keys) problems += "$level: roles ${roles.keys.sorted()} differ from ${shipped.keys.sorted()}"
+                val fg = roles.getValue("fg0")
+                val swap = shipped.entries.associate { (role, hex) -> hex to roles.getValue(role) }
+                for (rgb in used) {
+                    val color = swap[rgb] ?: rgb
+                    if (tooContrasty(v, color, fg)) problems += "$level: #$color (shipped #$rgb) contrasts more with bg0 than its fg0 #$fg"
+                }
+                val node = runtimeLevels?.getAsJsonObject(level)
+                if (node == null) {
+                    problems += "$level: missing in $RUNTIME_PALETTE"
+                    continue
+                }
+                val runtimeRoles = node.getAsJsonObject("roles").entrySet().associate { it.key to it.value.asString.removePrefix("#").lowercase() }
+                if (runtimeRoles != roles) problems += "$level: $RUNTIME_PALETTE roles differ from tools/palette.json"
+                node.getAsJsonObject("keywords").getAsJsonObject("families").entrySet().forEach { (family, f) ->
+                    f.asJsonObject.getAsJsonArray("colors").forEachIndexed { row, cells ->
+                        cells.asJsonArray.map { it.asString.removePrefix("#").lowercase() }
+                            .filter { tooContrasty(v, it, fg) }.forEach { problems += "$level: keyword $family row $row #$it contrasts more with bg0 than its fg0" }
+                    }
+                }
+            }
+            problems.map { "${v.key}: $it" }
+        })
+    }
+
+    // Every opaque rgb the variant's scheme and theme write, theme color names resolved.
+    private fun usedColors(v: Variant, sections: List<String>): Set<String> {
+        val out = mutableSetOf<String>()
+        fun add(color: Rgba?) {
+            if (color != null && !color.transparent) out += color.rgb
+        }
+        val root = scheme(v)
+        root.child("colors")?.children("option")?.forEach { add(parseColor(it.getAttribute("value"), xml = true)) }
+        root.child("attributes")?.children("option")?.forEach { attr ->
+            attr.child("value")?.children("option")?.filter { it.getAttribute("name") in COLOR_OPTIONS }
+                ?.forEach { add(parseColor(it.getAttribute("value"), xml = true)) }
+        }
+        val theme = theme(v) ?: throw AssertionError("theme ${v.themePath} is not on the classpath")
+        val named = theme.getAsJsonObject("colors")?.entrySet()?.filter { it.value.isJsonPrimitive }?.associate { it.key to it.value.asString }.orEmpty()
+        for (section in sections) {
+            val node = theme[section] ?: continue
+            leaves(node, section).forEach { (_, raw) ->
+                var value = raw
+                repeat(named.size + 1) { named[value]?.let { value = it } }
+                add(parseColor(value, xml = false))
+            }
+        }
+        return out
+    }
+
     @Test
     fun uiKeysAreKnown() {
         val known = keyList("known-ui-keys.txt").toSet()
@@ -282,9 +357,9 @@ class ThemeLintTest {
         return (hi + 0.05) / (lo + 0.05)
     }
 
-    private fun tooContrasty(v: Variant, rgb: String): Boolean {
+    private fun tooContrasty(v: Variant, rgb: String, fg: String = v.colors.getValue(maxContrastColor)): Boolean {
         val bg = v.colors.getValue("bg0")
-        return contrast(rgb, bg) > contrast(v.colors.getValue(maxContrastColor), bg) + 1e-9
+        return contrast(rgb, bg) > contrast(fg, bg) + 1e-9
     }
 
     // OKLab (Ottosson), sRGB linearised with the 0.04045 threshold.

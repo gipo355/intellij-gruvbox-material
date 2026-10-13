@@ -9,7 +9,7 @@ import com.intellij.openapi.project.DumbAwareToggleAction
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import kotlin.reflect.KMutableProperty1
 
-/** Main toolbar chip, visible only under one of our themes: variants, readability toggles, accent, keywords and reading font. */
+/** Main toolbar chip, visible only under one of our themes: variants, contrast, readability toggles, accent, keywords and reading font. */
 class GruvboxChipAction : DumbAwareAction() {
     override fun getActionUpdateThread() = ActionUpdateThread.BGT
 
@@ -31,6 +31,18 @@ class GruvboxChipAction : DumbAwareAction() {
             for (variant in variants) add(Choice(variant.name, { service.activeVariant()?.id == variant.id }) { service.switchVariant(variant.id) })
             add(Separator.create())
         }
+        add(DefaultActionGroup("Text contrast", true).apply {
+            for (level in listOf(null) + TEXT_CONTRASTS) {
+                add(Choice(level?.replaceFirstChar(Char::uppercase) ?: "Default", { state().textContrast == level }) {
+                    state().textContrast = level
+                    service.applyAll()
+                })
+            }
+        })
+        add(Choice("High UI contrast", { state().highUiContrast }) {
+            state().highUiContrast = !state().highUiContrast
+            service.applyAll()
+        })
         add(ReadabilityToggle("Quiet operators", GruvboxState::quietOperators))
         add(ReadabilityToggle("Keep operator colour", GruvboxState::keepOperatorColor))
         add(ReadabilityToggle("Dim comments", GruvboxState::dimComments))
@@ -56,7 +68,7 @@ class GruvboxChipAction : DumbAwareAction() {
             }
         })
         add(DefaultActionGroup("Keywords", true).apply {
-            val variant = service.activeVariant()
+            val variant = service.activeVariant()?.atLevel(state().textContrast)
             for (family in KEYWORD_FAMILIES) {
                 add(Choice(keywordFamilyLabel(variant, family), { state().keywords.family == family }) {
                     state().keywordFamily = family

@@ -13,7 +13,10 @@ for dark soft/medium/hard and light soft. On top of it, every number below is co
   - diff tints: bg0 moved by one lightness offset and shifted towards each hue in a/b, so every tint sits the same
     OKLab distance from bg0; the largest offset (least chroma) that still keeps the four hues apart and the text readable wins;
   - keyword choices (runtime only): an OKLCH grid per family on dark; on light the same hue and chroma, each entry's
-    lightness solved so its contrast share of fg0's matches its dark-soft counterpart.
+    lightness solved so its contrast share of fg0's matches its dark-soft counterpart;
+  - foreground levels (runtime only, upstream foreground=material/mix/original): each level's fg0 from upstream; every
+    grey and accent keeps the share of fg0's contrast on bg0 it has in the shipped level, same hue (light: chroma
+    capped); keyword entries keep their share the same way. The shipped level is the shipped roles, unchanged.
 """
 
 import json
@@ -68,8 +71,14 @@ REFERENCE_TINTS = {
     "search": "#4a5229", "search_current": "#7a3d35", "substitute": "#6b5428", "write_usage": "#4a3a2a",
 }
 
-# User-approved light tuning: upstream 'mix' text, darker than material's #654735.
-LIGHT_FG0 = "#514036"
+# get_palette(background, foreground) fg0 per foreground option; the runtime text contrast switch picks one.
+FOREGROUND_FG0 = {
+    True: {"material": "#d4be98", "mix": "#e2cca9", "original": "#ebdbb2"},
+    False: {"material": "#654735", "mix": "#514036", "original": "#3c3836"},
+}
+# User-approved: dark ships material, light ships upstream 'mix' text, darker than material's #654735.
+DEFAULT_FOREGROUND = {True: "material", False: "mix"}
+LIGHT_FG0 = FOREGROUND_FG0[False][DEFAULT_FOREGROUND[False]]
 # Light: accents at one contrast against bg0, chroma capped.
 LIGHT_CHROMA_CAP = 0.11
 
@@ -112,7 +121,8 @@ KEYWORDS = {
 
 PARENTS = {True: ("ExperimentalDark", "Darcula"), False: ("ExperimentalLightWithLightHeader", "Default")}
 
-ROLE_ORDER = (["fg0", "grey0", "grey1", "grey2"] + ACCENTS + list(UPSTREAM_BG["dark-soft"]) + list(REFERENCE_TINTS)
+FOREGROUND_ROLES = ["fg0", "grey0", "grey1", "grey2"] + ACCENTS
+ROLE_ORDER = (FOREGROUND_ROLES + list(UPSTREAM_BG["dark-soft"]) + list(REFERENCE_TINTS)
               + [f"diff_{k}" for k in DIFF["hues"]] + [f"diff_{k}_line" for k in DIFF["hues"]])
 
 
@@ -292,10 +302,28 @@ def variant_colors(key, meta):
     return {k: colors[k] for k in ROLE_ORDER}
 
 
-def keyword_table(dark, bg, fg):
-    """{brightness, strength, families: {key: {label, colors: rows x strengths}}} for one variant."""
+def foregrounds(colors, dark):
+    """{level: {role: hex}}: the shipped level as shipped, the others re-solved to keep each role's share of fg0."""
+    bg = colors["bg0"]
+    text = contrast(colors["fg0"], bg)
+    levels = {}
+    for level, fg0 in FOREGROUND_FG0[dark].items():
+        if level == DEFAULT_FOREGROUND[dark]:
+            levels[level] = {k: colors[k] for k in FOREGROUND_ROLES}
+            continue
+        target = contrast(fg0, bg)
+        levels[level] = {"fg0": fg0, **{
+            k: at_contrast(colors[k], bg, contrast(colors[k], bg) / text * target, None if dark else LIGHT_CHROMA_CAP)
+            for k in FOREGROUND_ROLES[1:]}}
+    return levels
+
+
+def keyword_table(dark, bg, fg, level=None):
+    """{brightness, strength, families: {key: {label, colors: rows x strengths}}} for one variant; fg is the level's
+    fg0 (dark: the grid is the shipped level, other levels keep each entry's share of fg0's contrast)."""
     soft = UPSTREAM_BG["dark-soft"]["bg0"]
     reference = contrast(UPSTREAM_FG[True]["fg0"], soft)
+    shipped = contrast(FOREGROUND_FG0[True][DEFAULT_FOREGROUND[True]], bg)
     families = {}
     for key, (label, h, chromas) in KEYWORDS["families"].items():
         rows = []
@@ -303,6 +331,9 @@ def keyword_table(dark, bg, fg):
             row = [from_lch(L, C, h) for C in chromas]
             if not dark:
                 row = [lch_at_contrast(C, h, bg, contrast(d, soft) / reference * contrast(fg, bg))
+                       for C, d in zip(chromas, row)]
+            elif level not in (None, DEFAULT_FOREGROUND[True]):
+                row = [lch_at_contrast(C, h, bg, contrast(d, bg) / shipped * contrast(fg, bg))
                        for C, d in zip(chromas, row)]
             rows.append(row)
         families[key] = {"label": label, "colors": rows}
@@ -313,8 +344,10 @@ def build():
     variants = {}
     for key, meta in VARIANTS.items():
         theme_parent, scheme_parent = PARENTS[meta["dark"]]
-        variants[key] = {**meta, "parentTheme": theme_parent, "parentScheme": scheme_parent,
-                         "colors": variant_colors(key, meta)}
+        colors = variant_colors(key, meta)
+        variants[key] = {**meta, "parentTheme": theme_parent, "parentScheme": scheme_parent, "colors": colors,
+                         "defaultForeground": DEFAULT_FOREGROUND[meta["dark"]],
+                         "foregrounds": foregrounds(colors, meta["dark"])}
     soft = variants["dark-soft"]["colors"]
     drift = {k: (v, soft[k]) for k, v in REFERENCE_TINTS.items() if soft[k] != v}
     if drift:
@@ -365,6 +398,12 @@ def report(data):
             pairs = min(delta_e(x, y) for i, x in enumerate(vals) for y in vals[i + 1:])
             cells = "  ".join(f"{k} {t} dE {delta_e(t, bg):.3f} cr {contrast(c['fg0'], t):.2f}" for k, t in tints.items())
             print(f"  diff{suffix or '_block':6s} {cells}  min pair {pairs:.3f}")
+        for level, roles in v["foregrounds"].items():
+            crs = [contrast(roles[k], bg) for k in ACCENTS]
+            greys = "  ".join(f"{g} {contrast(roles[g], bg):.2f}" for g in ("grey0", "grey1", "grey2"))
+            print(f"  {level:8s}{'*' if level == v['defaultForeground'] else ' '} TEXT {contrast(roles['fg0'], bg):.2f}  "
+                  f"{greys}  accents {min(crs):.2f}-{max(crs):.2f}  "
+                  f"max chroma {max(lch(roles[k])[1] for k in ACCENTS):.3f}")
 
 
 def main():
@@ -372,7 +411,11 @@ def main():
     write_json(OUT, data)
     write_json(RUNTIME, {"variants": {
         v["id"]: {"name": v["name"], "dark": v["dark"], "editorScheme": v["name"], "roles": v["colors"],
-                  "keywords": keyword_table(v["dark"], v["colors"]["bg0"], v["colors"]["fg0"])}
+                  "keywords": keyword_table(v["dark"], v["colors"]["bg0"], v["colors"]["fg0"]),
+                  "defaultForeground": v["defaultForeground"],
+                  "foregrounds": {level: {"roles": roles,
+                                          "keywords": keyword_table(v["dark"], v["colors"]["bg0"], roles["fg0"], level)}
+                                  for level, roles in v["foregrounds"].items()}}
         for v in data["variants"].values()}})
     report(data)
 

@@ -1,7 +1,9 @@
 package dev.gipo.gruvboxmaterial.settings
 
+import com.intellij.openapi.editor.colors.ColorKey
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.openapi.editor.colors.impl.EditorColorsSchemeImpl
 import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.TextAttributes
 import org.junit.Assert.assertEquals
@@ -12,6 +14,7 @@ import org.junit.Test
 import java.awt.Color
 import java.awt.Font
 import java.lang.reflect.Proxy
+import javax.swing.UIManager
 
 class SettingsTest {
     private val fixture = Palette.parse(FIXTURE_PALETTE, FIXTURE_GROUPS)
@@ -110,6 +113,29 @@ class SettingsTest {
             assertSame(key.externalName, attributes, stored[key])
             assertEquals(key.externalName, original.getValue(key.externalName), stored[key])
         }
+    }
+
+    @Test
+    fun editableCopyInheritsOverridesAndStaysClean() {
+        val shipped = EditorColorsSchemeImpl(null)
+        val comment = TextAttributesKey.find("DEFAULT_LINE_COMMENT")
+        val lineNumbers = ColorKey.find("LINE_NUMBERS_COLOR")
+        val shippedComment = original.getValue("DEFAULT_LINE_COMMENT")
+        for ((name, attributes) in original) shipped.setAttributes(TextAttributesKey.find(name), attributes)
+        shipped.setColor(lineNumbers, Color(0x5a524c))
+        val copy = EditorColorsSchemeImpl(shipped)
+        val overrides = SchemeOverrides()
+
+        overrides.apply(copy, readabilityOverrides(original, fixture.groups, dark.roles, Readability(dimComments = true)))
+        overrides.applyColors(copy, mapOf("LINE_NUMBERS_COLOR" to Color(0x7c6f64)))
+        assertEquals(Color(0x928374), copy.getAttributes(comment).foregroundColor)
+        assertEquals(Color(0x7c6f64), copy.getColor(lineNumbers))
+        assertTrue(copy.directlyDefinedAttributes.isEmpty() && copy.directlyDefinedColors.isEmpty())
+
+        overrides.restore()
+        assertSame(shippedComment, shipped.getDirectlyDefinedAttributes(comment))
+        assertEquals(Color(0x5a524c), copy.getColor(lineNumbers))
+        assertTrue(copy.directlyDefinedAttributes.isEmpty() && copy.directlyDefinedColors.isEmpty())
     }
 
     @Test
@@ -306,6 +332,140 @@ class SettingsTest {
         assertEquals("4D802020, 4D000000", indentRainbowPalette(listOf(Color(0x802020), Color.BLACK), alpha = 0x4D))
     }
 
+    @Test
+    fun parsesTextContrastLevels() {
+        assertEquals("material", dark.defaultForeground)
+        assertEquals(setOf("material", "original"), dark.foregrounds.keys)
+        assertEquals(dark.roles, dark.atLevel(null).roles)
+        assertEquals(dark.keywords, dark.atLevel("material").keywords)
+        val original = dark.atLevel("original")
+        assertEquals(Color(0xebdbb2), original.roles["fg0"])
+        assertEquals(dark.roles["bg0"], original.roles["bg0"])
+        assertEquals(Color(0xd99f73), keywordColor(original, KeywordChoice("orange")))
+        assertSame(dark, dark.atLevel("mix"))
+        val light = fixture.variants.getValue("variant-light")
+        assertEquals("light", light.family)
+        assertEquals(Color(0x4f3829), light.atLevel("material").roles["fg0"])
+        assertEquals(mapOf("FOREGROUND" to "tan", "EFFECT_COLOR" to "aqua"), fixture.groups.schemeForegroundRoles.getValue("dark").attributes["DEFAULT_DOC_MARKUP"])
+        assertEquals("fg0", fixture.groups.schemeForegroundRoles.getValue("dark").colors["CARET_COLOR"])
+        assertEquals(listOf("Component.focusColor", "*.underlineColor"), fixture.groups.uiForegroundKeys["aqua"])
+        assertEquals(RoleStep("bg3", "bg5"), fixture.groups.highUiContrast.getValue("dark")["INDENT_GUIDE"])
+    }
+
+    @Test
+    fun palettesWithoutTextContrastStillParse() {
+        val old = Palette.parse("""{"variants": {"v": {"name": "V", "dark": true, "editorScheme": "S", "roles": {"fg0": "#d4be98"}}}}""", """{"operators": []}""")
+        val v = old.variants.getValue("v")
+        assertTrue(v.foregrounds.isEmpty() && v.defaultForeground == null)
+        assertSame(v, v.atLevel("original"))
+        assertTrue(old.groups.schemeForegroundRoles.isEmpty() && old.groups.uiForegroundKeys.isEmpty() && old.groups.highUiContrast.isEmpty())
+    }
+
+    @Test
+    fun defaultTextContrastIsANoOp() {
+        for (level in listOf(null, "material")) {
+            assertTrue(attributeOverrides(original, fixture.groups, dark.atLevel(null), dark.atLevel(level), Readability(), KeywordChoice()).isEmpty())
+            assertTrue(colorOverrides(schemeColors, fixture.groups, dark.atLevel(null), dark.atLevel(level), highUiContrast = false).isEmpty())
+        }
+    }
+
+    @Test
+    fun textContrastMovesOnlyTheRoleColours() {
+        val swapped = attributeOverrides(original, fixture.groups, dark.atLevel(null), dark.atLevel("original"), Readability(), KeywordChoice())
+        // Operators and tan keep their colour across levels; the call is green, not fg0, so it stays.
+        assertEquals(setOf("DEFAULT_PARAMETER", "DEFAULT_LINE_COMMENT", "DEFAULT_BLOCK_COMMENT", "DEFAULT_DOC_MARKUP"), swapped.keys)
+        assertEquals(Color(0xebdbb2), swapped.getValue("DEFAULT_PARAMETER").foregroundColor)
+        assertEquals(Color(0xbdae93), swapped.getValue("DEFAULT_LINE_COMMENT").foregroundColor)
+        val markup = swapped.getValue("DEFAULT_DOC_MARKUP")
+        assertEquals(Color(0xc4a67e), markup.foregroundColor)
+        assertEquals(Color(0x8ec07c), markup.effectColor)
+        assertEquals(EffectType.LINE_UNDERSCORE, markup.effectType)
+        assertEquals(Color(0x89b482), original.getValue("DEFAULT_DOC_MARKUP").effectColor)
+
+        val colors = colorOverrides(schemeColors, fixture.groups, dark.atLevel(null), dark.atLevel("original"), highUiContrast = false)
+        assertEquals(mapOf("CARET_COLOR" to Color(0xebdbb2), "LINE_NUMBERS_COLOR" to Color(0x9d8f7f)), colors)
+    }
+
+    @Test
+    fun readabilityComposesOnTopOfTheLevel() {
+        val level = dark.atLevel("original")
+        val readable = attributeOverrides(original, fixture.groups, dark.atLevel(null), level, Readability(softenDocs = true, italicParameters = true), KeywordChoice("orange"))
+        val parameter = readable.getValue("DEFAULT_PARAMETER")
+        assertEquals(Color(0xebdbb2), parameter.foregroundColor)
+        assertEquals(Font.ITALIC, parameter.fontType)
+        // Docs take the swapped comment colour, and the keyword the level's table.
+        assertEquals(Color(0xbdae93), readable.getValue("DEFAULT_DOC_COMMENT_TAG").foregroundColor)
+        assertEquals(Color(0xbdae93), readable.getValue("DEFAULT_DOC_MARKUP").foregroundColor)
+        assertEquals(Color(0x8ec07c), readable.getValue("DEFAULT_DOC_MARKUP").effectColor)
+        assertEquals(Color(0xd99f73), readable.getValue("DEFAULT_KEYWORD").foregroundColor)
+
+        val dimmed = attributeOverrides(original, fixture.groups, dark.atLevel(null), level, Readability(dimComments = true), KeywordChoice())
+        assertEquals(Color(0x9d8f7f), dimmed.getValue("DEFAULT_LINE_COMMENT").foregroundColor)
+    }
+
+    @Test
+    fun highUiContrastRaisesItsKeysAtEveryLevel() {
+        val base = dark.atLevel(null)
+        assertEquals(
+            mapOf("LINE_NUMBERS_COLOR" to Color(0xa89984), "INDENT_GUIDE" to Color(0x5a524c)),
+            colorOverrides(schemeColors, fixture.groups, base, base, highUiContrast = true),
+        )
+        val raised = colorOverrides(schemeColors, fixture.groups, base, dark.atLevel("original"), highUiContrast = true)
+        assertEquals(Color(0xbdae93), raised["LINE_NUMBERS_COLOR"])
+        assertEquals(Color(0xebdbb2), raised["CARET_COLOR"])
+        // Keys the scheme does not define stay inherited.
+        assertEquals(setOf("LINE_NUMBERS_COLOR"), colorOverrides(mapOf("LINE_NUMBERS_COLOR" to Color(0x928374)), fixture.groups, base, base, highUiContrast = true).keys)
+        // A colour the user changed is theirs.
+        assertTrue(colorOverrides(mapOf("INDENT_GUIDE" to Color(0x123456)), fixture.groups, base, base, highUiContrast = true).isEmpty())
+    }
+
+    @Test
+    fun restoreBringsBackTheExactColours() {
+        val storedColors = schemeColors.mapKeys { ColorKey.find(it.key) }.toMutableMap()
+        val before = storedColors.toMap()
+        val scheme = fakeScheme(original.mapKeys { TextAttributesKey.find(it.key) }.toMutableMap(), storedColors)
+        val overrides = SchemeOverrides()
+        overrides.applyColors(scheme, colorOverrides(schemeColors, fixture.groups, dark.atLevel(null), dark.atLevel("original"), highUiContrast = false))
+        overrides.applyColors(scheme, colorOverrides(schemeColors, fixture.groups, dark.atLevel(null), dark.atLevel(null), highUiContrast = true))
+        assertTrue(!overrides.isEmpty)
+        assertEquals(Color(0xebdbb2), storedColors[ColorKey.find("CARET_COLOR")])
+        assertEquals(Color(0x5a524c), storedColors[ColorKey.find("INDENT_GUIDE")])
+
+        overrides.restore()
+        assertTrue(overrides.isEmpty)
+        for ((key, color) in before) assertSame(key.externalName, color, storedColors[key])
+    }
+
+    @Test
+    fun uiTextContrastAndAccentRestoreEverything() {
+        val defaults = UIManager.getLookAndFeelDefaults()
+        val keys = listOf("Label.foreground", "Component.focusColor", "Fixture.underlineColor")
+        val previous = keys.associateWith { defaults[it] }
+        val label = Color(0xd4be98)
+        val focus = Color(0x89b482)
+        val underline = Color(0x8089b482.toInt(), true)
+        defaults["Label.foreground"] = label
+        defaults["Component.focusColor"] = focus
+        defaults["Fixture.underlineColor"] = underline
+        val overrides = UiOverrides()
+        overrides.apply(dark, "original", fixture.groups, "orange", TabStyle.UNDERLINE)
+        assertEquals(0xebdbb2, (defaults["Label.foreground"] as Color).rgb and 0xffffff)
+        assertEquals(Color(0xe78a4e), Color((defaults["Component.focusColor"] as Color).rgb))
+        assertEquals(Color(0x80e78a4e.toInt(), true), Color((defaults["Fixture.underlineColor"] as Color).rgb, true))
+
+        overrides.restore()
+        assertSame(label, defaults["Label.foreground"])
+        assertSame(focus, defaults["Component.focusColor"])
+        assertSame(underline, defaults["Fixture.underlineColor"])
+        for ((key, value) in previous) defaults[key] = value
+    }
+
+    private val schemeColors = mapOf(
+        "CARET_COLOR" to Color(0xd4be98),
+        "LINE_NUMBERS_COLOR" to Color(0x928374),
+        "INDENT_GUIDE" to Color(0x504945),
+    )
+
     private fun attributes(foreground: String, effect: String? = null) = TextAttributes().apply {
         foregroundColor = Color(foreground.toInt(16))
         if (effect != null) {
@@ -319,11 +479,13 @@ class SettingsTest {
         effectType = EffectType.LINE_UNDERSCORE
     }
 
-    private fun fakeScheme(stored: MutableMap<TextAttributesKey, TextAttributes>): EditorColorsScheme =
+    private fun fakeScheme(stored: MutableMap<TextAttributesKey, TextAttributes>, colors: MutableMap<ColorKey, Color> = mutableMapOf()): EditorColorsScheme =
         Proxy.newProxyInstance(javaClass.classLoader, arrayOf(EditorColorsScheme::class.java)) { _, method, args ->
             when (method.name) {
                 "getAttributes" -> stored[args[0] as TextAttributesKey]
                 "setAttributes" -> stored.put(args[0] as TextAttributesKey, args[1] as TextAttributes).let { null }
+                "getColor" -> colors[args[0] as ColorKey]
+                "setColor" -> colors.put(args[0] as ColorKey, args[1] as Color).let { null }
                 "hashCode" -> 0
                 "equals" -> false
                 else -> throw UnsupportedOperationException(method.name)
