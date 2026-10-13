@@ -2,7 +2,7 @@
 
 A warm, low-glare theme for JetBrains IDEs: the
 [gruvbox-material](https://github.com/sainnhe/gruvbox-material) palette
-(material foreground) on JetBrains' 2026 Islands layout. Built for long
+(material foreground, mix text on light) on JetBrains' 2026 Islands layout. Built for long
 sessions: no color stands out more than the text, and nothing in the code is
 blue.
 
@@ -13,7 +13,7 @@ blue.
 | Gruvbox Material Islands (dark soft) | `#32302f` | 7.3:1 |
 | Gruvbox Material Islands Medium | `#282828` | 8.2:1 |
 | Gruvbox Material Islands Hard | `#1d2021` | 9.1:1 |
-| Gruvbox Material Islands Light (soft) | `#f2e5bc` | 6.7:1 |
+| Gruvbox Material Islands Light (soft) | `#f2e5bc` | 7.8:1 |
 
 All four are rendered from one set of palette roles; they differ only in the
 colors behind the roles. Each theme selects its own editor scheme.

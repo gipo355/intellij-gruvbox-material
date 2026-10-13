@@ -5,17 +5,17 @@
   "parentTheme": "ExperimentalLightWithLightHeader",
   "editorScheme": "/themes/GruvboxMaterialIslandsLight.xml",
   "colors": {
-    "fg0": "#654735",
-    "grey0": "#a89984",
-    "grey1": "#928374",
-    "grey2": "#7a6d62",
-    "red": "#994745",
-    "orange": "#934e1f",
-    "yellow": "#895402",
-    "green": "#5a6619",
-    "aqua": "#3c694d",
-    "tan": "#765b35",
-    "purple": "#845071",
+    "fg0": "#514036",
+    "grey0": "#93846f",
+    "grey1": "#7e7061",
+    "grey2": "#695c52",
+    "red": "#8d3c3b",
+    "orange": "#884312",
+    "yellow": "#7b4c02",
+    "green": "#515c09",
+    "aqua": "#325f43",
+    "tan": "#6c522b",
+    "purple": "#794566",
     "bg_dim": "#ebdbb2",
     "bg0": "#f2e5bc",
     "bg1": "#eddeb5",
@@ -532,8 +532,8 @@
       "inactiveWarningFocusColor": "bg_visual_yellow",
       "infoForeground": "grey1",
       "warningFocusColor": "substitute",
-      "hoverIconColor": "#928374E5",
-      "iconColor": "#9283747F"
+      "hoverIconColor": "#7e7061E5",
+      "iconColor": "#7e70617F"
     },
     "ComboBox": {
       "arc.compact": "4,4,4,4",
@@ -1148,30 +1148,30 @@
     },
     "ScrollBar": {
       "hoverThumbBorderColor": "#ebdbb28C",
-      "hoverThumbColor": "#9283748C",
-      "hoverTrackColor": "#92837400",
+      "hoverThumbColor": "#7e70618C",
+      "hoverTrackColor": "#7e706100",
       "thumbBorderColor": "#ebdbb259",
-      "thumbColor": "#92837459",
-      "trackColor": "#92837400",
+      "thumbColor": "#7e706159",
+      "trackColor": "#7e706100",
       "Transparent": {
         "hoverThumbBorderColor": "#ebdbb28C",
-        "hoverThumbColor": "#9283748C",
-        "hoverTrackColor": "#9283741A",
+        "hoverThumbColor": "#7e70618C",
+        "hoverTrackColor": "#7e70611A",
         "thumbBorderColor": "#ebdbb200",
-        "thumbColor": "#92837459",
-        "trackColor": "#92837400"
+        "thumbColor": "#7e706159",
+        "trackColor": "#7e706100"
       },
       "background": "bg0",
       "Mac": {
         "Transparent": {
-          "hoverThumbBorderColor": "#92837480",
-          "hoverThumbColor": "#92837480",
-          "hoverTrackColor": "#9283741A"
+          "hoverThumbBorderColor": "#7e706180",
+          "hoverThumbColor": "#7e706180",
+          "hoverTrackColor": "#7e70611A"
         },
-        "hoverThumbBorderColor": "#92837480",
-        "hoverThumbColor": "#92837480",
-        "thumbBorderColor": "#92837433",
-        "thumbColor": "#92837433"
+        "hoverThumbBorderColor": "#7e706180",
+        "hoverThumbColor": "#7e706180",
+        "thumbBorderColor": "#7e706133",
+        "thumbColor": "#7e706133"
       }
     },
     "Diff": {
@@ -1646,8 +1646,8 @@
     "DefaultTabs.background": "bg0",
     "DisclosureButton": {
       "defaultBackground": "bg1",
-      "hoverOverlay": "#6547350D",
-      "pressedOverlay": "#6547351A"
+      "hoverOverlay": "#5140360D",
+      "pressedOverlay": "#5140361A"
     },
     "FlameGraph.Tooltip": {
       "foreground": "fg0",
@@ -1752,8 +1752,8 @@
     },
     "WelcomeScreen.Frame.DisclosureButton": {
       "defaultBackground": "bg1",
-      "hoverOverlay": "#6547350D",
-      "pressedOverlay": "#6547351A"
+      "hoverOverlay": "#5140360D",
+      "pressedOverlay": "#5140361A"
     },
     "activeCaption": "bg_dim",
     "control": "bg0",
@@ -1796,7 +1796,7 @@
       "#A8ADBD": "grey0",
       "#EBECF0": "bg1",
       "#FFFFFF": "bg0",
-      "#4682FA": "#3c6670",
+      "#4682FA": "#315c65",
       "#3574F0": "aqua",
       "#EDF3FF": "bg_visual_blue",
       "#E7EFFD": "bg_visual_blue",
