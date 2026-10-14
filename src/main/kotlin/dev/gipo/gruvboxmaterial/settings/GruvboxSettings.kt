@@ -30,6 +30,7 @@ class GruvboxState : BaseState() {
     var italicParameters by property(false)
     var hideReassignUnderline by property(false)
     var annotationStyle by enum(AnnotationStyle.PURPLE)
+    var parameterStyle by enum(ParameterStyle.DEFAULT)
     // Material's accent from before accents were kept per palette family; read only while accents has no material entry.
     var accent by string("aqua")
     var accents by map<String, String>()
@@ -57,7 +58,7 @@ class GruvboxState : BaseState() {
     var fontLigatures by property(false)
     var fontVariants by stringSet()
 
-    val readability get() = Readability(quietOperators, dimComments, softenDocs, emphasizeDeclarations, italicComments, italicParameters, hideReassignUnderline, annotationStyle, keepOperatorColor)
+    val readability get() = Readability(quietOperators, dimComments, softenDocs, emphasizeDeclarations, italicComments, italicParameters, hideReassignUnderline, annotationStyle, keepOperatorColor, parameterStyle)
     val keywords get() = KeywordChoice(keywordFamily ?: STOCK, keywordBrightness, keywordStrength)
 
     /** The level chosen for [variant]'s palette family, or null for the variant's default. */

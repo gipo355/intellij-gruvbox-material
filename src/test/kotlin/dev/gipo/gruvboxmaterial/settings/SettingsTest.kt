@@ -280,6 +280,25 @@ class SettingsTest {
     }
 
     @Test
+    fun parameterStyleRecolorsParametersAndOrangeMovesOperators() {
+        val parameters = setOf("DEFAULT_PARAMETER", "DEFAULT_REASSIGNED_PARAMETER")
+        assertTrue(ParameterStyle.entries.filter { it != ParameterStyle.DEFAULT }.all { Readability(parameters = it).any })
+
+        val aqua = readabilityOverrides(original, fixture.groups, dark.roles, Readability(parameters = ParameterStyle.AQUA))
+        assertEquals(parameters, aqua.keys)
+        assertTrue(aqua.values.all { it.foregroundColor == Color(0x89b482) })
+        assertEquals(EffectType.LINE_UNDERSCORE, aqua.getValue("DEFAULT_REASSIGNED_PARAMETER").effectType)
+
+        val orange = readabilityOverrides(original, fixture.groups, dark.roles, Readability(parameters = ParameterStyle.ORANGE))
+        assertEquals(parameters + "DEFAULT_OPERATION_SIGN", orange.keys)
+        assertEquals(Color(0xd4be98), orange.getValue("DEFAULT_OPERATION_SIGN").foregroundColor)
+        assertEquals(Color(0xe78a4e), orange.getValue("DEFAULT_PARAMETER").foregroundColor)
+
+        val quiet = readabilityOverrides(original, fixture.groups, dark.roles, Readability(quietOperators = true, parameters = ParameterStyle.ORANGE))
+        assertEquals(Color(0xa89984), quiet.getValue("DEFAULT_OPERATION_SIGN").foregroundColor)
+    }
+
+    @Test
     fun keywordColourAnnotationsFollowTheKeywordPicker() {
         val readability = Readability(annotations = AnnotationStyle.KEYWORD)
         val ghost = Color(0x7c6f64)

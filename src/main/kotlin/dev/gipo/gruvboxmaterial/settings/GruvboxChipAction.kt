@@ -72,6 +72,14 @@ class GruvboxChipAction : DumbAwareAction() {
                 })
             }
         })
+        add(DefaultActionGroup("Parameters", true).apply {
+            for (style in ParameterStyle.entries) {
+                add(Choice(style.label, { state().parameterStyle == style }) {
+                    state().parameterStyle = style
+                    service.applyScheme()
+                })
+            }
+        })
         add(DefaultActionGroup("Accent", true).apply {
             for (accent in accentChoices(active)) {
                 add(Choice(accent.replaceFirstChar(Char::uppercase), { state().accent(active) == accent }) {

@@ -19,9 +19,10 @@ data class Readability(
     val hideReassignUnderline: Boolean = false,
     val annotations: AnnotationStyle = AnnotationStyle.PURPLE,
     val keepOperatorColor: Boolean = true,
+    val parameters: ParameterStyle = ParameterStyle.DEFAULT,
 ) {
     val any get() = quietOperators || dimComments || softenDocs || emphasizeDeclarations || italicComments || italicParameters || hideReassignUnderline ||
-        annotations != AnnotationStyle.PURPLE
+        annotations != AnnotationStyle.PURPLE || parameters != ParameterStyle.DEFAULT
 }
 
 /** The colour of annotation and decorator names; their attribute names keep fg0. */
@@ -30,6 +31,14 @@ enum class AnnotationStyle(val label: String) {
     GREY("Grey"),
     DIM_GREY("Dim grey"),
     KEYWORD("Keyword colour"),
+}
+
+/** The colour of parameters, declarations and uses alike; [role] null keeps the scheme's own. */
+enum class ParameterStyle(val label: String, val role: String?) {
+    DEFAULT("Default", null),
+    ORANGE("Orange", "orange"),
+    AQUA("Aqua", "aqua"),
+    PURPLE("Purple", "purple"),
 }
 
 /**
@@ -57,10 +66,13 @@ fun readabilityOverrides(
     fun recolor(keys: List<String>, color: Color?) {
         if (color != null) change(keys) { foregroundColor = color }
     }
-    // Unless kept, operators step aside to fg0 for keyword hues that clash with their orange; quiet still wins.
+    // Unless kept, operators step aside to fg0 for keyword hues that clash with their orange; orange parameters always
+    // push them aside, as the two sit side by side in every expression. Quiet still wins.
     if (readability.quietOperators) recolor(groups.operators, roles["grey2"])
-    else if (!readability.keepOperatorColor && keywordColor != null && keywordFamily in OPERATOR_CLASHING_FAMILIES) recolor(groups.operators, roles["fg0"])
+    else if (readability.parameters == ParameterStyle.ORANGE ||
+        (!readability.keepOperatorColor && keywordColor != null && keywordFamily in OPERATOR_CLASHING_FAMILIES)) recolor(groups.operators, roles["fg0"])
     recolor(groups.keywords, keywordColor)
+    recolor(groups.parameters, readability.parameters.role?.let(roles::get))
     if (readability.dimComments) recolor(groups.comments, roles["grey1"])
     if (readability.softenDocs) {
         val commentColor = if (readability.dimComments) roles["grey1"] else groups.comments.firstNotNullOfOrNull { original[it]?.foregroundColor }

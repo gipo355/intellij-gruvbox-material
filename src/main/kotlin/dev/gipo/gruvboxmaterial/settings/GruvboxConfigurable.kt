@@ -54,12 +54,16 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
         }
         group("Readability") {
             row { checkBox("Quiet operators").bindSelected(state::quietOperators).comment("Operators in grey instead of orange") }
-            row { checkBox("Keep operator colour").bindSelected(state::keepOperatorColor).comment("Operators stay orange whatever the keyword colour; off moves them to the text colour next to red, orange and clay keywords") }
+            row { checkBox("Keep operator colour").bindSelected(state::keepOperatorColor).comment("Operators stay orange whatever the keyword colour; off moves them to the text colour next to red, orange and clay keywords. Orange parameters move them regardless") }
             row { checkBox("Dim comments").bindSelected(state::dimComments) }
             row { checkBox("Soften doc comments").bindSelected(state::softenDocs).comment("Tags, references, markup and code in the comment colour") }
             row { checkBox("Emphasize declarations").bindSelected(state::emphasizeDeclarations).comment("Function calls in the foreground colour; declarations keep theirs") }
             row { checkBox("Italic comments").bindSelected(state::italicComments).comment("Comments and doc comments in italic; the colour still follows the options above") }
             row { checkBox("Italic parameters").bindSelected(state::italicParameters).comment("Parameters in italic; type parameters stay as types") }
+            row("Parameters:") {
+                comboBox(ParameterStyle.entries, textListCellRenderer { it?.label }).bindItem(state::parameterStyle.toNullableProperty())
+                    .comment("Parameters and their uses; Orange moves operators to the text colour")
+            }
             row { checkBox("Hide reassignment underline").bindSelected(state::hideReassignUnderline).comment("Drops the underline on reassigned locals and parameters") }
             row("Annotations:") {
                 comboBox(AnnotationStyle.entries, textListCellRenderer { it?.label }).bindItem(state::annotationStyle.toNullableProperty())
