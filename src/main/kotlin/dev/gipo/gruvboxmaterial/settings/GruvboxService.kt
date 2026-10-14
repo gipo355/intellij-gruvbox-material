@@ -25,6 +25,10 @@ class GruvboxService : Disposable {
     /** The variant whose LaF is installed, or null when another theme is active. */
     fun activeVariant(): Variant? = LafManager.getInstance().currentUIThemeLookAndFeel?.id?.let { palette.variants[it] }
 
+    /** The variant whose editor scheme is the global scheme (or its editable copy): the one Bold and Italic render on. */
+    fun schemeVariant(): Variant? =
+        palette.variantForScheme(EditorColorsManager.getInstance().globalScheme.name.removePrefix(Scheme.EDITABLE_COPY_PREFIX))
+
     fun installedVariants(): List<Variant> = palette.variants.values.filter { findLaf(it.id) != null }
 
     fun switchVariant(id: String) {
@@ -46,7 +50,8 @@ class GruvboxService : Disposable {
     fun applyAll() {
         applyScheme()
         applyUi()
-        IndentRainbowSync.getInstance()?.apply(activeVariant(), state.indentRainbowSync)
+        val variant = activeVariant()
+        IndentRainbowSync.getInstance()?.apply(variant?.atLevel(state.textContrast(variant)), state.indentRainbowSync)
     }
 
     fun applyScheme() {
@@ -54,19 +59,36 @@ class GruvboxService : Disposable {
         val hadOverrides = !schemeOverrides.isEmpty
         schemeOverrides.restore()
         val scheme = EditorColorsManager.getInstance().globalScheme
-        val variant = palette.variantForScheme(scheme.name.removePrefix(Scheme.EDITABLE_COPY_PREFIX))
-        val readability = state.readability
-        val keywords = state.keywords
-        val keywordColor = variant?.let { keywordColor(it, keywords) }
-        if (variant != null && (readability.any || keywordColor != null)) {
-            val groups = palette.groups
-            val keys = groups.operators + groups.comments + groups.docs + groups.calls + groups.keywords + groups.parameters + groups.reassigned + groups.annotations
-            schemeOverrides.apply(scheme, readabilityOverrides(directlyDefined(scheme, keys), groups, variant.roles, readability, keywordColor, keywords.family))
+        val shipped = schemeVariant()
+        if (shipped != null) {
+            val base = shipped.atLevel(null)
+            val variant = shipped.atLevel(state.textContrast(shipped))
+            val readability = state.readability
+            val keywords = state.keywords
+            val groups = palette.groups.forFamily(shipped.schemeFamily)
+            val roles = groups.schemeForegroundRoles[shipped.schemeFamily]
+            val styles = groups.styles[shipped.schemeFamily]
+            val bold = state.isBold(shipped, groups)
+            val italic = state.isItalic(shipped, groups)
+            val leveled = base.roles != variant.roles
+            val restyled = styles != null && (bold != styles.shipped || italic != styles.shipped)
+            if (leveled || restyled || readability.any || keywordColor(variant, keywords) != null) {
+                val keys = groups.operators + groups.comments + groups.docs + groups.calls + groups.keywords + groups.parameters + groups.reassigned + groups.annotations +
+                    roles?.attributes?.keys.orEmpty() + styles?.bold.orEmpty() + styles?.italic.orEmpty()
+                schemeOverrides.apply(scheme, attributeOverrides(directlyDefined(scheme, keys), groups, base, variant, readability, keywords, bold, italic))
+            }
+            if (leveled || state.highUiContrast) {
+                val keys = roles?.colors?.keys.orEmpty() + groups.highUiContrast[shipped.schemeFamily]?.keys.orEmpty()
+                schemeOverrides.applyColors(scheme, colorOverrides(directlyDefinedColors(scheme, keys), groups, base, variant, state.highUiContrast))
+            }
         }
         if (hadOverrides || !schemeOverrides.isEmpty) refreshEditors(scheme)
     }
 
-    fun applyUi() = uiOverrides.apply(activeVariant(), palette.groups.accentUiKeys, state.accent ?: "aqua", state.tabStyle)
+    fun applyUi() {
+        val variant = activeVariant()
+        uiOverrides.apply(variant, state.textContrast(variant), palette.groups, state.accent(variant), state.tabStyle)
+    }
 
     /** Puts the shipped scheme values back so a settings save never sees the overrides. */
     fun restoreScheme() {

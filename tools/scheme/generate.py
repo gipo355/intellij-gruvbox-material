@@ -5,7 +5,7 @@ and the runtime key groups (src/main/resources/gruvbox/groups.json).
     NVIM_CONFIG=<nvim config dir> ... generate.py --refresh-nvim
 
 Each directory can also be passed as --ide, --user-plugins, --nvim-config. Jars are read in memory. Run
-tools/ui/build_theme.py first: the accent ui keys in groups.json come from the generated theme.json files.
+tools/ui/build_theme.py first: the accent and foreground ui keys in groups.json come from the generated theme.json files.
 
 Dark variants: every key a Darcula-parented scheme would otherwise inherit (Darcula, Islands Dark and every plugin's
 additionalTextAttributes for Darcula) is written explicitly, so nothing falls back to Darcula's colors or font
@@ -19,8 +19,10 @@ Both families also define the keys no scheme file mentions but code creates with
 whose visible code fallback chain ends on a blue-allowed key (CONSOLE_BLUE_OUTPUT) outside the blue-allowed set.
 Those have no value to map, so they must be curated.
 
-Keys are resolved to palette role names once per family, against dark soft or light soft; each variant of the
-family renders the same roles with its own hex, so medium and hard cannot drift from soft.
+Keys are resolved to palette role names once per scheme family (palette family and parent axis, e.g. material-dark),
+against that family's mapping variant (dark soft, light soft) with its curated layer and blue rules; each variant of
+the family renders the same roles with its own hex, so medium and hard cannot drift from soft. The required-key lists
+stay per parent axis: the union of the families on it.
 
 Every attribute gets its own <value>: IntelliJ does not follow baseAttributes="X" to X (it falls back to the
 key's coded fallback, then the parent scheme), so links (curated L() or a source's baseAttributes) are resolved
@@ -47,16 +49,23 @@ import sources  # noqa: E402
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = C.REPO
 THEMES = os.path.join(REPO, "src", "main", "resources", "themes")
-REQUIRED = {True: os.path.join(REPO, "src", "test", "resources", "scheme-required-keys.txt"),
-            False: os.path.join(REPO, "src", "test", "resources", "scheme-required-keys-light.txt")}
+REQUIRED = {"material-dark": os.path.join(REPO, "src", "test", "resources", "scheme-required-keys.txt"),
+            "material-light": os.path.join(REPO, "src", "test", "resources", "scheme-required-keys-light.txt"),
+            "baby-dark": os.path.join(REPO, "src", "test", "resources", "scheme-required-keys-baby-dark.txt")}
+# The schemes each required-key list names in its header.
+REQUIRED_TITLE = {"material-dark": "dark Gruvbox Material Islands schemes", "material-light": "light Gruvbox Material Islands scheme",
+                  "baby-dark": "Gruvbox Baby Islands schemes"}
 GROUPS = os.path.join(REPO, "src", "main", "resources", "gruvbox", "groups.json")
-# Family -> the variant whose palette the source colors are mapped against.
-MAPPING_VARIANT = {True: "dark-soft", False: "light-soft"}
-NVIM_JSON = os.path.join(HERE, "nvim-highlights.json")
+# Scheme family -> the variant whose palette the source colors are mapped against.
+MAPPING_VARIANT = {"material-dark": "dark-soft", "material-light": "light-soft", "baby-dark": "baby-soft"}
+# Material's reference, the file --refresh-nvim writes.
+NVIM_JSON = os.path.join(HERE, curated.NVIM_REFERENCES["material-dark"]["file"])
 NVIM_LUA = os.path.join(HERE, "nvim_dump.lua")
 
 COLOR_FIELDS = ("FOREGROUND", "BACKGROUND", "EFFECT_COLOR", "ERROR_STRIPE_COLOR")
-FIELD_ORDER = ("FOREGROUND", "BACKGROUND", "EFFECT_COLOR", "EFFECT_TYPE", "ERROR_STRIPE_COLOR")
+FIELD_ORDER = ("FOREGROUND", "BACKGROUND", "FONT_TYPE", "EFFECT_COLOR", "EFFECT_TYPE", "ERROR_STRIPE_COLOR")
+with open(C.PALETTE_FILE) as _f:
+    RULES = json.load(_f)["rules"]
 
 
 def refresh_nvim(config_dir):
@@ -78,8 +87,8 @@ def scheme_path(variant):
     return os.path.join(THEMES, C.VARIANTS[variant]["stem"] + ".xml")
 
 
-def family(dark):
-    return [k for k, v in C.VARIANTS.items() if v["dark"] == dark]
+def family(scheme_family):
+    return [k for k, v in C.VARIANTS.items() if C.scheme_family(v) == scheme_family]
 
 
 def palette_name(hex_value):
@@ -202,21 +211,21 @@ def map_value(value, key, greys):
     return out
 
 
-def cycle_entry(key):
-    for pattern, cycle in curated.CYCLES:
+def cycle_entry(key, tables):
+    for pattern, cycle in tables["cycles"]:
         m = re.match(pattern, key)
         if m:
             return curated.A(fg=cycle[int(m.group(2)) % len(cycle)])
     return None
 
 
-def resolve_attribute(key, providers):
+def resolve_attribute(key, providers, tables):
     """-> (definition, how) with how in curated | linked | auto"""
-    if key in curated.CORE:
-        return curated.CORE[key], "curated"
-    if key in curated.LANGUAGES:
-        return curated.LANGUAGES[key], "curated"
-    entry = cycle_entry(key)
+    if key in tables["core"]:
+        return tables["core"][key], "curated"
+    if key in tables["languages"]:
+        return tables["languages"][key], "curated"
+    entry = cycle_entry(key, tables)
     if entry:
         return entry, "curated"
     for label, scheme in providers:
@@ -232,8 +241,8 @@ def resolve_attribute(key, providers):
     return None, None
 
 
-def resolve_color(key, providers, dark=True):
-    table = curated.COLORS if dark else {**curated.COLORS, **curated.LIGHT_COLORS}
+def resolve_color(key, providers, tables):
+    table = tables["colors"]
     if key in table:
         return table[key], "curated"
     for label, scheme in providers:
@@ -246,22 +255,22 @@ def resolve_color(key, providers, dark=True):
     return None, None
 
 
-def resolve(src, dark=True):
+def resolve(src, dark, tables):
     color_src, attr_src, providers = build_checklist(src, dark)
     out_colors, out_attrs, how = {}, {}, {}
     code_only = sorted(k for table in (attr_src, color_src) for k, s in table.items()
                        if all(l.startswith("code") for l in s))
-    uncurated = [k for k in code_only if not (k in curated.COLORS or k in curated.CORE or k in curated.LANGUAGES
-                                              or cycle_entry(k))]
+    uncurated = [k for k in code_only if not (k in tables["colors"] or k in tables["core"] or k in tables["languages"]
+                                              or cycle_entry(k, tables))]
     if uncurated:
         raise SystemExit(f"keys only code defines must be curated: {uncurated}")
 
     for k in sorted(color_src):
-        v, h = resolve_color(k, providers, dark)
+        v, h = resolve_color(k, providers, tables)
         out_colors[k], how[k] = v, h
 
     pending = sorted(attr_src)
-    curated_extra = sorted((set(curated.CORE) | set(curated.LANGUAGES)) - set(attr_src) - set(color_src))
+    curated_extra = sorted((set(tables["core"]) | set(tables["languages"])) - set(attr_src) - set(color_src))
     for k in curated_extra:
         attr_src[k]  # creates an empty source set: defined, not required
     pending += curated_extra
@@ -269,7 +278,7 @@ def resolve(src, dark=True):
         k = pending.pop(0)
         if k in out_attrs:
             continue
-        d, h = resolve_attribute(k, providers)
+        d, h = resolve_attribute(k, providers, tables)
         if d is None:
             raise SystemExit(f"link target {k} has no definition anywhere")
         out_attrs[k], how[k] = d, h
@@ -278,7 +287,7 @@ def resolve(src, dark=True):
                 attr_src[d["base"]].add("link target")
             pending.append(d["base"])
 
-    misplaced = sorted(k for k in curated.COLORS if k in attr_src and attr_src[k])
+    misplaced = sorted(k for k in tables["colors"] if k in attr_src and attr_src[k])
     if misplaced:
         raise SystemExit(f"curated as colors but are attributes: {misplaced}")
     light_only = {k for table in (attr_src, color_src) for k, s in table.items() if default_only(s)} if dark else set()
@@ -342,13 +351,17 @@ def render(out_colors, out_attrs, variant):
     return "\n".join(lines)
 
 
-def render_required(color_src, attr_src, src, dark=True):
-    keys = {k for k, s in color_src.items() if s} | {k for k, s in attr_src.items() if s}
+def required_keys(color_src, attr_src):
+    return {k for k, s in color_src.items() if s} | {k for k, s in attr_src.items() if s}
+
+
+def render_required(keys, src, scheme_family):
+    dark = scheme_family.endswith("-dark")
     files = sorted({f"{pid}: {f} ({scheme})" for pid, _u, scheme, f, _d in src["contributions"]
                     if dark or scheme == "Default"})
     if dark:
         head = [
-            "# Keys the dark Gruvbox Material Islands schemes must define explicitly (generated by tools/scheme/generate.py).",
+            f"# Keys the {REQUIRED_TITLE[scheme_family]} must define explicitly (generated by tools/scheme/generate.py).",
             "# Sources: Darcula and Default (DefaultColorSchemesManager.xml; Darcula has no parent, Default keys are",
             "# written so they skip their code defaults), Islands Dark (themes/islands/IslandSchemeDark.xml), link",
             "# targets, keys only code defines (a code default, or a code fallback chain onto a blue-allowed key),",
@@ -357,7 +370,7 @@ def render_required(color_src, attr_src, src, dark=True):
         ]
     else:
         head = [
-            "# Keys the light Gruvbox Material Islands scheme must define explicitly (generated by tools/scheme/generate.py).",
+            f"# Keys the {REQUIRED_TITLE[scheme_family]} must define explicitly (generated by tools/scheme/generate.py).",
             "# Sources: the Default scheme (DefaultColorSchemesManager.xml), Light (themes/expUI/expUI_lightScheme.xml,",
             "# the editor scheme Islands Light names), link targets, keys only code defines (a code default, or a",
             "# code fallback chain onto a blue-allowed key), and every installed plugin file for Default",
@@ -367,14 +380,14 @@ def render_required(color_src, attr_src, src, dark=True):
     return "\n".join(head + sorted(keys)) + "\n"
 
 
-def report(src, out_colors, out_attrs, how, color_src, attr_src, extra, links, dark):
-    required = {k for k, s in color_src.items() if s} | {k for k, s in attr_src.items() if s}
+def report(src, out_colors, out_attrs, how, color_src, attr_src, extra, links, scheme_family, dark):
+    required = required_keys(color_src, attr_src)
     by_source = collections.Counter()
     for table in (color_src, attr_src):
         for k, s in table.items():
             for label in s:
                 by_source[label] += 1
-    print(f"{'dark' if dark else 'light'} checklist: {len(required)} keys "
+    print(f"{scheme_family} checklist: {len(required)} keys "
           f"({sum(1 for s in color_src.values() if s)} colors, "
           f"{sum(1 for s in attr_src.values() if s)} attributes); +{len(extra)} curated keys beyond it")
     for label, n in sorted(by_source.items(), key=lambda x: (-x[1], x[0])):
@@ -402,10 +415,11 @@ def report(src, out_colors, out_attrs, how, color_src, attr_src, extra, links, d
     if src["unresolved"]:
         print("UNRESOLVED additionalTextAttributes files:", src["unresolved"])
 
-    if dark:
-        with open(NVIM_JSON) as f:
+    reference = curated.NVIM_REFERENCES.get(scheme_family)
+    if reference:
+        with open(os.path.join(HERE, reference["file"])) as f:
             nvim = json.load(f)["groups"]
-        print("\nnvim -> IntelliJ core (dark soft):")
+        print(f"\nnvim -> IntelliJ core ({MAPPING_VARIANT[scheme_family].replace('-', ' ')}):")
         for group, nf, key, field in curated.NVIM_ALIGN:
             want = palette_name(nvim.get(group, {}).get(nf, "")) or nvim.get(group, {}).get(nf, "-")
             if field is None:
@@ -414,14 +428,14 @@ def report(src, out_colors, out_attrs, how, color_src, attr_src, extra, links, d
                 got = out_attrs[key]["value"].get(field)
             note = ""
             if want != got:
-                note = curated.NVIM_DEVIATIONS.get((group, key), "MISMATCH")
+                note = reference["deviations"].get((group, key), "MISMATCH")
             print(f"  {group:24s} {nf:2s} {str(want):16s} -> {key}{'.' + field if field else ''} = {got}"
                   + (f"   [{note}]" if note else ""))
 
     syntax = {d["value"].get("FOREGROUND") for d in out_attrs.values()}
     syntax -= {None, "fg0"}
     print()
-    for variant in family(dark):
+    for variant in family(scheme_family):
         palette = C.VARIANTS[variant]["colors"]
         bg = palette["bg0"]
         top = max(syntax, key=lambda n: C.contrast(palette[n], bg))
@@ -445,6 +459,9 @@ GROUP_ROOTS = {
 }
 # Method keys are shared by declarations and calls; a link to one counts as a call only when the key says so.
 METHOD_ROOTS = {"DEFAULT_INSTANCE_METHOD", "DEFAULT_STATIC_METHOD"}
+# Calls whose name does not say so: Java highlights static declarations as METHOD_DECLARATION and static calls only
+# with STATIC_METHOD (HighlightNamesUtil.getMethodNameHighlightType).
+CALL_KEYS = {"STATIC_METHOD_ATTRIBUTES"}
 # Names that link to DEFAULT_PARAMETER only for its color: annotation attributes and named arguments are not parameters.
 NOT_PARAMETERS = {"ANNOTATION_ATTRIBUTE_NAME_ATTRIBUTES", "KOTLIN_NAMED_ARGUMENT"}
 
@@ -455,14 +472,48 @@ def key_groups(out_attrs, chains):
     for name, roots in GROUP_ROOTS.items():
         groups[name] = {k for k in out_attrs if k in roots or roots & set(chains.get(k, ()))}
     groups["calls"] |= {k for k in out_attrs if "CALL" in k.upper() and METHOD_ROOTS & set(chains.get(k, ()))}
+    groups["calls"] |= CALL_KEYS & set(out_attrs)
     groups["parameters"] -= NOT_PARAMETERS
     return groups
 
 
-def accent_ui_keys():
-    """ui keys whose value is the accent role (aqua) in any generated theme.json."""
+# Per palette family, the keys upstream draws bold / italic (material: gruvbox-material's enable_bold /
+# enable_italic treesitter links, comments left to the Italic comments toggle; baby: gruvbox-baby's own styles).
+# Membership is by link chain, like key_groups; keys the scheme does not define are reached through IntelliJ's
+# fallback at runtime (constructors, the literal annotators' null key).
+STYLE_ROOTS = {
+    "material": {
+        "bold": {"DEFAULT_FUNCTION_DECLARATION", "DEFAULT_FUNCTION_CALL", "DEFAULT_INSTANCE_METHOD", "DEFAULT_STATIC_METHOD",
+                 "GO_BUILTIN_FUNCTION_CALL", "org.rust.MACRO"},
+        "italic": {"DEFAULT_CLASS_NAME", "DEFAULT_INTERFACE_NAME", "DEFAULT_CLASS_REFERENCE", "DEFAULT_PREDEFINED_SYMBOL",
+                   "GO_PACKAGE", "org.rust.CRATE", "PY.SELF_PARAMETER", "org.rust.SELF_PARAMETER",
+                   "org.rust.SELF_EXPRESSION", "org.rust.MUT_SELF_PARAMETER"},
+    },
+    "baby": {
+        "bold": {"DEFAULT_FUNCTION_DECLARATION", "DEFAULT_FUNCTION_CALL", "DEFAULT_INSTANCE_METHOD", "DEFAULT_STATIC_METHOD",
+                 "DEFAULT_CONSTANT", "DEFAULT_METADATA", "GO_BUILTIN_FUNCTION_CALL", "XPATH.FUNCTION"},
+        "italic": {"DEFAULT_KEYWORD", "DEFAULT_LINE_COMMENT", "DEFAULT_BLOCK_COMMENT", "DEFAULT_DOC_COMMENT"},
+    },
+}
+FONT_BITS = {"bold": 1, "italic": 2}
+
+
+def style_sets(out_attrs, chains, palette_family):
+    return {style: sorted(k for k in out_attrs if k in roots or roots & set(chains.get(k, ())))
+            for style, roots in STYLE_ROOTS[palette_family].items()}
+
+
+def apply_styles(out_attrs, styles):
+    """Ships the style sets as FONT_TYPE on a family whose rules allow it."""
+    for k in sorted(set(styles["bold"]) | set(styles["italic"])):
+        bits = sum(bit for style, bit in FONT_BITS.items() if k in styles[style])
+        out_attrs[k] = {"base": None, "value": {**out_attrs[k]["value"], "FONT_TYPE": str(bits)}}
+
+
+def accent_ui_keys(scheme_family, role):
+    """ui keys whose value is the accent role in any of the scheme family's generated theme.json."""
     keys = set()
-    for meta in C.VARIANTS.values():
+    for meta in (C.VARIANTS[v] for v in family(scheme_family)):
         path = os.path.join(THEMES, meta["stem"] + ".theme.json")
         if not os.path.isfile(path):
             raise SystemExit(f"{os.path.relpath(path, REPO)} missing: run tools/ui/build_theme.py first")
@@ -475,9 +526,72 @@ def accent_ui_keys():
                 path_key = f"{prefix}.{k}" if prefix else k
                 if isinstance(v, dict):
                     stack.append((path_key, v))
-                elif v == "aqua":
+                elif v == role:
                     keys.add(path_key)
     return keys
+
+
+def foreground_roles(scheme_family):
+    """Role names the runtime text contrast switch re-colors: the keys of every foreground level of the family."""
+    return {r for v in family(scheme_family) for roles in C.VARIANTS[v]["foregrounds"].values() for r in roles}
+
+
+def scheme_foreground_roles(out_colors, out_attrs, scheme_family):
+    """-> {colors: {key: role}, attributes: {key: {field: role}}}, foreground roles only."""
+    fg = foreground_roles(scheme_family)
+    attrs = {k: {f: r for f, r in sorted(out_attrs[k]["value"].items()) if f in COLOR_FIELDS and r in fg}
+             for k in sorted(out_attrs)}
+    return {"colors": {k: out_colors[k] for k in sorted(out_colors) if out_colors[k] in fg},
+            "attributes": {k: v for k, v in attrs.items() if v}}
+
+
+def ui_foreground_keys(scheme_family):
+    """-> {role: sorted ui keys}: ui keys whose value is that foreground role (by name, or #rrggbb[aa] on its rgb) in
+    any of the scheme family's generated theme.json. Fails when a key resolves to different roles across them."""
+    fg = foreground_roles(scheme_family)
+    by_key = collections.defaultdict(set)
+    for meta in (C.VARIANTS[v] for v in family(scheme_family)):
+        path = os.path.join(THEMES, meta["stem"] + ".theme.json")
+        if not os.path.isfile(path):
+            raise SystemExit(f"{os.path.relpath(path, REPO)} missing: run tools/ui/build_theme.py first")
+        roles_by_rgb = collections.defaultdict(set)
+        for name, value in meta["colors"].items():
+            roles_by_rgb[value].add(name)
+        with open(path) as f:
+            ui = json.load(f)["ui"]
+        stack = [("", ui)]
+        while stack:
+            prefix, node = stack.pop()
+            for k, v in node.items():
+                path_key = f"{prefix}.{k}" if prefix else k
+                if k.startswith("$") or path_key.startswith("icons."):
+                    continue
+                if isinstance(v, dict):
+                    stack.append((path_key, v))
+                elif isinstance(v, str) and v in fg:
+                    by_key[path_key].add(v)
+                elif isinstance(v, str) and re.fullmatch(r"#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?", v):
+                    names = roles_by_rgb.get(v[1:7].lower(), set())
+                    if names & fg and names - fg:
+                        raise SystemExit(f"{meta['stem']}: {path_key} {v} is both a foreground and another role: {sorted(names)}")
+                    by_key[path_key] |= names & fg
+    mixed = {k: sorted(r) for k, r in by_key.items() if len(r) > 1}
+    if mixed:
+        raise SystemExit(f"{scheme_family}: ui keys with different foreground roles across variants: {mixed}")
+    out = collections.defaultdict(list)
+    for k in sorted(by_key):
+        for r in by_key[k]:
+            out[r].append(k)
+    return {r: out[r] for r in sorted(out)}
+
+
+def high_ui_contrast(out_colors, scheme_family):
+    """-> {key: {from, to}}: the family's shipped role and the one a step up; fails when the shipped role is not the expected one."""
+    table = curated.HIGH_UI_CONTRAST[scheme_family]
+    for k, (shipped, _high) in table.items():
+        if out_colors.get(k) != shipped:
+            raise SystemExit(f"high UI contrast: {scheme_family} {k} ships {out_colors.get(k)!r}, table expects {shipped!r}")
+    return {k: {"from": table[k][0], "to": table[k][1]} for k in sorted(table)}
 
 
 def main():
@@ -499,25 +613,48 @@ def main():
         refresh_nvim(args.nvim_config)
     src = sources.collect(args.ide, args.user_plugins)
     groups = collections.defaultdict(set)
+    scheme_fg, high, accent, ui_fg, key_groups_by, styles_by, accent_role = {}, {}, {}, {}, {}, {}, {}
+    required = {}
     os.makedirs(THEMES, exist_ok=True)
-    for dark in (True, False):
-        C.use(MAPPING_VARIANT[dark])
-        out_colors, out_attrs, how, color_src, attr_src, extra, chains = resolve(src, dark)
-        for variant in family(dark):
+    for scheme_family, mapping in MAPPING_VARIANT.items():
+        C.use(mapping)
+        meta = C.VARIANTS[mapping]
+        dark = meta["dark"]
+        fam = C.FAMILIES[meta["family"]]
+        tables = curated.tables(meta["family"], dark, fam["substitute"])
+        out_colors, out_attrs, how, color_src, attr_src, extra, chains = resolve(src, dark, tables)
+        styles = style_sets(out_attrs, chains, meta["family"])
+        shipped = RULES[meta["family"]]["fontTypes"] == "styles"
+        if shipped:
+            apply_styles(out_attrs, styles)
+        styles_by[scheme_family] = {**styles, "shipped": shipped}
+        for variant in family(scheme_family):
             with open(scheme_path(variant), "w") as f:
                 f.write(render(out_colors, out_attrs, variant))
-        os.makedirs(os.path.dirname(REQUIRED[dark]), exist_ok=True)
-        with open(REQUIRED[dark], "w") as f:
-            f.write(render_required(color_src, attr_src, src, dark))
-        for name, keys in key_groups(out_attrs, chains).items():
+        required[scheme_family] = required_keys(color_src, attr_src)
+        family_groups = key_groups(out_attrs, chains)
+        for name, keys in family_groups.items():
             groups[name] |= keys
-        report(src, out_colors, out_attrs, how, color_src, attr_src, extra, chains, dark)
+        key_groups_by[scheme_family] = {name: sorted(keys) for name, keys in family_groups.items()}
+        scheme_fg[scheme_family] = scheme_foreground_roles(out_colors, out_attrs, scheme_family)
+        high[scheme_family] = high_ui_contrast(out_colors, scheme_family)
+        accent_role[scheme_family] = fam["accent"]
+        accent[scheme_family] = sorted(accent_ui_keys(scheme_family, fam["accent"]))
+        ui_fg[scheme_family] = ui_foreground_keys(scheme_family)
+        report(src, out_colors, out_attrs, how, color_src, attr_src, extra, chains, scheme_family, dark)
+        for style in FONT_BITS:
+            print(f"{style} ({'shipped' if shipped else 'runtime'}, {len(styles[style])}): {', '.join(styles[style])}")
         print()
-    C.use(MAPPING_VARIANT[True])
-    groups["accentUiKeys"] = accent_ui_keys()
+    for scheme_family, keys in required.items():
+        os.makedirs(os.path.dirname(REQUIRED[scheme_family]), exist_ok=True)
+        with open(REQUIRED[scheme_family], "w") as f:
+            f.write(render_required(keys, src, scheme_family))
     os.makedirs(os.path.dirname(GROUPS), exist_ok=True)
+    out = {k: sorted(groups[k]) for k in ("operators", "comments", "docs", "calls", "keywords", "parameters", "reassigned", "annotations")}
+    out.update({"accentUiKeys": accent, "schemeForegroundRoles": scheme_fg, "uiForegroundKeys": ui_fg, "highUiContrast": high,
+                "keyGroups": key_groups_by, "styles": styles_by, "accentRole": accent_role})
     with open(GROUPS, "w") as f:
-        json.dump({k: sorted(groups[k]) for k in ("operators", "comments", "docs", "calls", "keywords", "parameters", "reassigned", "annotations", "accentUiKeys")}, f, indent=2)
+        json.dump(out, f, indent=2)
         f.write("\n")
 
 
