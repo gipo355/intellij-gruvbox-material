@@ -1921,6 +1921,11 @@
         <option name="FOREGROUND" value="794566"/>
       </value>
     </option>
+    <option name="KOTLIN_EXTENSION_FUNCTION_CALL">
+      <value>
+        <option name="FOREGROUND" value="515c09"/>
+      </value>
+    </option>
     <option name="KOTLIN_FUNCTION_LITERAL_BRACES_AND_ARROW">
       <value>
         <option name="FOREGROUND" value="514036"/>

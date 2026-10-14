@@ -29,9 +29,11 @@
     "DEFAULT_FUNCTION_CALL",
     "GO_EXPORTED_FUNCTION_CALL",
     "GO_LOCAL_FUNCTION_CALL",
+    "KOTLIN_EXTENSION_FUNCTION_CALL",
     "KOTLIN_PACKAGE_FUNCTION_CALL",
     "NG.SIGNAL",
     "SASS_MIXIN",
+    "STATIC_METHOD_ATTRIBUTES",
     "org.rust.ASSOC_FUNCTION_CALL",
     "org.rust.ASSOC_TRAIT_FUNCTION_CALL",
     "org.rust.FUNCTION_CALL",
@@ -1264,6 +1266,9 @@
         },
         "KOTLIN_ENUM_ENTRY": {
           "FOREGROUND": "purple"
+        },
+        "KOTLIN_EXTENSION_FUNCTION_CALL": {
+          "FOREGROUND": "green"
         },
         "KOTLIN_FUNCTION_LITERAL_BRACES_AND_ARROW": {
           "FOREGROUND": "fg0"
@@ -2913,6 +2918,9 @@
         },
         "KOTLIN_ENUM_ENTRY": {
           "FOREGROUND": "purple"
+        },
+        "KOTLIN_EXTENSION_FUNCTION_CALL": {
+          "FOREGROUND": "green"
         },
         "KOTLIN_FUNCTION_LITERAL_BRACES_AND_ARROW": {
           "FOREGROUND": "fg0"
@@ -4568,6 +4576,9 @@
         },
         "KOTLIN_ENUM_ENTRY": {
           "FOREGROUND": "aqua"
+        },
+        "KOTLIN_EXTENSION_FUNCTION_CALL": {
+          "FOREGROUND": "yellow"
         },
         "KOTLIN_FUNCTION_LITERAL_BRACES_AND_ARROW": {
           "FOREGROUND": "fg0"
@@ -6505,9 +6516,11 @@
         "DEFAULT_FUNCTION_CALL",
         "GO_EXPORTED_FUNCTION_CALL",
         "GO_LOCAL_FUNCTION_CALL",
+        "KOTLIN_EXTENSION_FUNCTION_CALL",
         "KOTLIN_PACKAGE_FUNCTION_CALL",
         "NG.SIGNAL",
         "SASS_MIXIN",
+        "STATIC_METHOD_ATTRIBUTES",
         "org.rust.ASSOC_FUNCTION_CALL",
         "org.rust.ASSOC_TRAIT_FUNCTION_CALL",
         "org.rust.FUNCTION_CALL",
@@ -6596,9 +6609,11 @@
         "DEFAULT_FUNCTION_CALL",
         "GO_EXPORTED_FUNCTION_CALL",
         "GO_LOCAL_FUNCTION_CALL",
+        "KOTLIN_EXTENSION_FUNCTION_CALL",
         "KOTLIN_PACKAGE_FUNCTION_CALL",
         "NG.SIGNAL",
         "SASS_MIXIN",
+        "STATIC_METHOD_ATTRIBUTES",
         "org.rust.ASSOC_FUNCTION_CALL",
         "org.rust.ASSOC_TRAIT_FUNCTION_CALL",
         "org.rust.FUNCTION_CALL",
@@ -6687,9 +6702,11 @@
         "DEFAULT_FUNCTION_CALL",
         "GO_EXPORTED_FUNCTION_CALL",
         "GO_LOCAL_FUNCTION_CALL",
+        "KOTLIN_EXTENSION_FUNCTION_CALL",
         "KOTLIN_PACKAGE_FUNCTION_CALL",
         "NG.SIGNAL",
         "SASS_MIXIN",
+        "STATIC_METHOD_ATTRIBUTES",
         "org.rust.ASSOC_FUNCTION_CALL",
         "org.rust.ASSOC_TRAIT_FUNCTION_CALL",
         "org.rust.FUNCTION_CALL",
@@ -6763,6 +6780,7 @@
         "Groovy method declaration",
         "JS.GLOBAL_FUNCTION",
         "JS.INSTANCE_MEMBER_FUNCTION",
+        "KOTLIN_EXTENSION_FUNCTION_CALL",
         "KOTLIN_PACKAGE_FUNCTION_CALL",
         "NG.SIGNAL",
         "SASS_MIXIN",
@@ -6825,6 +6843,7 @@
         "Groovy method declaration",
         "JS.GLOBAL_FUNCTION",
         "JS.INSTANCE_MEMBER_FUNCTION",
+        "KOTLIN_EXTENSION_FUNCTION_CALL",
         "KOTLIN_PACKAGE_FUNCTION_CALL",
         "NG.SIGNAL",
         "SASS_MIXIN",
@@ -6896,6 +6915,7 @@
         "JS.GLOBAL_FUNCTION",
         "JS.INSTANCE_MEMBER_FUNCTION",
         "KOTLIN_ANNOTATION",
+        "KOTLIN_EXTENSION_FUNCTION_CALL",
         "KOTLIN_PACKAGE_FUNCTION_CALL",
         "MERMAID_CONSTANT",
         "NG.SIGNAL",

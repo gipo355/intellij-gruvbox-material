@@ -459,6 +459,9 @@ GROUP_ROOTS = {
 }
 # Method keys are shared by declarations and calls; a link to one counts as a call only when the key says so.
 METHOD_ROOTS = {"DEFAULT_INSTANCE_METHOD", "DEFAULT_STATIC_METHOD"}
+# Calls whose name does not say so: Java highlights static declarations as METHOD_DECLARATION and static calls only
+# with STATIC_METHOD (HighlightNamesUtil.getMethodNameHighlightType).
+CALL_KEYS = {"STATIC_METHOD_ATTRIBUTES"}
 # Names that link to DEFAULT_PARAMETER only for its color: annotation attributes and named arguments are not parameters.
 NOT_PARAMETERS = {"ANNOTATION_ATTRIBUTE_NAME_ATTRIBUTES", "KOTLIN_NAMED_ARGUMENT"}
 
@@ -469,6 +472,7 @@ def key_groups(out_attrs, chains):
     for name, roots in GROUP_ROOTS.items():
         groups[name] = {k for k in out_attrs if k in roots or roots & set(chains.get(k, ()))}
     groups["calls"] |= {k for k in out_attrs if "CALL" in k.upper() and METHOD_ROOTS & set(chains.get(k, ()))}
+    groups["calls"] |= CALL_KEYS & set(out_attrs)
     groups["parameters"] -= NOT_PARAMETERS
     return groups
 
