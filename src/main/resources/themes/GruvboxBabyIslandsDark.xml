@@ -2355,10 +2355,44 @@
         <option name="FOREGROUND" value="8ec07c"/>
       </value>
     </option>
+    <option name="NG.BANANA_BINDING_ATTR_NAME">
+      <value>
+        <option name="FOREGROUND" value="fb4934"/>
+        <option name="FONT_TYPE" value="2"/>
+      </value>
+    </option>
+    <option name="NG.EVENT_BINDING_ATTR_NAME">
+      <value>
+        <option name="FOREGROUND" value="fb4934"/>
+        <option name="FONT_TYPE" value="2"/>
+      </value>
+    </option>
+    <option name="NG.PROPERTY_BINDING_ATTR_NAME">
+      <value>
+        <option name="FOREGROUND" value="fb4934"/>
+        <option name="FONT_TYPE" value="2"/>
+      </value>
+    </option>
+    <option name="NG.SCRIPT_DELIMITERS">
+      <value>
+        <option name="FOREGROUND" value="ebdbb2"/>
+      </value>
+    </option>
     <option name="NG.SIGNAL">
       <value>
         <option name="FOREGROUND" value="eebd35"/>
         <option name="FONT_TYPE" value="1"/>
+      </value>
+    </option>
+    <option name="NG.TEMPLATE_BINDINGS_ATTR_NAME">
+      <value>
+        <option name="FOREGROUND" value="fb4934"/>
+        <option name="FONT_TYPE" value="2"/>
+      </value>
+    </option>
+    <option name="NG.TEMPLATE_VARIABLE_ATTR_NAME">
+      <value>
+        <option name="FOREGROUND" value="eebd35"/>
       </value>
     </option>
     <option name="NOT_TOP_FRAME_ATTRIBUTES">

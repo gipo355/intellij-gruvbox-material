@@ -2245,7 +2245,37 @@
         <option name="FOREGROUND" value="325f43"/>
       </value>
     </option>
+    <option name="NG.BANANA_BINDING_ATTR_NAME">
+      <value>
+        <option name="FOREGROUND" value="8d3c3b"/>
+      </value>
+    </option>
+    <option name="NG.EVENT_BINDING_ATTR_NAME">
+      <value>
+        <option name="FOREGROUND" value="8d3c3b"/>
+      </value>
+    </option>
+    <option name="NG.PROPERTY_BINDING_ATTR_NAME">
+      <value>
+        <option name="FOREGROUND" value="8d3c3b"/>
+      </value>
+    </option>
+    <option name="NG.SCRIPT_DELIMITERS">
+      <value>
+        <option name="FOREGROUND" value="6c522b"/>
+      </value>
+    </option>
     <option name="NG.SIGNAL">
+      <value>
+        <option name="FOREGROUND" value="515c09"/>
+      </value>
+    </option>
+    <option name="NG.TEMPLATE_BINDINGS_ATTR_NAME">
+      <value>
+        <option name="FOREGROUND" value="8d3c3b"/>
+      </value>
+    </option>
+    <option name="NG.TEMPLATE_VARIABLE_ATTR_NAME">
       <value>
         <option name="FOREGROUND" value="515c09"/>
       </value>

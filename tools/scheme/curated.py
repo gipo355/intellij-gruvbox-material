@@ -447,6 +447,13 @@ LANGUAGES = {
     "TS.TYPE_PARAMETER": L("TYPE_PARAMETER_NAME_ATTRIBUTES"),
     "TS.TYPE_GUARD": A(bg="bg_visual_green"),
     "NG.SIGNAL": L("DEFAULT_FUNCTION_CALL"),
+    # nvim-treesitter's angular query: binding names and *ngFor are @keyword, let-x stays @tag.attribute
+    "NG.PROPERTY_BINDING_ATTR_NAME": L("DEFAULT_KEYWORD"),
+    "NG.EVENT_BINDING_ATTR_NAME": L("DEFAULT_KEYWORD"),
+    "NG.BANANA_BINDING_ATTR_NAME": L("DEFAULT_KEYWORD"),
+    "NG.TEMPLATE_BINDINGS_ATTR_NAME": L("DEFAULT_KEYWORD"),
+    "NG.TEMPLATE_VARIABLE_ATTR_NAME": L("HTML_ATTRIBUTE_NAME"),
+    "NG.SCRIPT_DELIMITERS": A(fg="tan"),
     # HTML / XML (custom tags = components, which nvim captures as @type)
     "HTML_TAG": A(fg="green"),
     "HTML_TAG_NAME": L("DEFAULT_TAG"),
@@ -635,6 +642,7 @@ BABY_ATTRIBUTES = {
     "DEFAULT_REASSIGNED_PARAMETER": A(fg="blue_gray", effect="grey1", effect_type=LINE),
     "DEFAULT_INSTANCE_FIELD": A(fg="blue_gray"),
     "DEFAULT_STATIC_FIELD": A(fg="blue_gray"),
+    "NG.SCRIPT_DELIMITERS": L("DEFAULT_SEMICOLON"),
     "DEFAULT_FUNCTION_DECLARATION": A(fg="yellow"),
     "DEFAULT_FUNCTION_CALL": A(fg="yellow"),
     "DEFAULT_INSTANCE_METHOD": A(fg="yellow"),

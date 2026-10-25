@@ -47,6 +47,10 @@
     "GROOVY_KEYWORD",
     "IGNORE.NEGATION",
     "IGNORE.SYNTAX",
+    "NG.BANANA_BINDING_ATTR_NAME",
+    "NG.EVENT_BINDING_ATTR_NAME",
+    "NG.PROPERTY_BINDING_ATTR_NAME",
+    "NG.TEMPLATE_BINDINGS_ATTR_NAME",
     "REGEXP.META",
     "SASS_DIRECTIVE",
     "org.rust.Q_OPERATOR",
@@ -1431,7 +1435,25 @@
         "MERMAID_TITLE": {
           "FOREGROUND": "aqua"
         },
+        "NG.BANANA_BINDING_ATTR_NAME": {
+          "FOREGROUND": "red"
+        },
+        "NG.EVENT_BINDING_ATTR_NAME": {
+          "FOREGROUND": "red"
+        },
+        "NG.PROPERTY_BINDING_ATTR_NAME": {
+          "FOREGROUND": "red"
+        },
+        "NG.SCRIPT_DELIMITERS": {
+          "FOREGROUND": "tan"
+        },
         "NG.SIGNAL": {
+          "FOREGROUND": "green"
+        },
+        "NG.TEMPLATE_BINDINGS_ATTR_NAME": {
+          "FOREGROUND": "red"
+        },
+        "NG.TEMPLATE_VARIABLE_ATTR_NAME": {
           "FOREGROUND": "green"
         },
         "NOT_USED_ELEMENT_ATTRIBUTES": {
@@ -3083,7 +3105,25 @@
         "MERMAID_TITLE": {
           "FOREGROUND": "aqua"
         },
+        "NG.BANANA_BINDING_ATTR_NAME": {
+          "FOREGROUND": "red"
+        },
+        "NG.EVENT_BINDING_ATTR_NAME": {
+          "FOREGROUND": "red"
+        },
+        "NG.PROPERTY_BINDING_ATTR_NAME": {
+          "FOREGROUND": "red"
+        },
+        "NG.SCRIPT_DELIMITERS": {
+          "FOREGROUND": "tan"
+        },
         "NG.SIGNAL": {
+          "FOREGROUND": "green"
+        },
+        "NG.TEMPLATE_BINDINGS_ATTR_NAME": {
+          "FOREGROUND": "red"
+        },
+        "NG.TEMPLATE_VARIABLE_ATTR_NAME": {
           "FOREGROUND": "green"
         },
         "NOT_USED_ELEMENT_ATTRIBUTES": {
@@ -4742,7 +4782,25 @@
         "MERMAID_TITLE": {
           "FOREGROUND": "aqua"
         },
+        "NG.BANANA_BINDING_ATTR_NAME": {
+          "FOREGROUND": "red"
+        },
+        "NG.EVENT_BINDING_ATTR_NAME": {
+          "FOREGROUND": "red"
+        },
+        "NG.PROPERTY_BINDING_ATTR_NAME": {
+          "FOREGROUND": "red"
+        },
+        "NG.SCRIPT_DELIMITERS": {
+          "FOREGROUND": "fg0"
+        },
         "NG.SIGNAL": {
+          "FOREGROUND": "yellow"
+        },
+        "NG.TEMPLATE_BINDINGS_ATTR_NAME": {
+          "FOREGROUND": "red"
+        },
+        "NG.TEMPLATE_VARIABLE_ATTR_NAME": {
           "FOREGROUND": "yellow"
         },
         "NOT_USED_ELEMENT_ATTRIBUTES": {
@@ -6534,6 +6592,10 @@
         "GROOVY_KEYWORD",
         "IGNORE.NEGATION",
         "IGNORE.SYNTAX",
+        "NG.BANANA_BINDING_ATTR_NAME",
+        "NG.EVENT_BINDING_ATTR_NAME",
+        "NG.PROPERTY_BINDING_ATTR_NAME",
+        "NG.TEMPLATE_BINDINGS_ATTR_NAME",
         "REGEXP.META",
         "SASS_DIRECTIVE",
         "org.rust.Q_OPERATOR",
@@ -6627,6 +6689,10 @@
         "GROOVY_KEYWORD",
         "IGNORE.NEGATION",
         "IGNORE.SYNTAX",
+        "NG.BANANA_BINDING_ATTR_NAME",
+        "NG.EVENT_BINDING_ATTR_NAME",
+        "NG.PROPERTY_BINDING_ATTR_NAME",
+        "NG.TEMPLATE_BINDINGS_ATTR_NAME",
         "REGEXP.META",
         "SASS_DIRECTIVE",
         "org.rust.Q_OPERATOR",
@@ -6720,6 +6786,10 @@
         "GROOVY_KEYWORD",
         "IGNORE.NEGATION",
         "IGNORE.SYNTAX",
+        "NG.BANANA_BINDING_ATTR_NAME",
+        "NG.EVENT_BINDING_ATTR_NAME",
+        "NG.PROPERTY_BINDING_ATTR_NAME",
+        "NG.TEMPLATE_BINDINGS_ATTR_NAME",
         "REGEXP.META",
         "SASS_DIRECTIVE",
         "org.rust.Q_OPERATOR"
@@ -6953,6 +7023,10 @@
         "IGNORE.COMMENT",
         "IGNORE.NEGATION",
         "IGNORE.SYNTAX",
+        "NG.BANANA_BINDING_ATTR_NAME",
+        "NG.EVENT_BINDING_ATTR_NAME",
+        "NG.PROPERTY_BINDING_ATTR_NAME",
+        "NG.TEMPLATE_BINDINGS_ATTR_NAME",
         "REGEXP.META",
         "SASS_COMMENT",
         "SASS_DIRECTIVE",
