@@ -9,7 +9,7 @@ import com.intellij.openapi.project.DumbAwareToggleAction
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import kotlin.reflect.KMutableProperty1
 
-/** Main toolbar chip, visible only under one of our themes: variants, readability toggles, accent, keywords and reading font. */
+/** Main toolbar chip, visible only under one of our themes: variants, contrast, Bold and Italic, readability toggles, accent, keywords and reading font. */
 class GruvboxChipAction : DumbAwareAction() {
     override fun getActionUpdateThread() = ActionUpdateThread.BGT
 
@@ -31,6 +31,31 @@ class GruvboxChipAction : DumbAwareAction() {
             for (variant in variants) add(Choice(variant.name, { service.activeVariant()?.id == variant.id }) { service.switchVariant(variant.id) })
             add(Separator.create())
         }
+        val active = service.activeVariant()
+        add(DefaultActionGroup("Text contrast", true).apply {
+            if (active != null) for (level in listOf(null) + active.levels) {
+                add(Choice(textContrastLabel(active, level), { state().textContrast(active) == level?.id }) {
+                    state().setTextContrast(active, level?.id)
+                    service.applyAll()
+                })
+            }
+        })
+        add(Choice("High UI contrast", { state().highUiContrast }) {
+            state().highUiContrast = !state().highUiContrast
+            service.applyAll()
+        })
+        val styled = service.schemeVariant()
+        if (styled != null) {
+            val groups = service.palette.groups
+            add(Choice("Bold", { state().isBold(styled, groups) }) {
+                state().setBold(styled, groups, !state().isBold(styled, groups))
+                service.applyScheme()
+            })
+            add(Choice("Italic", { state().isItalic(styled, groups) }) {
+                state().setItalic(styled, groups, !state().isItalic(styled, groups))
+                service.applyScheme()
+            })
+        }
         add(ReadabilityToggle("Quiet operators", GruvboxState::quietOperators))
         add(ReadabilityToggle("Keep operator colour", GruvboxState::keepOperatorColor))
         add(ReadabilityToggle("Dim comments", GruvboxState::dimComments))
@@ -47,16 +72,24 @@ class GruvboxChipAction : DumbAwareAction() {
                 })
             }
         })
+        add(DefaultActionGroup("Parameters", true).apply {
+            for (style in ParameterStyle.entries) {
+                add(Choice(style.label, { state().parameterStyle == style }) {
+                    state().parameterStyle = style
+                    service.applyScheme()
+                })
+            }
+        })
         add(DefaultActionGroup("Accent", true).apply {
-            for (accent in ACCENTS) {
-                add(Choice(accent.replaceFirstChar(Char::uppercase), { state().accent == accent }) {
-                    state().accent = accent
+            for (accent in accentChoices(active)) {
+                add(Choice(accent.replaceFirstChar(Char::uppercase), { state().accent(active) == accent }) {
+                    state().setAccent(active, accent)
                     service.applyUi()
                 })
             }
         })
         add(DefaultActionGroup("Keywords", true).apply {
-            val variant = service.activeVariant()
+            val variant = active?.atLevel(state().textContrast(active))
             for (family in KEYWORD_FAMILIES) {
                 add(Choice(keywordFamilyLabel(variant, family), { state().keywords.family == family }) {
                     state().keywordFamily = family

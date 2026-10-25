@@ -4,9 +4,10 @@ Layout and key set follow JetBrains' Islands Darcula (the template). Color keys 
 template leaves to ExperimentalDark are added, as are parent (ExperimentalDark/Darcula) keys whose color would
 otherwise show a cool, bright or black value. Every color is a palette role name or a palette RGB with alpha.
 
-The ui tree is built once in role names and written once per variant with that variant's colors. The light
-variant takes the dark tree and adds, the same way, the keys Islands Light sets that the tree lacks and the keys its
-parents (ExperimentalLightWithLightHeader -> ExperimentalLight -> IntelliJ) would show in a non-palette color.
+The ui tree is built once per scheme family (palette family and parent axis) in role names and written once per
+variant with that variant's colors. A family's light tree takes its dark tree and adds, the same way, the keys Islands
+Light sets that the tree lacks and the keys its parents (ExperimentalLightWithLightHeader -> ExperimentalLight ->
+IntelliJ) would show in a non-palette color.
 
 Usage: IDEA_HOME=<IDE install dir> python3 -I tools/ui/build_theme.py
 """
@@ -21,7 +22,13 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 JAR = "lib/intellij.platform.ide.impl.jar"
 THEMES = os.path.join(ROOT, "src/main/resources/themes")
 KNOWN = os.path.join(ROOT, "src/test/resources/known-ui-keys.txt")
-VARIANTS = json.load(open(os.path.join(ROOT, "tools/palette.json")))["variants"]
+PALETTE = json.load(open(os.path.join(ROOT, "tools/palette.json")))
+VARIANTS = PALETTE["variants"]
+# Roles a family restricts stay out of the colors map: the theme paints them only where its rules allow, as literals.
+RESTRICTED = {family: {k for k in r if not k.startswith("$")} for family, r in PALETTE["restricted"].items()}
+# Scheme family -> the variant whose palette decides which parent colors are off-palette.
+MAPPING_VARIANT = {"material-dark": "dark-soft", "material-light": "light-soft", "baby-dark": "baby-soft"}
+FAMILIES = {k: v for k, v in PALETTE["families"].items() if not k.startswith("$")}
 
 T = "#00000000"
 LITERAL = re.compile(r"^@(\w+)/([0-9A-Fa-f]{0,2})$")
@@ -1002,6 +1009,27 @@ def off_palette(hex_color, palette):
     return hex_color[:7].lower() not in {v.lower() for v in palette.values()}
 
 
+def for_family(node, family):
+    """The shared tree in a family's roles: aqua (the accent keys) becomes its accent by name; a substituted role
+    that lands on the accent becomes a literal, so it stays out of the accent keys."""
+    if isinstance(node, dict):
+        return {k: for_family(v, family) for k, v in node.items()}
+    if not isinstance(node, str):
+        return node
+    fam = FAMILIES[family]
+    m = LITERAL.match(node)
+    name, alpha = (m.group(1), m.group(2)) if m else (node, None)
+    if name == "aqua":
+        target = fam["accent"]
+    elif name in fam["substitute"]:
+        target = fam["substitute"][name]
+        if alpha is None and target == fam["accent"]:
+            alpha = ""
+    else:
+        return node
+    return target if alpha is None else a(target, alpha)
+
+
 def literals(node, palette):
     """Replaces a() placeholders with the variant's hex."""
     if isinstance(node, dict):
@@ -1133,9 +1161,10 @@ def write_theme(variant, ui):
         "author": "gipo355",
         "parentTheme": meta["parentTheme"],
         "editorScheme": f"/themes/{meta['stem']}.xml",
-        "colors": {k: v for k, v in palette.items() if k != "blue"},
+        "colors": {k: v for k, v in palette.items() if k not in RESTRICTED[meta["family"]]},
         "ui": literals(ui, palette),
-        "icons": literals({"ColorPalette": {**CHECKBOX, **(ICON_HEX if meta["dark"] else ICON_HEX_LIGHT)}}, palette),
+        "icons": literals(for_family({"ColorPalette": {**CHECKBOX, **(ICON_HEX if meta["dark"] else ICON_HEX_LIGHT)}},
+                                     meta["family"]), palette),
         "iconColorsOnSelection": ICONS_ON_SELECTION,
     }
     out = os.path.join(THEMES, meta["stem"] + ".theme.json")
@@ -1162,22 +1191,30 @@ def main():
 
     known = set(open(KNOWN).read().split())
     unused = []
-    dark_build = Builder(KEYS)
-    ui = dark_build.map_tree(template["ui"])
-    have = {k for k, _ in flatten(ui)}
-    dark_build.add_islands(ui, have, dark, "dark")
-    dark_build.add_parents(ui, have, (base, exp), exp["colors"], VARIANTS["dark-soft"]["colors"], "parent")
-    dark_build.add_extra(ui, have, known, unused)
+    trees = {}
+    for family in dict.fromkeys(v["family"] for v in VARIANTS.values()):
+        dark_build = Builder(KEYS)
+        ui = dark_build.map_tree(template["ui"])
+        have = {k for k, _ in flatten(ui)}
+        dark_build.add_islands(ui, have, dark, "dark")
+        dark_build.add_parents(ui, have, (base, exp), exp["colors"],
+                               VARIANTS[MAPPING_VARIANT[f"{family}-dark"]]["colors"], "parent")
+        dark_build.add_extra(ui, have, known, unused)
+        trees[f"{family}-dark"] = (for_family(ui, family), dark_build)
+        if f"{family}-light" not in MAPPING_VARIANT:
+            continue
 
-    light_build = Builder({**KEYS, **LIGHT_KEYS})
-    light_ui = copy.deepcopy(ui)
-    light_have = set(have)
-    light_build.add_islands(light_ui, light_have, light, "light")
-    light_colors = {**exp_light.get("colors", {}), **light_header.get("colors", {})}
-    light_build.add_parents(light_ui, light_have, (intellij, exp_light, light_header), light_colors,
-                            VARIANTS["light-soft"]["colors"], "light parent")
+        light_build = Builder({**KEYS, **LIGHT_KEYS})
+        light_ui = copy.deepcopy(ui)
+        light_have = set(have)
+        light_build.add_islands(light_ui, light_have, light, "light")
+        light_colors = {**exp_light.get("colors", {}), **light_header.get("colors", {})}
+        light_build.add_parents(light_ui, light_have, (intellij, exp_light, light_header), light_colors,
+                                VARIANTS[MAPPING_VARIANT[f"{family}-light"]]["colors"], "light parent")
+        trees[f"{family}-light"] = (for_family(light_ui, family), light_build)
 
-    missing = dark_build.missing + light_build.missing
+    missing = [m for _ui, build in trees.values() for m in build.missing]
+    unused = sorted(set(unused))
     if missing or unused:
         for m in missing:
             print("unmapped:", m, file=sys.stderr)
@@ -1186,8 +1223,8 @@ def main():
         sys.exit(1)
 
     for variant, meta in VARIANTS.items():
-        out = write_theme(variant, ui if meta["dark"] else light_ui)
-        build = dark_build if meta["dark"] else light_build
+        ui, build = trees[f"{meta['family']}-{'dark' if meta['dark'] else 'light'}"]
+        out = write_theme(variant, ui)
         labels = ("template", "dark", "parent", "extra") if meta["dark"] else ("light", "light parent")
         counts = {s: sum(1 for v in build.source.values() if v == s) for s in labels}
         print(f"wrote {os.path.relpath(out, ROOT)}: {counts}", file=sys.stderr)

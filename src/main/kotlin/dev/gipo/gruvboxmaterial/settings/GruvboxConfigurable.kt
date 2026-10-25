@@ -5,12 +5,16 @@ import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.dsl.builder.Panel
+import com.intellij.ui.dsl.builder.Row
 import com.intellij.ui.dsl.builder.bind
 import com.intellij.ui.dsl.builder.bindItem
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.dsl.builder.toNullableProperty
+import com.intellij.ui.components.JBRadioButton
 import com.intellij.ui.dsl.listCellRenderer.textListCellRenderer
+import com.intellij.ui.layout.ComponentPredicate
+import com.intellij.ui.layout.not
 import com.intellij.util.ui.ColorIcon
 import javax.swing.JComponent
 import javax.swing.JLabel
@@ -19,22 +23,47 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
     private val service = GruvboxService.getInstance()
     private val state = GruvboxSettings.getInstance().state
     private var variantId = service.activeVariant()?.id
+    private val shipped = service.activeVariant() ?: service.palette.variants.values.firstOrNull()
+    private val styled = service.schemeVariant() ?: shipped
+    private val radios = mutableMapOf<Variant, JBRadioButton>()
+    private lateinit var textContrast: ComboBox<String>
 
     override fun createPanel(): DialogPanel = panel {
         val variants = service.installedVariants()
         if (variants.isNotEmpty()) {
             buttonsGroup("Variant") {
-                for (variant in variants) row { radioButton(variant.name, variant.id) }
+                for (variant in variants) row { radios[variant] = radioButton(variant.name, variant.id).component }
             }.bind({ variantId ?: "" }, { variantId = it })
+            row { comment("Text contrast, Bold, Italic, keywords and accent below belong to ${shipped?.paletteFamily}: apply, then reopen this page to set them for the other family.") }
+                .visibleIf(sameFamily(shipped).not())
+        }
+        val contrastRow = row("Text contrast:") {
+            val levels = shipped?.levels.orEmpty()
+            textContrast = comboBox(listOf("") + levels.map { it.id }, textListCellRenderer { id -> textContrastLabel(shipped, levels.firstOrNull { it.id == id }) })
+                .bindItem({ state.textContrast(shipped) ?: "" }, { id -> shipped?.let { state.setTextContrast(it, id?.takeIf(String::isNotEmpty)) } })
+                .comment(textContrastComment(shipped))
+                .component
+        }
+        contrastRow.enabledIf(sameFamily(shipped))
+        row { checkBox("High UI contrast").bindSelected(state::highUiContrast).comment("Brighter line numbers, caret line number and indent guides") }
+        if (styled != null) {
+            val groups = service.palette.groups
+            val (boldComment, italicComment) = styleComments(styled)
+            row { checkBox("Bold").bindSelected({ state.isBold(styled, groups) }, { state.setBold(styled, groups, it) }).comment(boldComment) }.enabledIf(sameFamily(styled))
+            row { checkBox("Italic").bindSelected({ state.isItalic(styled, groups) }, { state.setItalic(styled, groups, it) }).comment(italicComment) }.enabledIf(sameFamily(styled))
         }
         group("Readability") {
             row { checkBox("Quiet operators").bindSelected(state::quietOperators).comment("Operators in grey instead of orange") }
-            row { checkBox("Keep operator colour").bindSelected(state::keepOperatorColor).comment("Operators stay orange whatever the keyword colour; off moves them to the text colour next to red, orange and clay keywords") }
+            row { checkBox("Keep operator colour").bindSelected(state::keepOperatorColor).comment("Operators stay orange whatever the keyword colour; off moves them to the text colour next to red, orange and clay keywords. Orange parameters move them regardless") }
             row { checkBox("Dim comments").bindSelected(state::dimComments) }
             row { checkBox("Soften doc comments").bindSelected(state::softenDocs).comment("Tags, references, markup and code in the comment colour") }
             row { checkBox("Emphasize declarations").bindSelected(state::emphasizeDeclarations).comment("Function calls in the foreground colour; declarations keep theirs") }
             row { checkBox("Italic comments").bindSelected(state::italicComments).comment("Comments and doc comments in italic; the colour still follows the options above") }
             row { checkBox("Italic parameters").bindSelected(state::italicParameters).comment("Parameters in italic; type parameters stay as types") }
+            row("Parameters:") {
+                comboBox(ParameterStyle.entries, textListCellRenderer { it?.label }).bindItem(state::parameterStyle.toNullableProperty())
+                    .comment("Parameters and their uses; Orange moves operators to the text colour")
+            }
             row { checkBox("Hide reassignment underline").bindSelected(state::hideReassignUnderline).comment("Drops the underline on reassigned locals and parameters") }
             row("Annotations:") {
                 comboBox(AnnotationStyle.entries, textListCellRenderer { it?.label }).bindItem(state::annotationStyle.toNullableProperty())
@@ -44,11 +73,11 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
                 checkBox("Highlight current scope").bindSelected(CodeInsightSettings.getInstance()::HIGHLIGHT_SCOPE)
                     .comment("The platform's \"Highlight on caret movement: current scope\": brightens the enclosing block's indent guide")
             }
-            row { comment("Readability and keyword colours live in memory; turn them off before editing this scheme in Editor > Color Scheme, or they may be saved into your copy.") }
+            row { comment("Text contrast, high UI contrast, Bold, Italic, readability and keyword colours live in memory; turn them off before editing this scheme in Editor > Color Scheme, or they may be saved into your copy.") }
         }
-        keywordsGroup()
+        keywordsGroup().enabledIf(sameFamily(shipped))
         group("Interface") {
-            row("Accent:") { comboBox(ACCENTS).bindItem({ state.accent ?: "aqua" }, { state.accent = it ?: "aqua" }) }
+            row("Accent:") { comboBox(accentChoices(shipped)).bindItem({ state.accent(shipped) }, { it?.let { accent -> state.setAccent(shipped, accent) } }) }.enabledIf(sameFamily(shipped))
             buttonsGroup("Selected editor tab:") {
                 row {
                     radioButton("Outline", TabStyle.UNDERLINE)
@@ -73,8 +102,14 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
         }
     }
 
-    private fun Panel.keywordsGroup() {
-        val variant = service.activeVariant() ?: service.palette.variants.values.firstOrNull()
+    /** True while the selected variant radio (or none) is in [variant]'s palette family: the controls bound to that family stay meaningful. */
+    private fun sameFamily(variant: Variant?) = object : ComponentPredicate() {
+        override fun invoke() = radios.entries.firstOrNull { it.value.isSelected }?.key.let { it == null || it.paletteFamily == variant?.paletteFamily }
+        override fun addListener(listener: (Boolean) -> Unit) = radios.values.forEach { it.addItemListener { listener(invoke()) } }
+    }
+
+    private fun Panel.keywordsGroup(): Row {
+        val variant = shipped?.atLevel(state.textContrast(shipped))
         val table = variant?.keywords
         val familyLabels = KEYWORD_FAMILIES.associateWith { keywordFamilyLabel(variant, it) }
         val brightness = table?.brightness.orEmpty()
@@ -93,8 +128,10 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
             val choice = choice()
             bright.isEnabled = choice.tunable
             strong.isEnabled = choice.tunable
-            val color = variant?.let { keywordColor(it, choice) }
-            val bg = variant?.roles?.get("bg0")
+            // The readout follows the text contrast combo before it is applied.
+            val leveled = shipped?.atLevel(textContrast.item?.takeIf(String::isNotEmpty))
+            val color = leveled?.let { keywordColor(it, choice) }
+            val bg = leveled?.roles?.get("bg0")
             if (color == null || bg == null) {
                 swatch.icon = null
                 swatch.text = "Keywords as the scheme ships them"
@@ -106,7 +143,7 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
             swatch.text = "#%06x  %.1f:1 on bg0".format(color.rgb and 0xffffff, ratio)
             hint.isVisible = ratio < 4.5
         }
-        group("Keywords") {
+        val group = group("Keywords") {
             row("Family:") {
                 family = comboBox(KEYWORD_FAMILIES.map { familyLabels.getValue(it) })
                     .bindItem({ familyLabels[state.keywordFamily] ?: familyLabels.getValue(STOCK) }, { label -> state.keywordFamily = KEYWORD_FAMILIES.firstOrNull { familyLabels[it] == label } ?: STOCK })
@@ -125,8 +162,9 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
             row { swatch = label("").component }
             row { hint = comment("Below 4.5:1; Faint and Ghost are meant to recede, so this is a hint, not an error").component }
         }
-        for (combo in listOf(family, bright, strong)) combo.addActionListener { refresh() }
+        for (combo in listOf(family, bright, strong, textContrast)) combo.addActionListener { refresh() }
         refresh()
+        return group
     }
 
     override fun apply() {

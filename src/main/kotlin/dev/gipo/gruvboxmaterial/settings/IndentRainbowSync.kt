@@ -7,15 +7,20 @@ import java.awt.Color
 
 private const val PALETTE_TYPE = "indent.rainbow.settings.IrColorsPaletteType"
 
-// Accents in band order, each a dim tint over bg0 of roughly bg_current_word's weight.
-private val RAINBOW_ROLES = listOf("orange", "yellow", "green", "aqua", "tan", "purple")
+// Accents in band order per palette family, each a dim tint over bg0 of roughly bg_current_word's weight.
+private val RAINBOW_ROLES = mapOf(
+    "material" to listOf("orange", "yellow", "green", "aqua", "tan", "purple"),
+    "baby" to listOf("orange", "yellow", "green", "aqua", "blue", "purple"),
+)
+
+private fun rainbowRoles(variant: Variant) = RAINBOW_ROLES[variant.paletteFamily] ?: RAINBOW_ROLES.getValue("material")
 private const val RAINBOW_ALPHA = 0x1A
 
 /** Indent Rainbow's custom palette format: comma-separated AARRGGBB. */
 fun indentRainbowPalette(colors: List<Color>, alpha: Int = RAINBOW_ALPHA): String =
     colors.joinToString(", ") { "%02X%06X".format(alpha, it.rgb and 0xFFFFFF) }
 
-fun indentRainbowPalette(variant: Variant): String = indentRainbowPalette(RAINBOW_ROLES.mapNotNull { variant.roles[it] })
+fun indentRainbowPalette(variant: Variant): String = indentRainbowPalette(rainbowRoles(variant).mapNotNull { variant.roles[it] })
 
 /**
  * Points Indent Rainbow's custom palette at the active variant's accents. Registered only when Indent Rainbow is
@@ -34,7 +39,7 @@ class IndentRainbowSync : Disposable {
                 state.irCustomPalette = config.call("getCustomPalette") as String
                 state.irNumberColors = config.call("getCustomPaletteNumberColors") as Int
             }
-            write(config, "CUSTOM", indentRainbowPalette(variant), RAINBOW_ROLES.size)
+            write(config, "CUSTOM", indentRainbowPalette(variant), rainbowRoles(variant).size)
         }
     }
 

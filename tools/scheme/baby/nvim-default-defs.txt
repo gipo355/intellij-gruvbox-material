@@ -1,0 +1,83 @@
+Normal guifg=NvimLightGrey2 guibg=NvimDarkGrey2 ctermfg=NONE ctermbg=NONE
+Added                guifg=NvimLightGreen                                ctermfg=10
+Changed              guifg=NvimLightCyan                                 ctermfg=14
+ColorColumn                                guibg=NvimDarkGrey4           cterm=reverse
+Conceal              guifg=NvimDarkGrey4
+CurSearch            guifg=NvimDarkGrey1   guibg=NvimLightYellow         ctermfg=0 ctermbg=11
+CursorColumn                               guibg=NvimDarkGrey3
+CursorLine                                 guibg=NvimDarkGrey3
+DiffAdd              guifg=NvimLightGrey1  guibg=NvimDarkGreen           ctermfg=0 ctermbg=10
+DiffChange           guifg=NvimLightGrey1  guibg=NvimDarkGrey4
+DiffDelete           guifg=NvimLightRed                         gui=bold ctermfg=9 cterm=bold
+DiffText             guifg=NvimLightGrey1  guibg=NvimDarkCyan            ctermfg=0 ctermbg=14
+Directory            guifg=NvimLightCyan                                 ctermfg=14
+ErrorMsg             guifg=NvimLightRed                                  ctermfg=9
+FloatShadow                                guibg=NvimDarkGrey4           ctermbg=0 blend=80
+FloatShadowThrough                         guibg=NvimDarkGrey4           ctermbg=0 blend=100
+Folded               guifg=NvimLightGrey4  guibg=NvimDarkGrey1
+LineNr               guifg=NvimDarkGrey4
+MatchParen                                 guibg=NvimDarkGrey4  gui=bold cterm=bold,underline
+ModeMsg              guifg=NvimLightGreen                                ctermfg=10
+MoreMsg              guifg=NvimLightCyan                                 ctermfg=14
+NonText              guifg=NvimDarkGrey4
+NormalFloat                                guibg=NvimDarkGrey1
+OkMsg                guifg=NvimLightGreen                                ctermfg=10
+Pmenu                                      guibg=NvimDarkGrey3           cterm=reverse
+PmenuThumb                                 guibg=NvimDarkGrey4
+Question             guifg=NvimLightCyan                                 ctermfg=14
+QuickFixLine         guifg=NvimLightCyan                                 ctermfg=14
+RedrawDebugClear                           guibg=NvimDarkYellow          ctermfg=0 ctermbg=11
+RedrawDebugComposed                        guibg=NvimDarkGreen           ctermfg=0 ctermbg=10
+RedrawDebugRecompose                       guibg=NvimDarkRed             ctermfg=0 ctermbg=9
+Removed              guifg=NvimLightRed                                  ctermfg=9
+Search               guifg=NvimLightGrey1  guibg=NvimDarkYellow          ctermfg=0 ctermbg=11
+SignColumn           guifg=NvimDarkGrey4
+SpellBad             guisp=NvimLightRed    gui=undercurl                 cterm=undercurl
+SpellCap             guisp=NvimLightYellow gui=undercurl                 cterm=undercurl
+SpellLocal           guisp=NvimLightGreen  gui=undercurl                 cterm=undercurl
+SpellRare            guisp=NvimLightCyan   gui=undercurl                 cterm=undercurl
+StatusLine           guifg=NvimLightGrey2  guibg=NvimDarkGrey4           cterm=reverse
+StatusLineNC         guifg=NvimLightGrey3  guibg=NvimDarkGrey3           cterm=bold,underline
+Title                guifg=NvimLightGrey2                       gui=bold cterm=bold
+Visual                                     guibg=NvimDarkGrey4           ctermfg=0 ctermbg=15
+WarningMsg           guifg=NvimLightYellow                               ctermfg=11
+WinBar               guifg=NvimLightGrey4  guibg=NvimDarkGrey1  gui=bold cterm=bold
+WinBarNC             guifg=NvimLightGrey4  guibg=NvimDarkGrey1           cterm=bold
+Constant   guifg=NvimLightGrey2
+Operator   guifg=NvimLightGrey2
+PreProc    guifg=NvimLightGrey2
+Type       guifg=NvimLightGrey2
+Delimiter  guifg=NvimLightGrey2
+Comment    guifg=NvimLightGrey4
+String     guifg=NvimLightGreen                   ctermfg=10
+Identifier guifg=NvimLightBlue                    ctermfg=12
+Function   guifg=NvimLightCyan                    ctermfg=14
+Statement  guifg=NvimLightGrey2 gui=bold          cterm=bold
+Special    guifg=NvimLightCyan                    ctermfg=14
+Error      guifg=NvimLightGrey1 guibg=NvimDarkRed ctermfg=0 ctermbg=9
+Todo       guifg=NvimLightGrey2 gui=bold          cterm=bold
+DiagnosticError          guifg=NvimLightRed                      ctermfg=9
+DiagnosticWarn           guifg=NvimLightYellow                   ctermfg=11
+DiagnosticInfo           guifg=NvimLightCyan                     ctermfg=14
+DiagnosticHint           guifg=NvimLightBlue                     ctermfg=12
+DiagnosticOk             guifg=NvimLightGreen                    ctermfg=10
+DiagnosticUnderlineError guisp=NvimLightRed    gui=underline     cterm=underline
+DiagnosticUnderlineWarn  guisp=NvimLightYellow gui=underline     cterm=underline
+DiagnosticUnderlineInfo  guisp=NvimLightCyan   gui=underline     cterm=underline
+DiagnosticUnderlineHint  guisp=NvimLightBlue   gui=underline     cterm=underline
+DiagnosticUnderlineOk    guisp=NvimLightGreen  gui=underline     cterm=underline
+DiagnosticDeprecated     guisp=NvimLightRed    gui=strikethrough cterm=strikethrough
+@variable guifg=NvimLightGrey2
+Cursor            guifg=bg      guibg=fg
+CursorLineNr      gui=bold      cterm=bold
+PmenuMatch        gui=bold      cterm=bold
+PmenuMatchSel     gui=bold      cterm=bold
+PmenuSel          gui=reverse   cterm=reverse,underline blend=0
+RedrawDebugNormal gui=reverse   cterm=reverse
+TabLineSel        gui=bold      cterm=NONE
+TermCursor        gui=reverse   cterm=reverse
+Underlined        gui=underline cterm=underline
+@markup.strong        gui=bold          cterm=bold
+@markup.italic        gui=italic        cterm=italic
+@markup.strikethrough gui=strikethrough cterm=strikethrough
+@markup.underline     gui=underline     cterm=underline

@@ -7,6 +7,7 @@ import com.intellij.lang.javascript.JSTokenTypes
 import com.intellij.lang.javascript.psi.JSReferenceExpression
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.colors.EditorColorsManager
+import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.options.Scheme
 import com.intellij.psi.JavaTokenType
 import com.intellij.psi.PsiElement
@@ -16,18 +17,25 @@ import com.intellij.psi.util.elementType
 import dev.gipo.gruvboxmaterial.settings.GruvboxService
 import org.jetbrains.kotlin.lexer.KtTokens
 
+/** null and undefined; schemes that do not define it paint them like true and false. */
+val NULL_LITERAL: TextAttributesKey = TextAttributesKey.createTextAttributesKey("GRUVBOX_NULL", DefaultLanguageHighlighterColors.PREDEFINED_SYMBOL)
+
 /**
- * Paints null / true / false (and undefined) with the predefined-symbol purple: the languages lex them as keywords, so
- * the scheme alone cannot separate them from `if` or `return`. Leaf tokens only, no resolve, and only under our schemes.
+ * Paints null / true / false (and undefined) with the predefined-symbol colour, null and undefined through [NULL_LITERAL]:
+ * the languages lex them as keywords, so the scheme alone cannot separate them from `if` or `return`. Leaf tokens only,
+ * no resolve, and only under our schemes.
  */
 abstract class LiteralAnnotator : Annotator {
     protected abstract fun isLiteral(element: PsiElement, type: IElementType): Boolean
+
+    protected open fun isNull(type: IElementType): Boolean = false
 
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         if (element.firstChild != null) return
         val type = element.elementType ?: return
         if (!isLiteral(element, type) || !ourSchemeActive()) return
-        holder.newSilentAnnotation(HighlightSeverity.INFORMATION).textAttributes(DefaultLanguageHighlighterColors.PREDEFINED_SYMBOL).create()
+        val key = if (isNull(type)) NULL_LITERAL else DefaultLanguageHighlighterColors.PREDEFINED_SYMBOL
+        holder.newSilentAnnotation(HighlightSeverity.INFORMATION).textAttributes(key).create()
     }
 
     private fun ourSchemeActive(): Boolean {
@@ -39,11 +47,13 @@ abstract class LiteralAnnotator : Annotator {
 class JavaLiteralAnnotator : LiteralAnnotator() {
     private val literals = TokenSet.create(JavaTokenType.NULL_KEYWORD, JavaTokenType.TRUE_KEYWORD, JavaTokenType.FALSE_KEYWORD)
     override fun isLiteral(element: PsiElement, type: IElementType) = type in literals
+    override fun isNull(type: IElementType) = type == JavaTokenType.NULL_KEYWORD
 }
 
 class KotlinLiteralAnnotator : LiteralAnnotator() {
     private val literals = TokenSet.create(KtTokens.NULL_KEYWORD, KtTokens.TRUE_KEYWORD, KtTokens.FALSE_KEYWORD)
     override fun isLiteral(element: PsiElement, type: IElementType) = type in literals
+    override fun isNull(type: IElementType) = type == KtTokens.NULL_KEYWORD
 }
 
 class JavaScriptLiteralAnnotator : LiteralAnnotator() {
@@ -54,4 +64,6 @@ class JavaScriptLiteralAnnotator : LiteralAnnotator() {
     override fun isLiteral(element: PsiElement, type: IElementType) = type in literals ||
         type == JSTokenTypes.UNDEFINED_KEYWORD &&
         (element.parent as? JSReferenceExpression)?.let { it.qualifier == null } == true
+
+    override fun isNull(type: IElementType) = type == JSTokenTypes.NULL_KEYWORD || type == JSTokenTypes.UNDEFINED_KEYWORD
 }

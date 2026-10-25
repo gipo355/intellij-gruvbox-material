@@ -1967,6 +1967,11 @@
         <option name="FOREGROUND" value="d48da0"/>
       </value>
     </option>
+    <option name="KOTLIN_EXTENSION_FUNCTION_CALL">
+      <value>
+        <option name="FOREGROUND" value="a9b665"/>
+      </value>
+    </option>
     <option name="KOTLIN_FUNCTION_LITERAL_BRACES_AND_ARROW">
       <value>
         <option name="FOREGROUND" value="d4be98"/>
@@ -2287,7 +2292,37 @@
         <option name="FOREGROUND" value="89b482"/>
       </value>
     </option>
+    <option name="NG.BANANA_BINDING_ATTR_NAME">
+      <value>
+        <option name="FOREGROUND" value="e67d76"/>
+      </value>
+    </option>
+    <option name="NG.EVENT_BINDING_ATTR_NAME">
+      <value>
+        <option name="FOREGROUND" value="e67d76"/>
+      </value>
+    </option>
+    <option name="NG.PROPERTY_BINDING_ATTR_NAME">
+      <value>
+        <option name="FOREGROUND" value="e67d76"/>
+      </value>
+    </option>
+    <option name="NG.SCRIPT_DELIMITERS">
+      <value>
+        <option name="FOREGROUND" value="c4a67e"/>
+      </value>
+    </option>
     <option name="NG.SIGNAL">
+      <value>
+        <option name="FOREGROUND" value="a9b665"/>
+      </value>
+    </option>
+    <option name="NG.TEMPLATE_BINDINGS_ATTR_NAME">
+      <value>
+        <option name="FOREGROUND" value="e67d76"/>
+      </value>
+    </option>
+    <option name="NG.TEMPLATE_VARIABLE_ATTR_NAME">
       <value>
         <option name="FOREGROUND" value="a9b665"/>
       </value>
