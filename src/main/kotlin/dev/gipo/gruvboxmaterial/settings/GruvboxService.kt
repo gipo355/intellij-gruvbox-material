@@ -81,6 +81,7 @@ class GruvboxService : Disposable {
                 val keys = roles?.colors?.keys.orEmpty() + groups.highUiContrast[shipped.schemeFamily]?.keys.orEmpty()
                 schemeOverrides.applyColors(scheme, colorOverrides(directlyDefinedColors(scheme, keys), groups, base, variant, state.highUiContrast))
             }
+            if (state.hideCaretRow) schemeOverrides.applyColors(scheme, mapOf("CARET_ROW_COLOR" to scheme.defaultBackground))
         }
         if (hadOverrides || !schemeOverrides.isEmpty) refreshEditors(scheme)
     }

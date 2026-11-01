@@ -46,6 +46,7 @@ class GruvboxConfigurable : BoundConfigurable("Gruvbox Material") {
         }
         contrastRow.enabledIf(sameFamily(shipped))
         row { checkBox("High UI contrast").bindSelected(state::highUiContrast).comment("Brighter line numbers, caret line number and indent guides") }
+        row { checkBox("Hide caret line highlight").bindSelected(state::hideCaretRow).comment("The caret line takes the editor background; its line number stays marked") }
         if (styled != null) {
             val groups = service.palette.groups
             val (boldComment, italicComment) = styleComments(styled)

@@ -44,6 +44,10 @@ class GruvboxChipAction : DumbAwareAction() {
             state().highUiContrast = !state().highUiContrast
             service.applyAll()
         })
+        add(Choice("Hide caret line highlight", { state().hideCaretRow }) {
+            state().hideCaretRow = !state().hideCaretRow
+            service.applyScheme()
+        })
         val styled = service.schemeVariant()
         if (styled != null) {
             val groups = service.palette.groups

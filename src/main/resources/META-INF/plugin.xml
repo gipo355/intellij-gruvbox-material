@@ -47,6 +47,7 @@
             <li><b>Text contrast</b>: gruvbox-material's material, mix or original foreground; accents, greys and keyword colors follow the text. Default is material on dark, mix on light.
             Gruvbox Baby offers Baby (default), Original and Tuned.</li>
             <li><b>High UI contrast</b>: brighter line numbers, caret line number and indent guides.</li>
+            <li><b>Hide caret line highlight</b>: the caret line takes the editor background; its line number stays marked.</li>
             <li><b>Bold</b> and <b>Italic</b>: the palette family's bold and italic syntax. Off by default in material, on in baby.</li>
             <li><b>Readability</b>: quiet operators (grey instead of orange), keep the operator color whatever the keyword color, dim comments, soften doc comments,
             emphasize declarations (calls in the text color), italic comments, italic parameters,

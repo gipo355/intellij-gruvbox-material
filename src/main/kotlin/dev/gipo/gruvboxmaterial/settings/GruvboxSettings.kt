@@ -21,6 +21,7 @@ class GruvboxState : BaseState() {
     // Text contrast level id per palette family; a missing or unknown id follows the variant's default.
     var textContrasts by map<String, String>()
     var highUiContrast by property(false)
+    var hideCaretRow by property(false)
     var quietOperators by property(false)
     var keepOperatorColor by property(true)
     var dimComments by property(false)
